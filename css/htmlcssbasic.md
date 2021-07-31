@@ -59,7 +59,7 @@ h1 {
         - Dùng top right left bottom để căn
         - Đè lên các thuộc tính khác
     - Absolute (Tuyệt đối)
-        - Phụ thuộc vào thẻ cha gần nhất có thuộc tính là position để làm gốc toạ độ
+        - Phụ thuộc vào thẻ cha gần nhất có thuộc tính là position để làm gốc toạ độ (Chạy bên trong position cha)
     - Fixed: Giữ nguyên 1 chỗ thường dùng làm menu (Phụ thuộc vào khung trình duyệt)
     - Sticky (Bám dính cũng phụ thuộc vào khung trình duyệt, ít được sử dụng)
 ## BEM
@@ -74,3 +74,27 @@ h1 {
 
     - .block--modifier
     - .block__element--modifier
+
+- Animation
+    ```css 
+    @keyframes headerNotifyGrowth {
+    from {
+        opacity: 0;
+        transform: scale(0);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+    ```
+    // Sử dụng:
+    ```css
+    animation: headerNotifyGrowth ease-in 0.25s;
+    ```
+    - will-change: Nói cho trình duyệt biết thuộc tính gì sẽ thay đổi (Tối ưu chuyển động hơn)
+    ```css
+    will-change: opacity,transform
+    ```
+
+    
+

@@ -26,3 +26,42 @@
 .header__navbar-item--has-qr:hover .header__qr {
     /* Css được viết trong đc apply vào header__qr khi hover vào cha của nó */
 }
+```
+- object-fit: Giống thuộc tính background size 
+- Tạo ra mũi tên góc 
+```css
+border-color: transparent transparent var(--white-color) transparent;
+```
+
+
+## Base Model 
+- Tạo ra lớp phủ trên trang web 
+    - Tạo ra modal để chiếm hết màn hình
+    - Tạo ra lớp overlay để hiển thị lớp mờ mờ có thể nhìn xuyên qua 
+- Thuộc tính z-index dùng trong trường hợp nhiều tầng đè lên nhau. Ông nào có z-index cao nhất thì lên trên 
+
+## Phân tích giao diện web 
+- Phân tích
+    - Header
+    - Slider
+    - Content
+        - About
+        - Tour
+        - Contact
+        - Image
+        - Footer
+- Dựng base
+- Xây dựng theo từng phần phân tích
+- Hoàn thiện
+ ### Phân biệt và gọi tên thành phần (Phân tích)
+ - Những thành phần thường gặp trên giao diện website:
+    - Header(Đầu trang)
+    - Navication (Điều hướng)
+    - Beadcrumb (Chỉ cho đang ở đâu trên website)
+    ![](img/beadcrum.png)
+    - Sidebar (Các thanh hiển thị ở bên trái hoặc phải website )
+    ![](img/sidebar.png)
+    - Slider 
+    - Banner
+    - Content
+    - Footer
