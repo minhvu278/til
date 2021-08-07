@@ -78,7 +78,11 @@ VD:
     ```php
         Route::middleware(['auth'])->group(function (){
             Route::get('/admin', [LoginController::class, 'index'])->name('admin')
+
         }
     ```
+
+## Bài 9: Menu tạo bảng 
+- Dùng migration để tạo bảng menu
 
 

@@ -26,3 +26,11 @@ div.col
 - Để nội dụng của thẻ dài đến đâu thì chỉ dài đến đấy thì cho display = inline-block
 - Khi 1 thẻ div có tính chất khối cho float vào thì nó sẽ mất đi tính kế thừa (mặc định thẻ div sẽ kế thừa hết chiều ngang mà nó có thể chiếm)
 - padding-top: 50%  : Chiếm 50% chiều ngang của chính nó
+- letter-spacing: 4px  : Khoảng cách cac chữ cách nhau 4px 
+- Thêm !important thì nó sẽ có sẽ có độ ưu tiên nhất
+    vd:
+    ```css 
+    .text-white {
+        color: #fff !important // Thẻ nào đặt class là text-color sẽ được đổi thành màu trắng 
+    }
+    ```
