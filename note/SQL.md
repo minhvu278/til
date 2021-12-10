@@ -123,3 +123,24 @@ SELECT * FROM
     SELECT giaovien_id FROM NguoiThan 
     Where Sex < 'Nu'
     ```
+
+## Select into
+- Dùng để tạo bảng mới từ dữ liệu đã có sẵn (Dùng để backup là chủ yếu)
+
+    ```
+    SELECT * INTO Vu
+    FROM GiaoVien
+    ```
+    - Lấy hết dữ liệu của bảng GiaoVien đưa vào Vu
+
+## Into select 
+- Coppy dữ liệu từ 1 bảng đã tồn tại 
+
+
+## Truy vấn lồng 
+- Truy vấn lồng trong FROM
+    ```
+    SELECT * FROM 
+    GiaoVien, (SELECT * FROM DeTai) AS DT
+    ```
+    - Phải dùng AS để có thể tái sử dụng được  
