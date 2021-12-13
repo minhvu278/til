@@ -144,3 +144,95 @@ SELECT * FROM
     GiaoVien, (SELECT * FROM DeTai) AS DT
     ```
     - Phải dùng AS để có thể tái sử dụng được  
+
+## Group by
+- Agreeate Function
+    - AVG(): Tính trung bình 
+    - FIRST(): Phần tử đầu tiên
+    - LAST(): Phần tử cuối cùng 
+    - MAX(): Là phần tử lớn nhất theo số 
+    - MIN(): Là phần tử nhỏ nhất theo số 
+    - ROUND(): Làm tròn
+    - SUM(): Tổng 
+
+- String function 
+    - CHARINDEX: Tìm 1 phần tử có tồn tại trong chuỗi không 
+    - CONCAT(): Cắt chuỗi 
+    - LEFT(): Lấy bên trái bao nhiêu phần tử
+    - LEN/LENGTH(): Độ dài 
+    - LTRIM(): Cắt khoảng trắng bên trái
+    - RTRIM(): Cắt khoảng trắng bên phải
+    - SUBSTRING(): Lấy ra chuỗi con
+
+- Having giống như where của select nhưng giành cho group by 
+
+## View 
+- View là 1 bảng ảo
+- Tạo view từ câu truy vấn
+    ```
+    CREATE VIEW testView as  -- Dữ liệu bên trong bảng view sẽ giống bảng giáo viên 
+    SELECT * FROM GiaoVien
+    ```
+- Khi thay đổi giá trị bất kì ở cột nào của bảng GiaoVien thì bảng testView cũng thay đổi theo 
+- Để create được tên bảng có dấu và dấu cách - cho vào trong []
+
+- Sửa view
+    ```
+    ALERT VIEW testView as 
+    SELECT HoTen FROM GiaoVien
+    ```
+- Xóa view
+    ``` 
+    DROP VIEW testView
+    ```
+
+## Check 
+- Cho nằm trong khoảng điều kiện mong muốn
+    - VD: 
+        ```
+        CREATE TABLE TestCheck (
+            Id int 
+            Luong int CHECK(Luong > 2000 AND LUONG < 5000)
+        )
+        ```
+
+## Indexes (Đánh index)
+- Tăng tốc độ tìm kiếm (Chậm tốc độ thêm xóa sửa)
+    ```
+    CREATE INDEX IndexName ON NguoiThan(giaovien_id)
+
+    SELECT * FROM NguoiThan
+    WHERE giaovien_id = '01' AND Ten = 'Vu Do'
+    ```
+
+## Declare và sử dụng biến
+- Biến bắt đầu bằng kí hiệu @
+- Tạo ra biến & tái sử dụng lại 
+    ```
+    DECLARE @MinSalaryMaGv CHAR(10)
+
+    SELECT @MinSalaryMaGv = MaGv FROM GiaoVien WHERE Luong = (SELECT Min(Luong) FROM GiaoVien)
+
+    SELECT YEAR(GETDATE()) - YEAR(NgSinh) FROM GiaoVien 
+    WHERE MaGv = @MinSalaryMaGv
+    ```
+
+- 1 số kiểu khởi tạo dữ liệu 
+    ```
+    DECLARE @i INT
+
+    -- Khởi tạo với giá trị mặc định 
+    DECLARE @j INT = 0
+
+    -- Set dữ liệu cho biến 
+    SET @i = @i + 1
+    SET @i += 1
+    SET @j *= @i
+
+    -- Set thông qua câu SELECT 
+    DECLARE @MaxLuong int 
+    --
+
+    SELECT @MaxLuong = MAX(Luong) FROM GiaoVien 
+    ```
+
