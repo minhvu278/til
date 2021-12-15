@@ -236,3 +236,77 @@ SELECT * FROM
     SELECT @MaxLuong = MAX(Luong) FROM GiaoVien 
     ```
 
+## Store Procedure 
+- Tái sử dụng code 
+- Tạo bản sao để lần sau k cần chạy lại từ đầu ( Kiểu như cache)
+- Giới hạn quyền user nào đc sử dụng user nào k 
+- Cấu trúc
+    ```
+    CREATE PROC <Tên store>  
+        [Param nếu có]
+    AS
+    BEGIN 
+        <Code xử lý>
+    END
+
+    -- VD
+    CREATE PROC StoreTest  
+        @MaGv NVARCHAR(10)
+    AS
+    BEGIN 
+        SELECT * FROM GiaoVien WHERE MaGv = @MaGv 
+    END
+
+    -- C1:
+    EXEC StoreTest @MaGv = N'VuDo'
+    --C2:
+    EXEC StoreTest N'VuDo'
+
+## Function
+- Function 
+    ```
+    -- Tạo func k có param
+    CREATE FUNCTION UF_SelectAllGiaoVien()
+    RETURN TABLE
+    AS RETURN SELECT * FROM GiaoVien
+
+    SELECT * FROM UF_SelectAllGiaoVien()
+
+    -- Tạo function  có parameter
+    CREATE FUNCTION UF_SelectLuongGiaoVien(@MaGv char(10))
+    RETURN int
+    AS
+    BEGIN
+        DECLARE @Luong int
+        SELECT @Luong = Luong FROM GiaoVien WHERE MaGv = @MaGv
+        RETURN @Luong
+    END
+
+    SELECT UF_SelectLuongGiaoVien(MaGv) FROM GiaoVien
+
+    ```
+
+## Trigger 
+- Can thiệp vào các sự kiện thêm sửa xóa
+- Mặc định trong trigger sẽ có 2 bảng là inserted (Chứa những trường đã insert | update vào bảng) & deleted (Chứa những trường đã bị xóa khỏi bảng )
+    ```
+    CREATE TRIGGER UTG_ InsertGiaoVien
+    ON GiaoVien 
+    FOR INSERT, UPDATE 
+    AS
+    BEGIN
+        ROLLBACK TRAN -- Hủy bỏ, thay đổi, cập nhật bảng 
+        PRINT 'Trigger2'
+    END
+
+## Transaction 
+- Tran 
+    ``` 
+    BEGIN TRANSACTION 
+    DELETE GiaoVien WHERE TEN = 'VuDo'
+    ROLLBACK - Hủy bỏ TRANSACTION
+
+    BEGIN TRANSACTION 
+    DELETE GiaoVien WHERE TEN = 'VuDo'
+    COMMIT - Chấp nhận TRANSACTION
+
