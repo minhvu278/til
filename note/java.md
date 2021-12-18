@@ -137,3 +137,60 @@ jsp servlet
     }
 
     - Gặp case đúng thì nó sẽ break luôn chứ không thực hiện các case sau
+
+
+## Những khái niệm cơ bản của lập trình hướng đối tượng 
+- Object (Đối tượng)
+    - Các vật thể như: COn người, xe máy, nhà cửa, ... được gọi là đối tượng 
+    - Đối tượng gồm có 2 thông tin là: Thuộc tính và phương thức 
+        - Thuộc tính: Là thông tin của đối tượng (Thông tin, chiều cao,...)
+        - Phương thức: Là những hành động mà đối tượng đó có thể thực hiện (Ăn, ngủ, chơi,...)
+
+- Class 
+    - Là định nghĩa của đối tượng, xây dựng lớp để tạo ra những đối tượng khác nhau 
+    VD: 
+        Xe máy, xe đạp, xe oto đều thuộc class là xe 
+
+    ```
+    VD: In ra tên tuổi chiều cao 
+    - Tạo ra 2 class là HelloWorld và ConNguoi
+
+    public class HelloWorld {
+        public static void main(String[] args) {
+            Person a = new Person(); - Person() là class gọi ở file khác
+            a.name = "Vu";
+            a.age = 21;
+            a.height = 1.6f
+
+            System.out.println(a.name)
+            System.out.println(a.age)
+            System.out.println(a.height)
+        }
+    }
+    --
+    
+    public class Persion{
+        String name;
+        int age;
+        float height;
+    }
+
+    -- Có thể dùng mảng và vòng lặp
+    public class HelloWorld {
+        public static void main(String[] args) {
+            Persion[] a = new Person[2] - Khoi tao person gom 2 phan tu
+
+            for(int i = 0; i < a.length; i++){
+                a[i] = new Persion();
+                a[i].name = "Vu " + i;
+                a[i].age = i;
+                a[i].height = 1.6f
+            }
+
+            for(int i = 0; i < a.length; i++){
+                System.out.println(a[i].name)
+                System.out.println(a[i].age)
+                System.out.println(a[i].height)
+            }
+        }
+    }
