@@ -194,3 +194,95 @@ jsp servlet
             }
         }
     }
+
+## Class
+- Hàm có void thì không cần return, còn không có thì phải return 
+    ```
+    public class Person {
+        public String name;
+        public int age;
+
+        public void eat(String foodName) {
+            System.out.println(name + "is eating" + foodName);
+        }
+
+        public int getAge() {
+            return age
+        }
+    }
+    ```
+- This 
+    ```
+    public class Person {
+        public String name;
+        public int age;
+
+        public Person(String name, int age) {
+            this.name = name; -- Từ khóa this ở đây hiểu như là Person.name (Person của class Person)
+            this.age = age;
+        }
+
+        public void eat(String foodName) {
+            System.out.println(name + "is eating" + foodName);
+        }
+
+        public int getAge() {
+            return age
+        }
+    }
+
+    -- Bên class gọi chỉ cần
+    public class HelloWorld {
+        public static void main (String[] args) {
+            Person a = new Person("Vu", 23)
+
+            a.eat("Rice");
+            int age = a.getAge();
+            System.out.println("He is" + age);
+        }
+    }
+
+- Package: Coi như là 1 folder 
+    ```
+    package mypack; -- Ví dụ tên folder là mypack  
+    ```
+
+- File nào muốn sử dụng thì cần import vào 
+    ```
+    import mypack.Person
+    ```
+
+## Phạm vi truy cập của biến 
+- Private : Chỉ truy cập được trong nội bộ của 
+- Default : Mặc định không ghi gì sẽ ở dạng default, phạm vi truy cập nằm trong nội bộ package
+- Protected: Phạm vi cả trong và ngoài package nhưng phải thông qua tính kế thừa 
+- Public: Có thể truy cập ở bất cứ đâu
+
+## Static 
+- Có thể sử dụng trực tiếp mà không cần đến đối tượng
+- Chỉ có static mới có thể truy cập trực tiếp thông qua tên class 
+
+## This 
+- Ánh xạ đối tượng khi cần thực hiện 
+- Có thể gọi được phương thức của lớp hiện tại 
+    ``` 
+    public class Person{
+        public String name;
+
+        public Person(String name) {
+            this.name = name;
+            this.getInfo(); -- Có thể gọi được phương thức getInfo
+        }
+
+        public void getInfo(){
+            System.out.println("Name" + this.name)
+        }
+    }
+    ```
+
+## Kế thừa 
+- Kế thừa lại lớp cha qua extend
+- Từ khóa super mục đích là để truy cập vào các phương thức của lớp cha
+
+- Getter & setter 
+
