@@ -284,5 +284,129 @@ jsp servlet
 - Kế thừa lại lớp cha qua extend
 - Từ khóa super mục đích là để truy cập vào các phương thức của lớp cha
 
-- Getter & setter 
+## Getter & setter 
+- Thường sử dụng cho private & public
+- Setter: Set gía trị 
+    ```
+    VD: Set tuổi trong khoảng từ 0 -> 100
 
+    public void setAge(int age){
+        if(age >= 0 && age <= 100);
+            this.age = age; -- Nếu điều kiện đúng thì mới cho set age 
+    }
+
+    public int getAge(){
+        return this.age;
+    }
+    ```
+
+## Overriding & Overloading 
+- Overriding: Thăng con ghi đè thằng cha 
+    - Nếu muốn thằng con k ghi đè được thằng cha thì thêm từ khóa final vào trước kiểu trả về của thằng cha 
+
+- Overloading: Nhiều phương thức trong 1 lớp có chung tên nhưng khác tham số truyền vào
+    ```
+    VD: Với setter cho thuộc tính age, có thể người dùng truyền tham số age kiểu int, byte, long. Ta phải Overloading nhiều phương thức cho thuộc tính age để đảm bảo
+
+    public void setAge(int age){
+        if(age >= 0 && age <= 100);
+            this.age = age; 
+    }
+
+    public void setAge(byte age){
+        if(age >= 0 && age <= 100);
+            this.age = age; 
+    }
+
+    public void setAge(long age){
+        if(age >= 0 && age <= 100);
+            this.age = age; 
+    }
+    ```
+
+## Trừu tượng 
+- VD: Tạo tính năng gửi tin nhắn, ta chỉ cần hiểu người dùng viết tin nhắn rồi nhấn gửi đi 
+- Như vậy tính trừu tượng che giấu thông tin thực hiện từ người dùng , họ chỉ biết tính năng được cung cấp (Chỉ biết thông tin đối tượng thay vì sử dụng nó như nào)
+- Có thể hiểu nôm na là trừu tượng là sẽ hình dung ra tính năng ấy sẽ hoạt động như nào rồi tạo ra khung sườn(Chưa code)
+
+## Trừu trượng trong java
+- Là lớp được khai báo mà không thể tạo ra đối tượng từ lớp đó. Ta sẽ tạo lớp con kế thừa lớp trừu tượng 
+- Để tạo lớp trừu tượng ta dùng từ khóa abstract trước từ khóa class 
+    ```
+    public abstract class Person {
+
+    }
+    ```
+    - Khi đã đặt là abstract thì sẽ không thể tạo instance cho class đó nữa 
+    - Chỉ có những lớp kế thừa mới có thể sử dung được
+
+- Phương thức trừu tượng 
+    - Muốn sử dụng được thì phải định nghĩa lại ở trong phương thức kế thừa 
+    ```
+    public abstract Object demo();
+
+    -- Override
+    public Object demo(){
+        Student other = new Student(this.name, this.age)
+        return other;
+    }
+
+## Interface 
+- Đặc điểm : 
+    - Không thể khởi tạo nên không có phương thức khởi tạo 
+    - Tất cả các phương thức trong interface luôn ở dạng public abstract mà k cần khai báo 
+    - Các thuộc tính trong interface luôn ở dạng public static final mà k cần khai báo, yêu cầu có giá trị 
+    - Chỉ có thể extends 1 class duy nhất nhưng có thể implement bao nhiêu interface cũng được
+
+    ```
+    VD: Tạo ra interface IStudy dành riêng cho class student 
+
+    interface IStudy { -- Nên đặt chữ I đằng trước để nhận biết là interface
+        void study();
+    }
+
+    -- Cho class Student kế thừa
+    public class Student extends Person implements IStudy{ -- Vừa kế thừa Person vừa implement IStudy 
+
+    }
+    ```
+- Nếu thằng cha implement 1 interface nào đó thì thằng con cung phải override lại cả 
+
+## Hàm main trong java 
+- Ý nghĩa của từng cú pháp trong phương thức main 
+    - public : Phải để quyền truy cập ở dạng public để JRE ở bên ngoài có thể truy cập được 
+    - static: Khi JRE bắt đầu chưa có đối tượng nào được khởi tạo. Vì vậy ta để phương thức ở dạng static để JVM có thể load class vào bộ nhớ và có thể gọi phương thức 
+    - void: Phương thức main bắt buộc là void
+
+## Try catch 
+- Try catch có nhiệm vụ bắt lỗi mà thực tế có thể xảy ra để xử lý sao cho trương trình thân thiện với người dùng hơn 
+- Cú pháp 
+    ```
+    try {
+        // những khối lệnh phát sinh lỗi 
+    } catch(Exception e) { // Tham số e là tên lỗi muốn xử lý 
+        // Chương trình thực hiện khi gặp lỗi trên 
+    }
+
+## 4 tính chất của hướng đối tượng 
+- Tính đóng gói
+- Tính trừu tượng
+- Tính kế thừa 
+- Tính đa hình
+
+- Ý nghĩa của mỗi tính chất
+    - Tính đóng gói 
+        - Tính chất này đảm bảo sự bảo mật toàn vẹn của đối tượng trong java
+        - Nhằm bảo vệ đối tượng không bị truy cập từ code bên ngoài vào
+        - Việc cho phép truy cập các giá trị của đối tượng tùy theo sự đồng ý của người viết ra đối tượng đó 
+
+    - Tính trừu trượng
+        - Khi code của mình cho người khác sử dụng mà k muốn người khác sử dụng sai cái mình mong muốn 
+        
+    - Tính kế thừa
+        - Cho phép cải tiến chương trình bằng cách kế thừa lại lớp cũ và phát triển những tính năng mới 
+        - Lớp con kế thừa lớp cha có thể sử dụng được các thuộc tính và phương thức của lớp cha mà không cần định nghĩa lại
+
+    - Tính đa hình 
+        - Luôn tồn tại song song với tính kế thừa 
+        - Tính đa hình là kết quả tất yếu khi ta phát triển khả năng kế thừa và nâng cấp chương trình 
