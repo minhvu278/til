@@ -259,7 +259,7 @@ jsp servlet
 - Public: Có thể truy cập ở bất cứ đâu
 
 ## Static 
-- Có thể sử dụng trực tiếp mà không cần đến đối tượng
+- Có thể gọi đến mà không cần khởi tạo đối tượng (Bình thường thì sẽ phải new gì gì đó)
 - Chỉ có static mới có thể truy cập trực tiếp thông qua tên class 
 
 ## This 
@@ -410,3 +410,33 @@ jsp servlet
     - Tính đa hình 
         - Luôn tồn tại song song với tính kế thừa 
         - Tính đa hình là kết quả tất yếu khi ta phát triển khả năng kế thừa và nâng cấp chương trình 
+
+
+## Note
+- Để nhập được input trong java thì phải gọi đến class Scanner 
+- System out : In ra màn hình
+- System in : Nhập vào
+- Gõ chuỗi kí tự : scanner.nextLine();
+- Tạo đường dẫn tới file nào đó sử dụng class Path
+    ```
+    Path path = Path.of("Data.txt")
+    ```
+
+    - Nếu k có Path.of ta có thể sử dụng Paths.get()
+
+    - Load file
+    ```
+    Files.readAllLines(path);
+    ```
+
+    - Gọi sẽ trả dữ liệu vào 1 object có kiểu là list string 
+    ```
+    List<String> data_list = Files.readAllLines(path);
+    ```
+
+    - Chuyển kiểu 
+    ```
+    String [] data = idol_data.split(";")
+    ```
+
+- constrains() : Trả về true hoặc false 

@@ -62,7 +62,7 @@ ALERT TABLE HocSinh ADD NgaySinh Date
 
 
     -- Tạo khóa ngoại sau khi tạo bảng 
-    ALERT TABLE GiaoVien ADD CONSTRAINT FK_GV FOREIGN KEY(BoMon_id) REFERENCES BoMon(Id)
+    ALTER TABLE GiaoVien ADD CONSTRAINT FK_GV FOREIGN KEY(BoMon_id) REFERENCES BoMon(Id)
     ```
 
 - Hủy khóa 
@@ -88,19 +88,19 @@ ALERT TABLE HocSinh ADD NgaySinh Date
 
 ## Inner join 
 - Kết hợp 2 bảng lại & lấy ra các trường thỏa mãn điều kiện 
-```
--- Inner join cũ 
+    ```
+    -- Inner join cũ 
 
-SELECT * FROM
-    GiaoVien inner join Bomon (-- Có thể viết tắt là join thay vì inner join)
-    ON Bomon.id = GiaoVien.bomon_id
+    SELECT * FROM
+        GiaoVien inner join Bomon (-- Có thể viết tắt là join thay vì inner join)
+        ON Bomon.id = GiaoVien.bomon_id
 
---Inner join mới
+    --Inner join mới
 
-SELECT * FROM
-    GiaoVien,Bomon
-    WHERE Bomon.id = GiaoVien.bomon_id
-```
+    SELECT * FROM
+        GiaoVien,Bomon
+        WHERE Bomon.id = GiaoVien.bomon_id
+    ```
 
 ## Full outer join
 - Gom 2 bảng lại (Giống như join) theo điều kiện, bên nào không có dữ liệu thì để null 
@@ -123,6 +123,10 @@ SELECT * FROM
     SELECT giaovien_id FROM NguoiThan 
     Where Sex < 'Nu'
     ```
+
+## Select *
+- Lấy tất cả thông tin của 1 bảng 
+    SELECT GiaoVien.*
 
 ## Select into
 - Dùng để tạo bảng mới từ dữ liệu đã có sẵn (Dùng để backup là chủ yếu)
@@ -310,3 +314,5 @@ SELECT * FROM
     DELETE GiaoVien WHERE TEN = 'VuDo'
     COMMIT - Chấp nhận TRANSACTION
 
+## Note
+- Lấy ra chỉ duy nhất 1 cái dùng unique hoặc distinct ( Có thể dùng group by)
