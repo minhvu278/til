@@ -440,3 +440,13 @@ jsp servlet
     ```
 
 - constrains() : Trả về true hoặc false 
+
+
+## Annotation
+- @PostContructor : Giống như hàm dựng, vừa vào sẽ chạy luôn
+
+
+## String 
+
+### Đối tượng string
+- 

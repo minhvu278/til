@@ -316,3 +316,9 @@ ALERT TABLE HocSinh ADD NgaySinh Date
 
 ## Note
 - Lấy ra chỉ duy nhất 1 cái dùng unique hoặc distinct ( Có thể dùng group by)
+
+- Đổi -> gõ được tiếng việt
+    ```
+    ALTER TABLE categories MODIFY COLUMN name VARCHAR(255)
+    CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
+    ```

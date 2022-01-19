@@ -90,7 +90,12 @@
 - HttpSession : là 1 interface trong Servlet giúp lưu thông tin người dùng qua servlet khác nhau 
     ```
     HttpSession session = request.getSession();
+        -- getSession: Sẽ tạo ra 1 session mới nếu trên serve chưa có hoặc đọc lại nếu trên serve đã có 
     ```
+- Cách hoạt động của session 
+    - Set id vào cookie để nhận dạng
+    - Set id vào 1 trường ẩn trong form (Đặt type="hidden")
+    - Trên url : VD: http://minhvu278.com/file.html;sessionid=1334;
 
 ## Filter 
 - Cũng có 3 hàm init, doFilter, destroy
@@ -110,3 +115,24 @@
     ```
     @WebFilter(urlPatterns = {"/*"}) -- Mọi req gọi tới đều phải đi qua filter 
     ```
+
+## Trả về trang error
+- Cấu hình trong web.xml
+    ```
+    <error-page>
+        <error-code>404</error-code>
+        <location>/handle-error</location> -- Trang hien thi loi tra ve
+    </error-page>
+
+## Servlet context 
+- Lấy đối tượng servlet context từ class cha
+
+## Servlet dispatcher
+- Phân phối request đến các nguồn tài nguyên khác 
+- 2 phương thức chính là forward() và include()
+    - forward(): Khi request gửi đến servlet 1 -> forward sang servlet 2 và từ servlet 2 trả về trực tiếp 
+    - include(): Khi request gửi đến servlet 1 -> include sang servlet 2 và từ servlet 2 trả về cho servlet 1 rồi mới respose  
+
+## Khái niệm về Principal và Role 
+- Role: Là tập hợp các quyền(Permission) đối với 1 ứng dụng
+- Principal có thể tạm hiểu là 1 chủ thể sau khi đăng nhập họ có thể làm điều gì đó trong hệ thống (Phụ thuộc vào phân quyền)

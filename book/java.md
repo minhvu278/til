@@ -10,4 +10,31 @@
     - Thay đổi nền tảng máy tính 
     - Áp lực để thay đổi
     - Giới thiệu các tính năng cốt lõi mới của java 8 & 9z
-    
+
+- Big story
+    - Java 8 thay đổi sâu sắc nhất (Java 9 thêm nhiều tính năng quan trọng nhưng k sâu sắc ).
+    - Những thay đổi cho phép viết code dễ dàng hơn
+        ```
+        VD: Thay vì viết mã dài dòng 
+
+        Collections.sort(inventory, new Comparator<Apple>() {
+            public int compare(Apple a1, Apple a2){
+                return a1.getWeight().compareTo(a2.getWeight());
+            }
+        });
+
+        -- Có thể viết ngắn gọn bằng Java 8
+        inventory.sort(comparing(Apple::getWeight));
+        ```
+
+    - Java 8 cung cấp API mới (gọi là luồng) 
+
+- Kiem tra port dang chay   
+    lsof -i tcp:8080
+
+
+## Package
+- Dao: Kết nối với DB
+- Entity: Map với DB (Chỉ đúng = với 1 table trong MySql)
+- Service: Tương tác với nhiều Dao 
+- Dto: Nếu entity k map đươc thì sử dụng Dto
