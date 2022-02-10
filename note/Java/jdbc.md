@@ -119,3 +119,106 @@
 - Commit & rollback 
     - Khi tất cả các transaction success thì lúc đó ta sẽ commit tất cả dữ liệu (Khi commit thì dữ liệu mới được ghi xuống DB)
     - Rollback khi 1 trong những cái success mà bị fails thì sẽ không cho commit & sẽ revert lại all 
+
+# Note
+
+## Phân trang
+- Sử dụng jquery twbspagination 
+- Cần ul 
+    ```
+    <ul class="pagination" id="pagination"></ul>
+    ```
+- Script 
+    ```
+    <script type="text/javascript">
+    $(function () {
+        window.pagObj = $('#pagination').twbsPagination({
+            totalPages: 35, // Tổng số trang 
+            visiblePages: 10, // Muốn hiển thị bao nhiêu trang 
+            startPage: 1, // Bắt đầu từ trang số mấy 
+            onPageClick: function (event, page) {
+                console.info(page + ' (from options)');
+            }
+        }).on('page', function (event, page) {
+            console.info(page + ' (from event listening)');
+        });
+    });
+    </script>   
+    ```
+
+- Tạo fillAll() trong INewDAO 
+    - NewDao dùng select * from news 
+- Set lại các trường trong NewsMapper
+- Vì tất cả các bài viết, thể loại, bình luận đều trả về 1 list và chỉ khác nhau model  `List<Model>` vì thế nên ta sẽ viết vào hàm chụng  (Viết vào AbstractModel)
+    - Khai báo list model bên trong abstract 
+        ```
+        public class AbstractModel<T> {
+            private List<T> listResult = new ArrayList<>();
+        }
+        ```
+    - Để biết nó là model nào thì ta cần vào model đó và truyền vào 
+        ```
+        public class NewModel extends AbstractModel<NewModel>
+        ```
+- Luôn có biến model trả từ controller ra view và cũng từ view vào 
+    - Ví dụ muốn đẩy dữ liệu từ controller ra view 
+        ```
+        NewModel model = new NewModel(); // Là mắt xích trung gian giao tiếp giữa controller và view 
+        // Khi có NewModel rồi thì ta cần set list cho nó
+        model.setListResult(newService.fillAll());
+        request.setAttribute("model", model);
+        ```
+- Vì tất cả đều có điểm chung là `model` nên ta sẽ tạo ra 1 pakage constant 
+    ```
+    public class SystemConstant {
+        public static final String MODEL = "model";
+    }
+    ```
+    - Gọi bên controller
+        ```
+        request.setAttribute(SystemConstant.MODEL, model);
+        ```
+    - Để hiển thị danh sách ra ngoài thì trong jstl sử dụng `<c:forEach>` 
+
+- Tạo ra 3 thuộc tính chung `page`, `maxPageItem`, `totalPage` 
+- Bấm vào trang nào thì nhảy sang trang đó thì ta cần cho vào `<form>` 
+    ```
+    <form action="<c:url value='/admin-new' />" id="formSubmit" method="get">
+    ```
+    - Và để submit được thì trong phần xử lý jquery thì ta cần 
+        ```
+        onPageClick: function (event, page) {
+            $('#formSubmit').submit();
+        }
+        ```
+        - Khi submit form thì ta sẽ gửi id lên (gửi `page` lên)
+        - Để gửi từ view vể controller cần tạo 1 thẻ input 
+            ```
+                <input type="hidden" id="page">
+            ```
+
+            ```
+                onPageClick: function (event, page) {
+                    $('#page').val(page);
+                    $('#formSubmit').submit();
+                }
+            ```
+        - Và để get page ra thì ta tạo 1 biến `currentPage`
+            ```
+            <script type="text/javascript">
+            var currentPage = $(model.page)
+            $(function () {
+                window.pagObj = $('#pagination').twbsPagination({
+                    totalPages: 10, 
+                    visiblePages: 5, 
+                    startPage: currentPage, 
+                    onPageClick: function (event, page) {
+                    $('#page').val(page);
+                    $('#formSubmit').submit();
+                }
+                });
+            });
+            </script>   
+            ```
+            
+

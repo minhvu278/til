@@ -126,4 +126,5 @@
     <form action="/my-context-path/mypath/abc.html"  method="POST">
     ```
 
-
+## Sử dụng Spring Boot, Apache Titles, JSP
+- Apache Titles giúp định nghĩa ra 1 khuôn mẫu để ghép các phần lại với nhau (Dễ hiểu hơn là nó giống như cắt giao diện)
