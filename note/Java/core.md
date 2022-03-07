@@ -695,3 +695,104 @@
         System.out.println(setCityCopy);
     }
     ```
+
+## SortedMap
+- Khác hơn ở Map là các entry có trong sortedMap được sắp xếp tăng dần theo khoá 
+
+## LinkedList
+- Các phần tử trong linkedList được sắp xếp theo thứ tự và có thể có giá trị giống nhau 
+- Tạo mới 1 LinkedList 
+    ```
+    public static void main(String[] args) {
+        // khai báo 1 danh sách liên kết có tên là linkedList
+        // có kiểu là Integer 
+        LinkedList<Integer> linkedList = new LinkedList<>();
+    }
+    ```
+
+## ArrayList
+- Cũng khá giống với LinkedList
+    ```
+    public static void main(String[] args) {
+        // khai báo 1 ArrayList có tên là arrListName
+        // có kiểu là String và có 10 phần tử
+        ArrayList<String> arrListName = new ArrayList<>(10);
+    }
+    ```
+## Khi nào nên dùng ArrayList và LinkedList
+- Sử dụng ArrayList nhiều hơn khi cần truy xuất phần tử 
+- Sử dụng LinkedList khi cần cập nhật và xoá phần tử 
+
+## HashSet 
+- Là class phổ biến nhất của Set nên nó có vài điểm tương đồng với Set 
+- Thứ tự phần tử trong `HashSet` không dựa vào lúc thêm vào và giá trị của phần tử là duy nhất 
+
+- Initial capacity và Load factor trong HashSet
+    - Note sau
+- Tạo mới 1 HashSet
+    ```
+    public static void main(String[] args) {
+        // khai báo 1 HashSet có tên là hashSetInt
+        // có kiểu là Integer 
+        HashSet<Integer> hashSetInt = new HashSet<>();
+            
+        // khai báo 1 Hashset có kích thước khởi tạo = 32
+        HashSet<Character> hashSetChar = new HashSet<>(32);
+            
+        // khai báo 1 HashSet có kích thước khởi tạo = 16
+        // và yếu tố tải = 0.75f (mặc định)
+        HashSet<String> hashSetString = new HashSet<>(16, 0.75f);
+            
+        // khai báo 1 HashSet được tạo thành từ 1 Collection khác
+        HashSet<Float> hashSetFloat = new HashSet<>(new TreeSet<>());
+    }
+    ```
+## TreeSet 
+- Là class phổ biến nhất của SortedSet 
+- Thứ tự mặc định được sắp xếp tăng dần
+- Tạo mới 1 TreeSet 
+    ```
+    public static void main(String[] args) {
+        // khai báo 1 TreeSet có tên là treeSetInteger
+        // có kiểu là Integer 
+        TreeSet<Integer> treeSetInteger = new TreeSet<>();
+            
+        // khai báo 1 TreeSet có tên là treeSetCharacter
+        // được tạo thành từ 1 Class Collection khác 
+        TreeSet<Character> treeSetCharacter = new TreeSet<>(new HashSet<>());
+    }
+    ```
+
+## HashMap
+- Bao gồm 2 phần key value, thứ tự các phần tử không theo thứ tự lúc thêm vào
+- Tạo mới 1 HashMap
+    ```
+    public static void main(String[] args) {
+        // khai báo 1 TreeSet có tên là treeSetInteger
+        // có kiểu là Integer 
+        TreeSet<Integer> treeSetInteger = new TreeSet<>();
+            
+        // khai báo 1 TreeSet có tên là treeSetCharacter
+        // được tạo thành từ 1 Class Collection khác 
+        TreeSet<Character> treeSetCharacter = new TreeSet<>(new HashSet<>());
+    }
+    ```
+
+## TreeMap
+- Cũng là lớp triển khai của Map giống như HashMap
+- Tuy nhiên thì TreeMap được sắp xếp theo thứ tự tăng dần của khoá 
+- Tạo mới TreeMap
+    ```
+    public static void main(String[] args) {
+        // khai báo 1 TreeMap tên treeMap1
+        // mỗi phần tử trong treeMap1 bao gồm 2 phần
+        // key (String) và value (Double)
+        TreeMap<String, Double> treeMap1 = new TreeMap<>();
+                
+        // khai báo 1 TreeMap được tạo thành từ 1 Map
+        Map<Float, Integer> map = new HashMap<>();
+        TreeMap<Float, Integer> treeMap2 = new TreeMap<>(map);
+    }
+    ```
+
+
