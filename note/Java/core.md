@@ -795,4 +795,18 @@
     }
     ```
 
+## Hướng đối tượng
+- Object (Đối tượng) :  Gồm trạng thái và hành vi 
+    - Trạng thái: Gồm những đặc điểm của 1 đối tượng. Vd như sinh viên có : Mã, họ tên, ngày sinh,...
+    - Hành vi: Những hành động mà đối tượng thực hiện. Vd sinh viên có hành vi: Đi học, chơi game 
 
+## Tính đóng gói 
+- Là sự bảo mật thông tin của mỗi lớp và chỉ được truy xuất thông qua hệ thống các phương thức có sẵn của lớp 
+- 1 số đặc điểm
+    - Ngăn việc gọi phương thức của lớp này tác động hay truy xuất dữ liệu của đối tượng thuộc về lớp khác 
+    - Khi khai báo là private bên ngoài sẽ không thể truy cập được vào
+    - Thay đổi cấu trúc bên trong của lớp mà không ảnh hưởng tới những lớp bên ngoài có sử dụng lớp đó 
+- Để sử dụng tính đóng gói cần 2 bước 
+    - Khai báo là private để các đối tượng không thể truy cập trực tiếp / sửa đổi được 
+    - Cung cấp các phương thức get/set để truy cập và sửa đổi giá trị của thuộc tính trong lớp 
+    
