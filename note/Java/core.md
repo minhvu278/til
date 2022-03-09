@@ -810,3 +810,359 @@
     - Khai báo là private để các đối tượng không thể truy cập trực tiếp / sửa đổi được 
     - Cung cấp các phương thức get/set để truy cập và sửa đổi giá trị của thuộc tính trong lớp 
     
+    ```
+    package vidu;
+ 
+    public class Person {
+        // khai báo các thuộc tính của đối tượng là private
+        private String cmnd;
+        private String hoTen;
+        
+        // tạo các phương thức getter/setter
+        // 2 phương thức getCmnd() và getHoTen() là phương thức getter
+        // dùng để trả về số chứng minh nhân dân và họ tên của đối tượng
+        // và kiểu trả về của hai phương thức này tương ứng với kiểu dữ liệu của thuộc tính
+        // 2 phương thức setCmnd() và setHoTen() là phương thức setter
+        // dùng để gán giá trị cho thuộc tính chứng minh nhân dân và họ tên của đối tượng
+        // trong đó tham số truyền vào của 2 phương thức này được gọi là tham số (biến cục bộ)
+        // và có kiểu dữ liệu tương ứng với kiểu dữ liệu của thuộc tính (biến đối tượng)
+        public String getCmnd() {
+            return cmnd;
+        }
+        
+        // this là từ khóa có ý nghĩa là một tham chiếu đặc biệt 
+        // chiếu tới đối tượng chủ của phương thức hiện hành
+        // this có thể được dùng để truy cập biến đối tượng (instance variable)
+        // hoặc gọi phương thức đối với đối tượng hiện hành. 
+        // Thông thường, công dụng này của this chỉ có ích
+        // khi tên biến đối tượng bị trùng với tham số (biến cục bộ - local variable) của phương thức 
+        public void setCmnd(String cmnd) {
+            this.cmnd = cmnd;
+        }
+        public String getHoTen() {
+            return hoTen;
+        }
+        public void setHoTen(String hoTen) {
+            this.hoTen = hoTen;
+        }
+        
+    }
+    ```
+    - this.hoTen là biến, còn hoTen phía sau là tham số truyền vào  
+
+    ```
+    package vidu;
+ 
+    public class TestPerson {
+    
+        public static void main(String[] args) {
+            Person person = new Person();
+            
+            // gán giá trị họ tên cho đối tượng person vừa tạo thông qua setHoTen() 
+            // và gán số chứng minh nhân dân thông qua setCmnd()
+            person.setHoTen("Trần Văn Bình");   
+            person.setCmnd("212321678");
+            
+            // truy cập đến tên của đối tượng person thông qua phương thức getHoten()
+            // và số chứng minh nhân dân thông qua phương thức getCmnd()
+            System.out.println("Tên: " + person.getHoTen() + ", số cmnd: " + person.getCmnd());
+        }
+    
+    }
+    ```
+
+## Tính kế thừa 
+- Kế thừa các thuộc tính và phương thức của lớp cha 
+- Lớp con có thể thêm thuộc tính và phương thức mới của riêng nó hoặc cũng có thể ghi đè phương thức có sẵn 
+- Có 3 dạng kế thừa 
+    - Kế thừa từ class
+    - Kế thừa từ Abstract class
+    - Kế thừa từ interface 
+- Để kế thừa ta sử dụng từ khóa extends 
+- Từ khóa super 
+    - Được sử dụng để phân biệt các thành phần có cùng tên giữa lớp cha và con
+    - Dùng để gọi hàm tạo của lớp cha từ lớp con
+    ```
+    package vidu;
+ 
+    public class Superclass {
+        int number = 10;
+    
+        public void hienThi() {
+            System.out.println("Đây là phương thức hienThi() của lớp cha");
+        }
+    }
+    ```
+
+    ```
+    package vidu;
+ 
+    public class Subclass extends Superclass {
+        int number = 20;
+    
+        public void hienThi() {
+            System.out.println("Đây là phương thức hienThi() của lớp con");
+        }
+        
+        public void subclassMethod() {
+            Subclass subclass = new Subclass();
+            
+            // gọi phương thức hienThi() của lớp cha
+            // sử dụng từ khóa super()
+            super.hienThi();
+            
+            // gọi phương thức hienThi() của lớp con
+            subclass.hienThi();
+            
+            // hiển thị giá trị biến number của lớp cha
+            System.out.println("Giá trị biến number của lớp cha = " + super.number);
+            
+            // hiển thị giá trị biến number của lớp con
+            System.out.println("Giá trị biến number của lớp con = " + subclass.number);
+        }
+    
+    
+        public static void main(String[] args) {
+            Subclass objSubclass = new Subclass();
+            objSubclass.subclassMethod();
+        }
+    
+    }
+    ```
+
+## Tính đa hình 
+- Hiểu nôm na là trong mỗi trường hợp, hoàn cảnh khác nhau thì đối tượng có các hình thái khác nhau
+    - Ví dụ như sinh viên thì đến trường có nhiệm vụ là học, nghe giảng, còn khi vào siêu thị thì đóng vai trò là khách hàng ,...
+- Để thể hiện tính đa hình, cần 2 điều kiện : 
+    - Các lớp phải có quan hệ kế thừa từ 1 lớp cha nào đó 
+    - Phương thức đa hình phải được ghi đè ở lớp con
+    - Tính đa hình được thể hiện khi đã ghi đè phương thức của lớp cha 
+- Ví dụ: 
+    ```
+    package vidu;
+ 
+    public class Shape {
+        public void show() {
+            System.out.println("Đây là phương thức show() của lớp Shape");
+        }
+    }
+
+    public class Rectangle extends Shape {
+        public void show() {
+            System.out.println("Đây là phương thức show() của lớp Rectangle");
+        }
+    }
+
+    public class Square extends Shape {
+        public void show() {
+            System.out.println("Đây là phương thức show() của lớp Square");
+        }
+    }
+
+    public class Main {
+ 
+        public static void main(String[] args) {
+            Shape shape = new Shape();
+            shape.show();   // hiển thị dòng "Đây là phương thức show() của lớp Shape"
+            
+            // bản chất của shape là Shape, nhưng vì khai báo Rectangle nên chúng ta chỉ nhìn thấy những gì mà Rectangle có
+            // vì vậy sẽ chạy những hàm của Rectangle
+            shape = new Rectangle();
+            shape.show();   // hiển thị dòng "Đây là phương thức show() của lớp Rectangle"
+            
+            // tương tự lúc này shape sẽ đóng vai trò là 1 Square
+            shape = new Square();
+            shape.show();   // hiển thị dòng "Đây là phương thức show() của lớp Square"
+        }
+    
+    }
+    ```
+
+## Tính trừu tượng 
+- Là tính chất không thể hiện cụ thể mà chỉ nêu tên vấn đề 
+- Che giấu các hoạt động bên trong và chỉ hiển thị ra những tính năng thiết yếu của đối tượng tới người dùng 
+    - Ví dụ như gửi tin nhắn ta chỉ có thể nhập được nội dụng rồi bấm gửi còn quá trình gửi đi thì không nhìn thấy được 
+- Ưu điểm 
+    - Loại bỏ tính phức tạp của đối tượng và chỉ đưa ra những thuộc tính và phương thức cần thiết 
+    - Tập chung vào cốt lõi của đối tượng thay vì cách nó thực hiện 
+
+- Phương thức trừu tượng (Abstract method)
+    - Để định nghĩa 1 abstract method cần sử dụng từ khóa `abstract` trước tên phương thức 
+    ```
+    // khai báo 1 phương thức trừu tượng có tên là khaiBaoPhuongThucTruuTuong()
+    // phương thức này có phạm vi truy cập là public
+    // và không có đối số truyền vào
+    public abstract khaiBaoPhuongThucTruuTuong();
+    ```
+    - Và để sử dụng được nó thì cần ghi đè (override) nó ở trong lớp con
+
+- Lớp trừu tượng (Abstract Class)
+    - Là 1 lớp không thể khởi tạo đối tượng từ nó mà nó sẽ ràng buộc lớp con phải có các phương thức trừu tượng của nó thông qua việc ghi đè 
+
+    - Khai báo lớp trừu tượng 
+        ```
+        public abstract class AbstractClassDemo {
+            public void hienThi() {
+                System.out.println("Đây là lớp trừu tượng");
+            }
+        
+            // khai báo 1 phương thức abstract có tên là hienThi()
+            // phương thức này không có thân phương thức
+            // và có kiểu trả về là void
+            public abstract void show();
+        }
+        ```
+    - Ví dụ minh họa
+        - Animal
+            ```
+            public abstract class Animal {
+                private String tiengKeu;
+                
+                public abstract void hienThiTiengKeu();
+            }
+            ```
+        - Dog
+            ```
+            package vidu;
+
+            public class Dog extends Animal {
+            
+                @Override
+                public void hienThiTiengKeu() {
+                    System.out.println("Gâu");
+                }
+            
+            }
+            ```
+        - Main 
+            ```
+            package vidu;
+
+            public class Main {
+            
+                public static void main(String[] args) {
+                    Dog dog = new Dog();
+                    dog.hienThiTiengKeu();
+                }
+            
+            }
+            ```
+    - Lớp cha có những phương thức trừu tượng nào thì lớp con cũng phải có 
+
+## Overriding & Overloading
+- Quy tắc overriding 
+    - Danh sách các đối số phải giống với các phương thức ghi đè 
+    - Kiểu trả về phải giống với lớp cha
+    - Phương thức được khai báo là final hoặc static thì phương thức không thể ghi đè được 
+    - Các hàm tạo của lớp cha cũng không thể ghi đè
+
+- Overloading 
+    - Được định nghĩa là nạp chồng phương thức 
+    - Lưu ý
+        - Không thể thực hiện nạp chồng phương thức chỉ bằng cách thay đổi kiểu trả về của phương thức đó
+        - Hàm tạo cũng có thể được overloading
+
+    - Thay đổi tham số truyền vào 
+        ```
+        public class PhepCongHaiSo {
+            public int add(int a, int b) {
+                return a + b;
+            }
+            
+            public int add(int a, int b, int c) {
+                return a + b + c;
+            }
+            
+        }
+
+
+        public class TestOverloading {
+
+            public static void main(String[] args) {
+                PhepCongHaiSo test = new PhepCongHaiSo();
+                System.out.println("Tổng = " + test.add(11, 12));
+                System.out.println("Tổng = " + test.add(11, 12, 13));
+            }
+        
+        }
+        ```
+    - Thay đổi kiểu dữ liệu của đối số truyền vào 
+        ```
+        public class PhepCongHaiSo {
+            public int add(int a, int b) {
+                return a + b;
+            }
+            
+            public float add(float a, float b) {
+                return a + b;
+            }
+            
+        }
+
+        public class TestOverloading {
+
+            public static void main(String[] args) {
+                PhepCongHaiSo test = new PhepCongHaiSo();
+                System.out.println("Tổng = " + test.add(11, 12));
+                System.out.println("Tổng = " + test.add(11.1f, 12.2f));
+            }
+        
+        }
+
+        ```
+
+    - Thay đổi trình tự kiểu dữ liệu của các đối số 
+        ```
+        public class DisplayOverloading {
+
+            public void hienThi(int a, char b) {
+                System.out.println(a + "\t" + b);
+            }
+            
+            public void hienThi(char b, int a) {
+                System.out.println(b + "\t" + a);
+            }
+        }
+
+        public class TestOverloading {
+        
+            public static void main(String[] args) {
+                DisplayOverloading displayOverloading = new DisplayOverloading();
+                displayOverloading.hienThi(5, 'a');
+                displayOverloading.hienThi('a', 5);
+            }
+        
+        }
+        ```
+    - Ngoài ra trong trường hợp ta chưa xác định đối số cần truyền vào thì có 1 cách nâng cao như sau
+        ```
+        public class AdvancedOverloadMethod {
+            // Dấu ... là quy tắc tạo Parameter List
+            // ...x lúc này là một mảng một chiều linh động 
+            // tức là nó tự động co giãn được đối với các đối số truyền vào.
+            public int fn4(int ...x) {
+                int sum = 0;
+            
+                // duyệt qua từng phần tử trong mảng một chiều x
+                for (int i : x) {
+                    sum += i;
+                }
+                return sum;
+            }
+        }
+        ```
+        ```
+        public class TestAdvancedOverloadMethod {
+        
+            public static void main(String[] args) {
+                AdvancedOverloadMethod demo = new AdvancedOverloadMethod();
+                System.out.println(demo.fn4(1, 2, 3));
+                System.out.println(demo.fn4(1, 2, 3, 4));
+            }
+        
+        }
+        ```
+- Khi nào sử dụng 
+    - Overriding sử dụng khi trong cùng 1 phương thức, ta muốn thay đổi phần thân của nos
+    - Overloading sử dụng khi trong cùng 1 phương thức ta muốn làm thêm 1 công việc khác 
+    
