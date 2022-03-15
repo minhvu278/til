@@ -33,8 +33,5 @@
     lsof -i tcp:8080
 
 
-## Package
-- Dao: Kết nối với DB
-- Entity: Map với DB (Chỉ đúng = với 1 table trong MySql)
-- Service: Tương tác với nhiều Dao 
-- Dto: Nếu entity k map đươc thì sử dụng Dto
+# Chap 2: Passing code with behavior parameterization
+ 

@@ -222,3 +222,35 @@
             ```
             
 
+## Mô hình 3 layer 
+- Presentation layer : MVC
+    - Controller 
+- Business logic : Tầng xử lý logic 
+    - Là nơi đáp ứng nhu cầu xử lý dữ liệu, xử lý chính nguồn dữ liệu `Presentation layer` trước khi truyền xuống `Data access layer ` và lưu xuống CSDL 
+    - Kiểm tra các ràng buộc, tính toàn vẹn dữ liệu, thực hiện tính toán và xử lý yêu cầu trước khi trả về kết quả 
+    - Là tầng service 
+- Data access layer 
+    - Giao tiếp với CSDL như thực hiện các công việc liên quan đến lưu trữ và truy vấn dữ liệu (CRUD)
+    - Tầng DAO 
+
+## DAO design pattern 
+- DAO: Data Access Object 
+- Là tầng kết nối & thực thi  với SQL 
+
+## API
+- Để có thể binding dữ liệu từ json -> model 
+    - Sử dụng object mapper 
+        ```
+        public <T> T toModel(Class<T> tClass) {
+            try {
+                return new ObjectMapper().readValue(value, tClass);
+            } catch (Exception e) {
+                System.out.print(e.getMessage());
+            }
+            return null;
+        }
+        ```
+    - `HttpUtil.of(req.getReader()).toModel(NewsModel.class)` giúp ta covert từ json -> model
+        ```
+        NewsModel newsModel = HttpUtil.of(req.getReader()).toModel(NewsModel.class);
+        ```

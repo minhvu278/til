@@ -1166,3 +1166,76 @@
     - Overriding sử dụng khi trong cùng 1 phương thức, ta muốn thay đổi phần thân của nos
     - Overloading sử dụng khi trong cùng 1 phương thức ta muốn làm thêm 1 công việc khác 
     
+## Static 
+- Static chủ yếu dùng để quản lý bộ nhớ 
+- Thuộc về lớp chứ k thuộc về các đối tượng tạo ra từ lớp  
+- Đặc điểm chung các thành phần được khai báo static 
+    - Được cấp phát 1 lần duy nhất ngay khi biên dịch chương trình 
+    - Có thể dùng chung cho mọi đối tượng 
+    - Được truy xuất trực tiếp từ tên lớp mà không phải khởi tạo đối tượng của lớp đó 
+    - Được hủy khi kết thúc chương trình 
+- Biến tĩnh, thuộc tính tĩnh 
+    - Là biến dùng chung cho mọi đối tượng thuộc lớp 
+    - Biến tĩnh cũng tương tự như hằng nhưng linh hoạt hơn do biến tĩnh có thể thay đổi giá trị khi cần thiết 
+    - Cú pháp 
+        ```
+        [access modifier] static [kiểu dữ liệu] tenBien = [giá trị khởi tạo];
+        ```
+        - Biến được truy xuất trực tiếp từ tên lớp 
+        ```
+        [Tên_lớp].[Tên_thuộc_tính];
+        ```
+
+    - VD: 
+        ```
+        package example_static;
+
+        public class StaticVariable {
+        
+            int nonStaticVariable = 10;
+            static int staticVariable = 100;    // khai báo biến tĩnh và khởi tạo giá trị
+            
+            public int getNonStaticVariable() {
+                return nonStaticVariable;
+            }
+        
+            public void setNonStaticVariable(int nonStaticVariable) {
+                this.nonStaticVariable = nonStaticVariable;
+            }
+        
+            public static void main(String[] args) {
+                StaticVariable demo = new StaticVariable();
+                System.out.println("Giá trị biến nonStaticVariable = " + demo.getNonStaticVariable());
+                
+                // truy cập thuộc tính tĩnh
+                System.out.println("Giá trị biến staticVariable = " + StaticVariable.staticVariable);
+            }
+            
+        }
+        ```
+
+## Interface 
+- Là 1 kiểu tham chiếu tương tự như class nhưng có thể chứa các hằng số và tên phương thức không có phần thân 
+- 1 lớp thì mô tả các thuộc tính và hành động của đối tượng còn interface thì mô tả hành động của lớp đó 
+- Interface không thể đưọc theo lớp mà chỉ có thể được mở rộng từ các lớp khác hoặc kế thừa từ interface khác 
+- Ngoại trừ lớp trừu tượng thì all các lớp mở rộng interface phải định nghĩa lại all các phương thức của interface 
+
+- Khai báo 
+    - 1 interface có thể được kế thừa từ nhiều interface khac  (Lớp thì mỗi lớp chỉ kế thừa đc 1 lớp)
+    ```
+    package vidu;
+    
+    public interface Interface {
+    
+        // Đây là phương thức trừu tượng
+        // phương thức trừu tượng của Interface không cần khai báo từ khóa abstract và public
+        void createAbstractMethod();
+    }
+
+## Đa luồng 
+- 1 chương trình được gọi là đa luồng khi ctrinh đó có 2 luồng trở lên chạy song song với nhau 
+- Luồng gồm 4 phần chính 
+
+
+## Exception 
+- Là 1 sự kiện xảy ra 

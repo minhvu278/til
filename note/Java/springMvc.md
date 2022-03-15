@@ -275,4 +275,255 @@
         }
         ```
     
+## Sitemesh decorator 
+- Cách thức hoạt động: Dựa vào URL 
+- Filter: Ví dụ là `/home` thì apply giao diện web còn `/admin` thì apply giao diện admin 
 
+
+## SOLID
+- S: Single responsibility principle
+    - Giúp giảm sự phức tạp của 1 class: Mỗi class chỉ phục vụ cho 1 mục đích duy  nhất
+    - Ví dụ thay vì xử lý 1 class ôm gồm 1 đống các xử lý 
+        ```
+
+            public class DBHelper {
+
+                public Connection openConnection() {};
+
+                public void saveUser(User user) {};
+
+                public List<Product> getProducts() {};
+
+                public void closeConnection() {};
+            }
+        ```
+    - Thì ta nên tách riêng thành các class xử lý công việc riêng 
+        ```
+            public class DBConnection {
+
+                public Connection openConnection() {};
+
+                public void closeConnection() {};
+
+            }
+
+            public class UserRepository {
+
+                public void saveUser(User user) {};
+            }
+
+            public class ProductRepository {
+
+                public List<Product> getProducts() {};
+            }
+        ```
+- O : Open/closed principle 
+    - Khi triển khai các tính năng mới, thay vì sửa đổi code đã tồn tại thì ta nên mở rộng & kế thừa 
+    - Ví dụ xử logic tính phí vận chuyển 
+        ```
+        public class Order {
+
+            public long calculateShipping(ShippingMethod shippingMethod) {
+                if (shippingMethod == GROUND) {
+                    // Calculate for ground shipping
+                } else if (shippingMethod == AIR) {
+                    // Calculate for air shipping
+                } else {
+                    // Default
+                }
+            }
+        }
+        ```
+        - Khi thêm 1 phương thức mới ta sẽ cần bổ sung thêm 1 case nữa vào -> khó quản lý
+        - Vì thế nên ta nên tách rời vào 1 interface và các phương thức sẽ implement nó sẽ giúp code dễ nhìn và đọc hơn
+            ```
+            public interface Shipping {
+
+                long calculate();
+            }
+
+            public class GroundShipping implements Shipping {
+
+                @Override
+                public long calculate() {
+                    // Calculate for ground shipping
+                }
+            }
+
+            public class AirShipping implements Shipping {
+
+                @Override
+                public long calculate() {
+                    // Calculate for air shipping
+                }
+            }
+
+            public class Order {
+
+                private Shipping shipping;
+
+                public long calculateShipping(ShippingMethod shippingMethod) {
+                    // Find relevant Shipping implementation then call calculate() method
+                }
+            }
+            ```
+        
+- Liskov substitution principle
+    //NOTE: Đọc lại
+    - Các đối tượng của class cha có thể được thay thế bởi các đối tượng của các class con mà không làm thay đổi tính đúng đắn của chương trình 
+    ```
+    public interface Animal {
+
+        void fly();
+    }
+
+    public class Bird implements Animal {
+
+        @Override
+        public void fly() {
+            // Flying...
+        }
+    }
+
+    public class Dog implements Animal {
+
+        @Override
+        public void fly() {
+            // Dog can't fly
+            throw new UnsupportedOperationException();
+        }
+    }
+    ```
+    - class Dog đã vi phạm nguyên lý Liskov substitution.
+    - Cách giải quyết ở đây sẽ là: tạo một interface FlyableAnimal như sau:
+    ```
+    public interface Animal {
+    }
+
+    public interface FlyableAnimal {
+
+        void fly();
+    }
+
+    public class Bird implements FlyableAnimal {
+
+        @Override
+        public void fly() {
+            // Flying...
+        }
+    }
+
+    public class Dog implements Animal {
+    }
+    ```
+
+- Interface segregation principle
+    - Thay vì viết interface cho mục đích chung thì ta nên tách riêng ra nhiều interface nhỏ cho các mục đích riêng 
+    - K nên bắt buộc implement các method mà client không cần đến
+    - Ví dụ 
+        - Chúng ta có một interface Animal như sau:
+            ```
+            public interface Animal {
+
+                void eat();
+
+                void run();
+
+                void fly();
+            }
+            ```
+            - Chúng ta có 2 class Dog và Snake implement interface Animal. Nhưng thật vô lý, Dog thì làm sao có thể fly(), cũng như Snake không thể nào run() được? Thay vào đó, chúng ta nên tách thành 3 interface như thế này:
+
+            ```
+            public interface Animal {
+
+                void eat();
+            }
+
+            public interface RunnableAnimal extends Animal {
+
+                void run();
+            }
+
+            public interface FlyableAnimal extends Animal {
+
+                void fly();
+            }
+            ```
+
+- Dependency inversion principle
+    - Ý tưởng của nguyên lý này là các module cấp cao không nên phụ thuộc vào các module cấp thấp, cả hai nên phụ thuộc vào abstraction.
+
+    - Ví dụ, chúng ta có 2 module cấp thấp BackendDeveloper và FrontendDeveloper và 1 module cấp cao Project sử dụng 2 module trên:
+
+    ```
+    public class BackendDeveloper {
+
+        private void codeJava() {};
+    }
+
+    public class FrontendDeveloper {
+
+        private void codeJS() {};
+    }
+
+    public class Project {
+
+        private BackendDeveloper backendDeveloper = new BackendDeveloper();
+        private FrontendDeveloper frontendDeveloper = new FrontendDeveloper();
+
+        public void build() {
+            backendDeveloper.codeJava();
+            frontendDeveloper.codeJS();
+        }
+    }
+    ```
+    - Giả sử nếu sau này, dự án thay đổi công nghệ. Các backend developer không code Java nữa mà chuyển sang code C#. Các frontend developer không code JS thuần nữa mà nâng lên các JS framework. Rõ ràng chúng ta không những phải sửa code ở các module cấp thấp (BackendDeveloper và FrontendDeveloper) mà còn phải sửa code ở cả module cấp cao (Project) đang sử dụng các module cấp thấp đó. Điều này cho thấy module cấp cao đang phải phụ thuộc vào các module cấp thấp.
+
+    - Lúc này, chúng ta sẽ bổ sung thêm một abstraction Developer để các module trên phụ thuộc vào:
+
+    ```
+    public interface Developer {
+
+        void develop();
+    }
+
+    public class BackendDeveloper implements Developer {
+
+        @Override
+        public void develop() {
+            codeJava();
+            // codeCSharp();
+        }
+
+        private void codeJava() {};
+
+        private void codeCSharp() {};
+    }
+
+    public class FrontendDeveloper implements Developer {
+
+        @Override
+        public void develop() {
+            codeJS();
+            // codeAngular();
+        }
+
+        private void codeJS() {};
+
+        private void codeAngular() {};
+    }
+
+    public class Project {
+
+        private List<Developer> developers;
+
+        public Project(List<Developer> developers) {
+            this.developers = developers;
+        }
+
+        public void build() {
+            developers.forEach(developer -> developer.develop());
+        }
+    }
+    ```

@@ -116,4 +116,81 @@
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)\
     ```
-- `@Column` - Note sau 
+- `@Column`: Tạo được column trong table 
+    ```
+    @Column
+    private String userName;
+    ```
+
+    - Khi thiết kế tất cả các field thì cần có `@Column` ở đầu 
+    - `@Column(name = "")`
+        - name ở đây có nghĩa là trong MySql muốn tên là gì thì viết vào trong (Thực ra cũng không cần thiết là phải viết name)
+        - Nếu không viết name thì nó sẽ dựa vào tên biến để cho vào CSDL 
+            ```
+            @Column(name = "title")
+            private String title; // Nếu k viết name mặc định sẽ lấy biến title để ghi vào CSDL
+            ```
+- `@MappedSuperClass`: Với annotation này thì khi tạo table từ các entity thì nó sẽ hiểu là 
+
+- Trong JBDC thì khi connect DB thì cần load driver, còn trong Spring boot thì chỉ cần khai báo vào trong file `pom.xml`
+- Còn những cái như url, username, password thì ta phải khai báo trong `application.properties`
+    ```
+    spring.datasource.url = jdbc:mysql://localhost:3306/newspringboot
+    spring.datasource.username = root
+    spring.datasource.password = 1234
+
+    #spring.jpa.hibernate.ddl-auto = none // Câu lệnh này hỗ trợ create table từ entity 
+    spring.jpa.hibernate.ddl-auto = create-drop // Drop table cũ đi và tạo lại 
+
+    spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5Dialect // Tùy vào sử dụng CSDL gì 
+    ```
+
+- Với quan hệ many to many 
+    - Với quan hệ này thì ta cần tạo 1 bảng chung gian 
+        - Ví dụ như bảng user và bảng role quan hệ many to many thì phải tạo ra bảng trung gian là user_role 
+        ```
+        @ManyToMany(cascade = {
+        CascadeType.PERSIST,
+        CascadeType.MERGE
+        })
+        @JoinTable(name = "post_tag",
+            joinColumns = @JoinColumn(name = "post_id"), // Khoá ngoại 
+            inverseJoinColumns = @JoinColumn(name = "tag_id") // Khoá ngoại 
+        )
+        ```
+
+## Thêm dữ liệu sử dụng spring data jpa và restful webservice 
+- Packge `repository`
+    - Nó sẽ tương tự như là DAO bên jdbc 
+    ```
+    public interface NewRepository extends JpaRepository<NewEntity, Long> { 
+        //
+    }
+    ```
+    - Cần truyền vào 2 tham số là bảng muốn thao tác và kiểu dữ liệu của primary key
+- Để repository có thể @Autowired nhúng vào service thì trong repository phải khai báo `@Repository`
+- Và ví dụ như tầng API muốn sử dụng service thì cũng phải @Autowired service vào api -> và để @Autowired thì trong service cũng phải có `@Service`
+
+- Để service có thể sử dụng được repository thì ta phải nhúng nó vào 
+    ```
+        public class NewService implements INewService {
+            @Autowired
+            private NewRepository newRepository;
+        }
+    ```
+- Để nhúng được thì thằng repository phải có kí hiệu là thằng repository nào muốn nhúng vào thằng service (Khai báo `@Repository` ở trước)
+
+- Tuy nhiên ở trong Spring boot thì chúng ta không cần khai báo `@Repository` vì `JpaRepository` đã viết sẵn hết rồi
+    - Do đó class nó implement là class nó implement từ thằng `JpaRepository`và trong đó nó đã khai báo sẵn `@Repository` rồi. Vì thế nên ta k cần khai báo nữa 
+
+- Vì cái chúng ta nhận vào là newDTO(`public NewDTO save(NewDTO newDTO)`) mà cái lưu xuống DB là newEntity nên ta phải convert 
+
+## Update dữ liệu 
+- Khi update thì ta cần lấy lại dữ liệu cũ của nó 
+- Trong data jpa thì có hỗ trợ sẵn hàm `findOne(id)` (Tương tự như câu sql: select * from new where id = 1)
+    ```
+    NewEntity oldNewEntity = newRepository.findOne(newDTO.getId());
+    ```
+
+
+## Restful api
