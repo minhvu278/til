@@ -136,3 +136,9 @@
 ## Khái niệm về Principal và Role 
 - Role: Là tập hợp các quyền(Permission) đối với 1 ứng dụng
 - Principal có thể tạm hiểu là 1 chủ thể sau khi đăng nhập họ có thể làm điều gì đó trong hệ thống (Phụ thuộc vào phân quyền)
+
+
+## Servlet 
+- Là gì? 
+    - Là chương trình chạy trên 1 web hoặc ứng dụng máy chủ 
+    - Như 1 lớp trung gian giữa 1 yêu cầu từ 1 trình duyệt web 

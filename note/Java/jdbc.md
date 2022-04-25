@@ -238,19 +238,55 @@
 - Là tầng kết nối & thực thi  với SQL 
 
 ## API
-- Để có thể binding dữ liệu từ json -> model 
-    - Sử dụng object mapper 
-        ```
-        public <T> T toModel(Class<T> tClass) {
-            try {
-                return new ObjectMapper().readValue(value, tClass);
-            } catch (Exception e) {
-                System.out.print(e.getMessage());
+- Model trong project chỉ là tượng trưng cho các table trong DB
+- Để binding được data vào trong model khi ta gửi request lên 
+- Những thứ cần sử dụng lại nhiều lần thì nên viết vào file utils 
+- File `utils`
+    - Chuyển json -> String json 
+    ```
+    public static HttpUtil of(BufferedReader reader) {
+        //
+    }
+    ```
+    - BufferReader chứa json 
+    ```
+    public static HttpUtil of(BufferedReader reader) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
             }
-            return null;
+        } catch (IOException e) {
+            System.out.print(e.getMessage());
         }
-        ```
-    - `HttpUtil.of(req.getReader()).toModel(NewsModel.class)` giúp ta covert từ json -> model
-        ```
-        NewsModel newsModel = HttpUtil.of(req.getReader()).toModel(NewsModel.class);
-        ```
+        return new HttpUtil(sb.toString());
+    }
+    ```
+    - Chạy qua từng cặp key value rồi append vào
+
+- Hàm chung trả về 1 list, vì thế khi chỉ muốn lấy 1 thì ta sử dụng `get(0)` để lấy phần tử đầu tiên thôi 
+    ```
+    public NewsModel findOne(Long id) {
+        String sql = "SELECT * FROM news WHERE id = ?";
+        List<NewsModel> news = query(sql, new NewsMapper(), id);
+        return news.isEmpty() ? null : news.get(0) ;
+    }
+    ```
+
+## Jar & war
+- Jar là core dùng để nhúng vào war 
+- War là web
+
+## Mô hình 3 lớp 
+- Presentation : Lớp hiển thị UI (View)
+- Bussiness Logic : Xử lý logic (Service)
+- Data Access Layer: Tương tác với DB
+
+
+## X
+- Controller: Nhận dữ liệu từ client đẩy lên. Gọi lại các tầng ở service & đẩy ra view 
+- Dao: Data Access Object - Các câu lệnh SQL 
+- Model: 
+- Service: Xử lý các logic 
+- Mapper: 
