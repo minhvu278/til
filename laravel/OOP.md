@@ -205,3 +205,54 @@
     - Ví dụ như hành động ăn của của động vật hoàn toàn khác nhau (Lợn ăn cám, bò ăn cỏ,...)
 - Còn sự đa hình trong lập trình thì được hiểu là lớp con sẽ viết lại các phương thức của lớp cha (ovewrite)
     
+## Abstract 
+- Giống với tính kế thừa theo bề ngoài. 
+- Lớp abstract sẽ định nghĩa lại các phương thức mà từ đó lớp con sẽ kế thừa và overwrite lại 
+- Không được khai báo ở mức private 
+- Lớp abstract có thể có thuộc tính nhưng thuộc tính không được khai báo là abstract 
+    ```php
+    // Đúng
+    public $name;
+  
+    // Sai vì các thuộc tính không được để ở dạng abstract
+    abstract public $title;
+    ```
+
+- Không thể khởi tạo 1 biến của lớp Abstract 
+    ```php
+    abstract class BaseClass
+    {
+        abstract protected function hello();
+    }
+      
+    // Sai vì BaseClass là lớp Abstract nên không
+    // khởi tạo mới được
+    $base = new BaseClass();
+    ```
+
+    ```
+    // Đúng
+    public $name;
+  
+    // Sai vì các thuộc tính không được để ở dạng abstract
+    abstract public $title;
+
+
+- Khai báo lớp abstract 
+    ```php
+    abstract class BaseClass
+    {
+        // phương thức ở mức protected
+        abstract protected function hello();
+    }
+    ```
+
+- Hàm và lớp final 
+    - Lớp final là lớp được khai báo là lớp cuối cùng, không lớp nào có thể kế thừa lại nó 
+    - Tương tự như hàm Final trong abstract hoặc trong kế thừa chỉ để gọi sử dụng không được overwrite lại 
+
+## Interface 
+- Là 1 template 
+
+
+### Interface không phải là lớp cụ thể mà là khuôn mẫu cụ thể cho 1 đối tượng implement nó. Còn abstract là 1 lớp cụ thể có đầy đủ các tính chất của 1 đối tượng 

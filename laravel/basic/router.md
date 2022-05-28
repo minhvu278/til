@@ -77,4 +77,43 @@
             //
         });
         ```
+    - Optional Parameters (Các thông số tùy chọn)
+        - Đôi khi cần chỉ định 1 tham số không phải lúc nào cũng có trong URL, ta đặt 1 dấu `?` sau parameter name 
+            ```
+            Route::get('/user/{name?}', function ($name = null) {
+                return $name;
+            });
+            
+            Route::get('/user/{name?}', function ($name = 'John') {
+                return $name;
+            });
+            ```
+    - Sử dụng Regular Expression 
+        ```
+        Route::get('/user/{name}', function ($name) {
+            //
+        })->where('name', '[A-Za-z]+');
+        ```
     
+- Name routers
+    - Cho phép tạo URL hoặc chuyển hướng thuận tiện hơn
+        ```
+        Route::get('/user/profile', function () {
+            //
+        })->name('profile');
+        ```
+        - Name routers phải là duy nhất
+    - Khi có name router ta có thể sử dụng tên của `route` đó khi tạo URL hoặc `redirect` helper function: 
+        ```
+        // Generating URLs...
+        $url = route('profile');
+        
+        // Generating Redirects...
+        return redirect()->route('profile');
+        ```
+
+- Router group 
+    - Cho phép chia sẻ các router chẳng hạn như middleware 
+
+- Middleware 
+    - 
