@@ -92,4 +92,4 @@
                 - Tỉ lệ lỗi dưới mức nhất định
                 - Khi đến deadlines
 
-        - Test Closure Activities: Các hoạt động kết thúc việc kiểm thử được thực hiện khi phần mềm sẵn sàng được chuyển giao 
+        - Test Closure Activities: Các hoạt động kết thúc việc kiểm thử được thực hiện khi phần mềm sẵn sàng được chuyển giao  
