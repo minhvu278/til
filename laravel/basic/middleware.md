@@ -44,9 +44,8 @@
 ## Middleware & Response 
 - Có thể thực hiện tác vụ trước hoặc sau khi chuyển vào ứng dụng
     - Ex, Middleware sẽ xử lý 1 số tác vụ trước khi request được ứng dụng xử lý  ` before`
-        ```
+        ```php
         <?php
- 
         namespace App\Http\Middleware;
         
         use Closure;
@@ -62,9 +61,8 @@
         }
         ```
     - Tuy nhiên middleware sẽ thực hiện nhiệm vụ của nó sau khi ứng dụng xử lý yêu cầu `after`
-        ```
+        ```php
         <?php
- 
         namespace App\Http\Middleware;
         
         use Closure;

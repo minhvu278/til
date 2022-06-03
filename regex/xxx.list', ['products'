@@ -1,0 +1,2 @@
+$html = view('product.list', ['products' => $result])->render();
+    - Truyền vào view (list) 1 biến products -> Biến này chứa data($result) và render ra view
