@@ -85,9 +85,9 @@
         ```
     - Làm mới dữ liệu từ 1 eloquent đã được query trước đó bằng cách sử dụng `fresh()` - nó sẽ thực hiện query lại đến DB để lấy dữ liệu mới nhất của bản ghi 
         ```php
-        $flight = Flight::where('number', 'FR 900')->first();
+            $flight = Flight::where('number', 'FR 900')->first();
 
-        $freshFlight = $flight->fresh();
+            $freshFlight = $flight->fresh();
         ```
     - `refresh()`: Lấy dữ liệu mới nhất trong bản ghi trong DB đồng thời lấy cả các dữ liệu mới của relationship nếu có 
         ```php 
@@ -100,4 +100,25 @@
         $flight->number; // "FR 900"
         ```
 
-    
+    ```php 
+   use Illuminate\Support\Facades\DB;
+
+    $users = DB::table('users')
+                    ->whereDate('created_at', '2016-12-31')
+                    ->get();
+
+    $users = DB::table('users')
+                    ->whereMonth('created_at', '12')
+                    ->get();
+
+    $users = DB::table('users')
+                    ->whereDay('created_at', '31')
+                    ->get();
+
+    $users = DB::table('users')
+                    ->whereYear('created_at', '2016')
+                    ->get();
+
+    $users = DB::table('users')
+                    ->whereTime('created_at', '=', '11:20:45')
+                    ->get();
