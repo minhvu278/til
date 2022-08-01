@@ -91,3 +91,12 @@
 - Fixed (Vị trí phụ thuộc vào khung trình duyệt)
 - Sticky (Bám dính - Không đc nhiều trình duyệt hỗ trợ)
 
+
+## Slider 
+- Sử dụng `background` để hiển thị ảnh thay vì `background-image` sẽ gọn code hơn 
+    ```css
+    background: url('../img/slider/slider1.jpg') top center / cover no-repeat;
+    ```
+    - `top center`: Lấy sát ở trên và căn giữa ảnh
+    - `/`: Sau nó là background size 
+    - `cover no-repeat`: Là size và k lặp lại

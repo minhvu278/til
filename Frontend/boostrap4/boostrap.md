@@ -1,5 +1,5 @@
-# Boostrap là gì
-- Boostrap là 1 front-end framework free để phát triển web nhanh và dễ dàng hơn 
+# Bootstrap là gì
+- Bootstrap là 1 front-end framework free để phát triển web nhanh và dễ dàng hơn 
 - Gồm các mẫu thiết kế dựa trên HTML & css cho typography, forms, buttons, tables, navigation, modals, image carousels and many other
 - Giúp dễ dàng tạo ra các thiết kế đáp ứng
 - Lý do nên dùng: 
@@ -7,7 +7,7 @@
     - Hỗ trợ responsive
     - Tương thích với all trình duyệt hiện đại
 
-# Boostrap container
+# Bootstrap container
 
 ## Container
 - Yêu cầu 1 phần tử chứa để bao bọc nội dung trang web
