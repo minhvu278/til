@@ -159,3 +159,99 @@
             propsName2={expression}
         />
         ```
+
+# Webpack 
+- Khi build lên production thì nó sẽ loại bỏ những thứ không cần thiết, gộp vào 1 file để tối ưu được khi build
+- Install webpack 
+    ```js
+    npm install webpack webpack-cli --save-dev
+    ```
+    - --save-dev là chỉ dùng cho môi trường dev
+        - devDependencies chứa các thư viện được cài đặt với flag --save-dev
+    - --save là dùng cho tất cả
+- Install react & react DOM 
+    ```
+    npm install react@17.0.2 react-dom@17.0.2 --save
+    ```
+- Install babel 
+    ```
+    npm install @babel/core babel-loader @babel/preset-env @babel/preset-react --save-dev
+    ```
+- Để nó load được css thì cần cài thư viện
+    ```
+    npm install css-loader style-loader --save-dev
+    ```
+
+- Cấu trúc của 1 file webpack 
+    ```js
+    const path = require("path");
+
+    module.exports = {
+        entry: "./src/index.js", // Dẫn tới file index.js ta đã tạo
+        output: {
+            path: path.join(__dirname, "/build"), // Thư mục chứa file được build ra
+            filename: "bundle.js" // Tên file được build ra
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.js$/, // Sẽ sử dụng babel-loader cho những file .js
+                    exclude: /node_modules/, // Loại trừ thư mục node_modules
+                    use: ["babel-loader"]
+                },
+                {
+                    test: /\.css$/, // Sử dụng style-loader, css-loader cho file .css
+                    use: ["style-loader", "css-loader"]
+                }
+            ]
+        },
+        // Chứa các plugins sẽ cài đặt trong tương lai
+        plugins: [
+        ]
+    };
+    ```
+- Tạo file config babel: Cần phải có file `babelrc` thì nó mới hiểu 
+    ```js
+    {
+        "presets": [
+            "@babel/preset-env",
+            "@babel/preset-react"
+        ]
+    }
+    ```
+- Tạo script cho dự án
+    - Thường khi chạy project ta chỉ cần chạy `npm start` hoặc `run build`
+        ```js
+        "start": "webpack --mode development --watch",
+        "build": "webpack --mode production" 
+        ```
+- Tham khảo thêm ở đây 
+    ```
+    https://fullstack.edu.vn/blog/phan-1-tao-du-an-reactjs-voi-webpack-va-babel.html
+    ```
+
+# Create react app 
+- Tạo mới 1 project 
+    ```
+    npx create-react-app `ten project`
+    ```
+
+# Phân biệt giữa NPX, NPM, YARN 
+- NPM 
+    - Cài đặt trong project scope
+        - Chỉ tác động trong project 
+            ```js
+            npm i react react-dom 
+
+            npm uninstall react react-dom 
+            ```
+    - Cài đặt global scope
+        - Cài vào trong 1 thư mục cấp cao hơn cho all project có thể sử dụng được
+- NPX 
+    - Nó giúp ta không cần cài thư viện ở local mà có thể truy cập được ở ngoài
+
+- YARN & NPM
+    - Có thể sử dụng thay thế cho nhau 
+    ```
+    https://www.youtube.com/watch?v=7sX_8lKURqo&list=PL_-VfJajZj0UXjlKfBwFX73usByw3Ph9Q&index=26&ab_channel=F8Official
+    ```
