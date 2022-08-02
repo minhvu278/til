@@ -150,3 +150,6 @@
         }
         ```
     
+# Mounted (Gắn vào) / Unmounted (Gỡ ra)
+- Mounted là khi sử dụng component đó thì gọi là mounted 
+- Unmounted là khi mà chúng ta xét điều kiện không sử dụng component nào đó
