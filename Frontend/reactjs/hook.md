@@ -153,3 +153,22 @@
 # Mounted (Gắn vào) / Unmounted (Gỡ ra)
 - Mounted là khi sử dụng component đó thì gọi là mounted 
 - Unmounted là khi mà chúng ta xét điều kiện không sử dụng component nào đó
+
+# useEffect 
+- Side effects: Tạo ra sự thay đổi bên cạnh dữ liệu chính (Chạy xong giao diện mới đến effects)
+    - Được chia làm 2 loại chính 
+        - Effects không cần clean up: Gọi API, tương tác với DOM
+        - Effects cần clean up: subscription, setTimeout, setInterval
+- Có 3 cách sử dụng useEffect 
+    - **useEffect(callback)**
+        - Gọi callback mỗi khi component re-render
+    - **useEffect(callback, [])**
+        - Chỉ gọi callback 1 lần sau khi component mounted
+    - **useEffect(callback, [dependency])**
+        - `dependency`: Là 1 biến (Có thể là props truyền từ ngoài vào, có thể là state trong component)
+        - Callback được gọi lại mỗi khi desp thay đổi 
+- `Callback luôn được gọi khi component mounted`
+- *Listen DOM event*
+    - Scroll: Khi scroll
+    - Resize: Khi thay đổi kích thước trang web
+- Sử dụng với 
