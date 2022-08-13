@@ -171,4 +171,54 @@
 - *Listen DOM event*
     - Scroll: Khi scroll
     - Resize: Khi thay đổi kích thước trang web
-- Sử dụng với 
+- useLayoutEffect 
+- Thường sử dụng để xử lý UI 
+    - Gần như là giống nhau - Chỉ khác nhau ở thứ tự thự hiện công việc
+    ```js
+    //useEffect
+    1. Cập nhật lại state 
+    2. Cập nhật lại DOM (mutated)
+    3. Render lại UI
+    4. Gọi clean up nếu desp thay đổi 
+    5. Gọi useEffect callback
+
+    //useLayoutEffect
+    1. Cập nhật lại state 
+    2. Cập nhật lại DOM (mutated)
+    3. Gọi clean up nếu desp thay đổi (sync)
+    4. Gọi useLayoutEffect callback (sync)
+    5. Render lại UI
+    ```
+
+# useRef 
+- ref viết tắt của referent - tham chiếu 
+- Giúp tạo 1 biến ra 1 phạm vi bên ngoài function mà khi render lại không bị ảnh hưởng đến biến đó
+- Ref luôn trả về object và có property là `current` nên muốn lấy giá trị thì ta phải chọc vào thằng current
+
+# Memo 
+- Nghĩa là ghi nhớ 
+- Không phải là 1 hook
+- memo() -> Higher Order Component (HOC)
+- memo sẽ check các props của component xem có props nào bị thay đổi không, nếu có thì mới re-render 
+    ```js
+    function App() {
+        //Code
+    }
+
+    export default memo(App)
+    ```
+# useCallback
+- Giúp tránh tạo ra các hàm không cần thiết trong function component 
+# useMemo 
+- Khác với memo, thằng này là 1 hook, nó viết trong phần thân của function component
+- Tránh thực hiện lại 1 logic nào đó không cần thiết
+# useReducer 
+- Cung cấp thêm 1 giải pháp để xử lý vấn đề (Thường dùng để xử lý các vấn đề phức tạp hơn)
+- VD như useState xử lý được thì useReducer cũng xử lý được
+    ```js
+    //useState 
+    1. Init state: 0
+    2. Actions: Up (state + 1) / Down (state - 1)
+
+    //useReducer
+    1. 
