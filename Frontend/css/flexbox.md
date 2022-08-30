@@ -14,25 +14,25 @@
     - cross size: Kích thước của mỗi item dựa theo trục cross axis
 
 ## Các thuộc tính của flex container
-- display: Định nghĩa 1 flex container (Cho lên 1 hàng ngang)
+- **display**: Định nghĩa 1 flex container (Cho lên 1 hàng ngang)
 ![](img/display-flex.png)
-- flex-direction: Dùng để chỉ định các hướng hiển thị của item (Thay đổi hướng hiển thị cũng có thể cho phép thay đổi vị trí của các flex item)
-- flex-direction: row : Giá trị mặc định của flexbox đặt item từ trái qua phải theo trục chính 
+- **flex-direction**: Dùng để thay đổi phương hướng của main-axist 
+- **flex-direction**: row : Giá trị mặc định của flexbox đặt item từ trái qua phải theo trục chính 
 ![](img/flex-direction-row.png)
-- flex-direction: row-reverse: Ngược lại với row 
+- **flex-direction**: row-reverse: Ngược lại với row 
 ![](img/flex-direction-rowreverse.png)
-- flex-direction: column : Từ trên xuống dưới 
+- **flex-direction**: column : Từ trên xuống dưới 
 ![](img/flex-direction-column.png)
-- flex-direction: column-reverse : Từ dưới lên trên 
+- **flex-direction**: column-reverse : Từ dưới lên trên 
 ![](img/flex-direction-column-reverse.png)
-- flex-wrap: Kiểm soát việc bọc các items nằm gọn trong container
-- flex-wrap: no-wrap : Mặc định không có gì thay đổi
+- **flex-wrap**: Kiểm soát việc bọc các items nằm gọn trong container
+- **flex-wrap**: no-wrap : Mặc định không có gì thay đổi
 ![](img/nowrap.png)
-- flex-wrap: wrap : Các item được bọc trong container (Phần tử đẩy xuống dưới)
+- **flex-wrap**: wrap : Các item được bọc trong container (Phần tử đẩy xuống dưới)
 ![](img/wrap.png)
-- flex-wrap: wrap-reverse : Các item được bọc trong container (Phần tử đẩy lên trên)
+- **flex-wrap**: wrap-reverse : Các item được bọc trong container (Phần tử đẩy lên trên)
 ![](img/wrap-reverse.png)
-- flex-flow: Là cú pháp rút gọn của flex-direction & flex-wrap (Giá trị đầu là direction & sau là wrap)
+- **flex-flow**: Là cú pháp rút gọn của flex-direction & flex-wrap (Giá trị đầu là direction & sau là wrap)
 
 - justify-content: Dùng để căn chỉnh vị trí các items so với trục chính (main axis)
 - Có 6 thuộc tính: 
@@ -62,6 +62,14 @@
     - align-items: baseline : Item được đặt dữ theo các ký tự thuộc item đó (Mục đích căn chỉnh dữ liệu dòng văn bản các item)
     ![](img/align-baseline.png)
 
+- **order**: Muốn bắt đầu ở vị trí nào
+
 ## align-content
  - Giống với justify-content chỉ khác là align-content căn theo trục cross axis 
 
+
+## VD 
+- `display`: flex: Trục main-axis nằm ngang 
+    - inline-flex: Nằm trên cùng 1 hàng
+- `flex: 1`: Chiếm hết khoảng có thể chiếm theo trục main-axis
+- `flex-basic`: 30%: Căn độ rộng của flex-items
