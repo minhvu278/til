@@ -10,29 +10,21 @@
 # Swagger là gì? 
 - Là 1 bộ mã nguồn mở để xây dựng OpenAPI specifications giúp ta thiết kế và sử dụng REST APIs 
 - Swagger cung cấp 3 tools chính cho các developers: 
-    - Swagger-Editor: Dùng để design lên các APIs hoàn toàn mới hoặc edit lại các APIs có sẵn thông qua 1 file config 
-    - Swagger-Codegen: Dùng để generate ra code từ các file config có sẵn 
-    - Swagger-UI: Dùng để generate ra file html,css,... từ 1 file config 
-- Việc viết document cho swagger có 2 cách tiếp cận chính như sau: 
-    - Top-down approach: Thiết kế API trước khi code 
-    - Bottom-up approach: Từ các API có sẵn thiết kế file config để mô tả chúng 
+    - **Swagger-Editor**: Dùng để design lên các APIs hoàn toàn mới hoặc edit lại các APIs có sẵn thông qua 1 file config 
+    - **Swagger-Codegen**: Dùng để generate ra code từ các file config có sẵn 
+    - **Swagger-UI**: Dùng để generate ra file html,css,... từ 1 file config
+
 - Có thể vào http://petstore.swagger.io/ để demo xem swagger như nào
     - Với mỗi API có thể biết được chi tiết input và output cũng như trường nào bắt buộc gửi lên, kết quả trả về có thể nhận những status nào
     - Đặc biệt có thể input data để kiểm tra kết quả 
 
 # Cấu trúc cơ bản của swagger 
 - Xem cấu trúc cơ bản tại link: https://editor.swagger.io
-### info 
-- Mỗi OpenAPI specifications sẽ bắt đầu với từ khóa openapi để khai báo phiên bản (VD: openapi: 3.0.0) - Phiên bản này sẽ định nghĩa toàn bộ cấu trúc của API 
-- Phần `info` sẽ chứa các thông tin của API 
-    - title: Tên api
-    - description: Thông tin mô tả API và có hỗ trợ cú pháp Markdown 
-    - info: Thông tin 
-    - version: Phiên bản API
+- 1 file swagger có thể viết bằng JSON hoặc YAML 
+    - **Metadata**: Mọi thông số kỹ thuật đều bắt đầu với phiên bản Swagger(Xác định cấu trúc tổng thể đặc tả API - Những gì có thể ghi lại và cách ghi lại nó). Ngoài ra các thông tin chi tiết như tiêu đề, mô tả, version đều được ghi ở đây 
+    - **Base Url**: Định nghĩa host của serve, đường dẫn cơ bản và giao thức https và http
+    - **Consumes & Produces**: Xác định các loại `MINE` được hỗ trợ 
+    - **Paths**: Là phần chứa các thông tin API trông như nào bằng đường dẫn API, các phương thức, các request, response 
 
-### basePath
-- Đường dẫn gốc đến thư mục API của project 
-
-### tags
-- Định nghĩa những tags, có thể sử dụng để gom những API trong cùng 1 controllers về 1 nhóm 
-//TODO: https://topdev.vn/blog/gioi-thieu-swagger-cong-cu-document-cho-restfull-apis/
+# API Host and Base Url
+- Rest APIs có 1 url cơ sở mà các đường dẫn điểm cuối được nối vào. - - Đường dẫn URL này được định nghĩa bởi `schema, host, basePath`.
