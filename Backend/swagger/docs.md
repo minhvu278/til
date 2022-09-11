@@ -36,3 +36,80 @@
 ### tags
 - Định nghĩa những tags, có thể sử dụng để gom những API trong cùng 1 controllers về 1 nhóm 
 //TODO: https://topdev.vn/blog/gioi-thieu-swagger-cong-cu-document-cho-restfull-apis/
+
+# Add swagger laravel 8
+-  Cài darkaonline
+    ```php
+    composer require "darkaonline/l5-swagger" --ignore-platform-reqs
+    // Có thể cài cho phiên bản php nào
+    composer require "darkaonline/l5-swagger:5.8.*"
+    ```
+    - `--ignore-platform-reqs` thêm vào nếu lỗi problem
+- Để sử dụng **@SWG** (Swagger Annotations)
+    ```php
+    composer require zircote/swagger-php
+    // Mặc định sẽ sử dụng swagger phiên bản 3.0. Có thể hạ phiên bản
+    composer require 'zircote/swagger-php:2.*'
+    ```
+- Publish L5-Swagger config and view files
+    ```php
+    php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"
+    ```
+- Thêm swagger vào Controller
+    ```php
+    /**
+     * @OA\Info(title="My First API", version="0.1")
+    * * @OA\Get(
+    *     path="/",
+    *     description="Home page",
+    *     @OA\Response(response="default", description="Welcome page")
+    * )
+    */
+    ```
+- Generate Swagger UI
+    ```
+    php artisan l5-swagger:generate
+    ```
+    - Để mỗi lần thay đổi không cần phải gen lại thì ta set `L5_SWAGGER_GENERATE_ALWAYS=true` là đựt
+- Truy cập để test api: http://localhost:8000/api/documentation
+- Ví dụ đơn giản cho func store()
+    ```
+        /**
+     * @SWG\Post(
+     *   path="api/users",
+     *   summary="Create A User",
+     *   operationId="store",
+     *   tags={"Users"},
+     *   security={
+     *       {"ApiKeyAuth": {}}
+     *   },
+     *   @SWG\Parameter(
+     *       name="name",
+     *       in="formData",
+     *       required=true,
+     *       type="string"
+     *   ),
+     *   @SWG\Parameter(
+     *       name="email",
+     *       in="formData",
+     *       required=true,
+     *       type="string"
+     *   ),
+     *   @SWG\Parameter(
+     *       name="team_id",
+     *       in="formData",
+     *       required=true,
+     *       type="integer"
+     *   ),
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error")
+     * )
+     *
+     */
+    ```
+    - Một số keys:
+        - @SWG\Swagger: Chứa thông tin cơ bản của SW
+        - Info: Thông tin cấu hình
+        - SercuritySchema: Mô tả các phương thức xác thực được sử dụng trong API
+        - security: API nhận access_token xác thực từ sercuritySchema
