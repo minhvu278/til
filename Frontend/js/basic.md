@@ -80,3 +80,70 @@
         var array3 = [...array2, ...array1]
         ```
         - `...array2`: Sẽ bỏ `[]` và chỉ lấy `'Dart', 'Flutter'`
+    
+## var let const 
+- `var`: Có thể khai báo lại và cập nhật gía trị(Tuy nhiên thì cái khai báo lại có thể xảy ra rất nhiều lỗi và không biết lỗi ở đâu)
+- `let`: Có thể cập nhật và không thể khai báo lại
+- `const`: Không thể cập nhật và khai báo lại
+    - Tuy nhiên thì những cái được gán ở bên trong thì có thể chỉnh sửa thoải mái
+        ```js
+        const buaAn = {
+            anTrua: 'com,
+            anToi: 'Pho
+        }
+
+        buaAn.anTrua = 'bun dau'
+        ```
+        - Có thể sử dụng trong array & object
+
+## Tham số mặc định 
+- Tham số mặc định khi không truyền vào trong ES6
+    ```js
+    const Cong = (x, y = 2) => return x + y
+
+    const tong = Cong(4) // Output: 6
+    ```
+## Template Literals
+- Nối chuỗi trong ES5
+    ```js
+    const ten = 'Vu'
+    const ho = 'Do'
+
+    const.log('Ten toi la' + ho + '' + ten)
+    ```
+- Nối chuỗi trong ES6
+    ```js
+    const ten = 'Vu'
+    const ho = 'Do'
+
+    const.log(`Tao ten la ${ho} ${ten}`)
+    ```
+
+## Destructure 
+- d
+    ```js
+    const buaAn = {
+        buaSang: 'Banh My',
+        buaTrua: 'Thit Cho'
+    }
+
+    const traiCay = ['Tao', 'Nho']
+
+    console.log(`Sáng nay tao ăn ${buaAn.buaSang}`)
+    console.log(`Trưa nay tao ăn ${buaAn.buaTrua}`)
+
+    console.log(`Quả số 1 là: ${traiCay[0]}`)
+    console.log(`Quả số 2 là: ${traiCay[1]}`)
+- Làm như trên thì nó bị lặp lại `buaAn` va `traiCay` khá nhiều
+- Sử dụng destructure
+    ```js
+    const {buaSang, buaTrua} = buaAn
+
+    console.log(`Sáng nay tao ăn ${buaSang}`)
+    console.log(`Sáng nay tao ăn ${buaTrua}`)
+
+    const [Tao, Nho] = traiCay
+ 
+    console.log(`Quả số 1 là: ${Tao}`)
+    ```
+    - Bẻ bữa ăn ra và lấy các giá trị của properties và gán vào từng biến

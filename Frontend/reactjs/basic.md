@@ -255,3 +255,135 @@
     ```
     https://www.youtube.com/watch?v=7sX_8lKURqo&list=PL_-VfJajZj0UXjlKfBwFX73usByw3Ph9Q&index=26&ab_channel=F8Official
     ```
+
+# JSX 
+- Viết tắt của Javascript XML(XML là cú pháp mở rộng của HTML) - Sinh ra để hỗ trợ viết XML HTML trong Js
+## Tại sao cần sử dụng JSX? 
+- Vì cú pháp gần giống với HTML nên viết code sẽ ngắn và dễ hiểu hơn
+- Nếu không sử dụng JSX thì hãy xem ví dụ để tạo ra được 1 element
+    ```js
+    <div id="root"></div>
+
+    <script>
+        const ul = ReactElement(
+            'ul',
+            null,
+            React.createElement('li', null, 'Javascript'),
+            React.createElement('li', null, 'Reactjs'),
+        )
+        ReactDOM.render(ul, document.getElementById('root'))
+    </script>
+    ```
+- Vd trên thì ta cũng thấy là để tạo ra được 1 element thì đều phải sử dụng `React.createElement`, vậy thì để code ra 1 trang hoàn chỉnh sử dụng cái này thì sao. Thì đó chính là lý do sử dụng JSX 
+- Tuy nhiên thì JSX nó không thể truyền thằng cho ReactDOM được mà nó cần nhận là `ReactElement` vì thế ta cần phải sử dụng 1 thư viện trung gian đó là Babel - Phân tích cú pháp và chuyển đổi về JSX
+    - Có thể thử Live Demo tai đây: https://bit.ly/2VOIMN7
+- `1 số điều cần lưu ý khi sử dụng JSX`
+    - Có thể tạo ra biến và gán JSX cho biến đó
+        ```js 
+        const ul = <ul>
+                        <li>ReactJS</li>
+                    </ul>
+        ```
+    - Hỗ trợ viết code Js đan xen vào giữa
+        ```js 
+        const reactCourse = 'ReactJS'
+
+        const ul = <ul>
+                        <li>{reactCourse}</li>
+                    </ul>
+        ```
+    - JSX không phải là HTML nên cẩn thận kẻo nhầm cú pháp với HTML 
+        - Thay vì viết class như bên HTML thì ta sử dụng `className` - Lý do là class trùng với keyword của Js
+        ```js
+        //HTML
+        <div class="container"></div>
+
+        //JSX
+        <div className="container"></div>
+        ```
+## `Tóm lại`: 
+- **Jsx có cú pháp gần giống HTML nên code dễ hiểu hơn**
+- **Có thể tạo ra biến và gán JSX cho biến đó** 
+- **Hỗ trợ viết code Js đan xen vào giữa** 
+- **Sử dụng className thay cho class**
+
+# Component
+- Là bộ phận cấu thành của giao diện người dùng
+## Tại sao cần chia component ?
+- Khi viết code thì thường viết hết vào trong 1 file thì nó có 1 số vấn đề: 
+    - Code rất dài 
+    - Fix bug khó 
+    - Không tái sử dụng được
+- Thử tưởng tượng code tầm 10 trang đều sử dụng header và footer giống nhau, copy từ file này ném sang file kia - Nó sẽ bị lặp lại code rất nhiều
+-  Vì thế nên chia code thành các component: 
+    - Cấu trúc code rõ ràng hơn 
+    - Tận dụng được tính năng tái sử dụng của component
+- Component được viết trong thư mục `components` 
+    - Ví dụ viết component Header để có thể tái sử dụng thì cần tạo file header.js trong component (Nhớ phải export thì mới import vào file khác được)
+        - header.js
+        ```js
+        function Header() {
+            return (
+                <div className="header">Header</div>
+            )
+        }
+        //Export
+        export default Header
+        ```
+        - Import vào file cần sử dụng. Vd file App.js
+            ```js 
+            import Header from "../components/header";
+            import React from "react";
+
+            const App = () => {
+                return (
+                    <Header></Header>
+                    // Đối với những tag không có children thì có thể đóng luôn 
+                    <Header />
+                )
+            }
+
+            export default App
+            ```
+## `Tóm lại`
+- Component sử dụng để cho code rõ ràng hơn
+- Tận dụng được tính năng tái sử dụng 
+- Được viết trong thư mục `components`
+- Đối với những thẻ tag không có children thì có thể đóng luôn: `<Header></Header>  -> <Header />`
+
+# Props
+- Là dữ liệu được truyền từ component cha xuống
+- Không thể tự động thay đổi được bởi component hiện tại, nếu muốn thay đổi thì thay đổi từ thằng cha - Bản thân component hiện tại thì nó chỉ nhận chứ không thể thay đổi được giá trị của props
+- Cùng xem ví dụ để hiểu rõ hơn về props 
+    ```js
+    function Box(props) {
+    return (
+        <div style={{backgroundColor: props.color}}>
+
+        </div>
+    )
+    }
+
+    function App() {
+        return (
+            <div>
+                <Box color="green" />
+                <Box color="red" />
+            </div>
+        )
+    }
+    ```
+    - Trong ví dụ trên thì `color` được truyền từ thằng cha xuống thằng con sẽ không biết trước được nó sẽ nhận được gì và cũng không thể thay đổi được
+
+
+# State là gì 
+- Ngược lại với props thì state có thể thay đổi được
+- Có 2 loại state: state và global state (Redux)
+
+## Khi nào cần sử dụng state và global state 
+- State
+    - Sử dụng cho những dữ liệu mà chỉ sử dụng trong duy nhất 1 component hiện tại 
+    - Được tạo ra, quản lý và xử lý trong duy nhất component hiện tại 
+- Global state 
+    - Sử dụng bởi nhiều component khác nhau 
+    - Sử dụng trong Redux(Redux nó là 1 thư viện dùng để quản lý global state)
