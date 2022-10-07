@@ -47,7 +47,7 @@
 # Props 
 - React element : Là những thẻ JSX giống HTML
 - React components : Những function dùng để tạo component thì gọi là component
-- Sử dụng props giống như đối số cho function 
+- Sử dụng props giống như đối số cho function
 
     ```js
     // PostItem.js
@@ -72,6 +72,8 @@
     ```
 - Chú ý là cả 2 props element & component thì props `key` là props đặc biệt
 - Props cơ bản là đối số của component, function. Props có thể là bất cứ kiểu dữ liệu gì
+
+- Sử dụng với destructering
 
 # Tạo component linh hoạt
 - Xử lý event thì sẽ viết ra 1 hàm handle 
@@ -387,3 +389,32 @@
 - Global state 
     - Sử dụng bởi nhiều component khác nhau 
     - Sử dụng trong Redux(Redux nó là 1 thư viện dùng để quản lý global state)
+
+# Children props, render props
+- Có 2 cách truyền
+    - Dạng chuỗi sử dụng `""`
+    - Truyền dưới dạng expression `{}`
+- Props default to "true"
+    - Khi props không truyền gì thì mặc định nó sẽ là true
+    ```js
+    // Viết cứng thì thì không cần truyền true
+    primary={true} -> primary
+
+    //Tuy nhiên nếu truyền biến từ bên ngoài vào thì vẫn phải truyền true vào 
+    isPrimary = true
+
+    primary={true}
+    ```
+- Children props
+    - Cũng có 2 cách truyền như thằng trên 
+
+
+# Webpack
+- Giúp module hóa ứng dụng(Chia nhỏ ra rồi import export)
+- Mini file, loại bỏ những thứ không cần thiết, gộp nhiều file thành 1 file
+## pakage.json
+- Mô tả dự án và quản lý các thư viện 
+## Update phiên bản mới nhất react
+    ```
+    npm i react@lastest react-dom@lastest
+    ```

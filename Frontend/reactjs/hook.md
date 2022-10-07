@@ -222,3 +222,9 @@
 
     //useReducer
     1. 
+
+# useState
+- **const [todos, setTodos] = useState()**
+    - Giá trị trả về của nó là 1 array 
+    - todos: Lưu lại trạng thái hiện tại của component 
+    - setTodos: Thay đổi trạng thái hiện tại của component 
