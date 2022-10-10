@@ -418,3 +418,16 @@
     ```
     npm i react@lastest react-dom@lastest
     ```
+
+# Lifecycle 
+- Là vòng đời của component. Gồm 3 giai đoạn
+    - Mounting(Tạo ra) -> Updating(Thay đổi) -> Unmounting(Hủy bỏ)
+
+- componentDidMounted() {}
+    - Được gọi lần đầu tiên khi component được khởi tạo và gắn vào DOM và chỉ được gọi 1 lần duy nhất 
+
+- componentDidUpdate() {}
+    - Được gọi ngay sau khi render được gọi (props & state thay đổi)
+
+- componentWillUnmounted() {}
+    - Được gọi trước khi component unmounted

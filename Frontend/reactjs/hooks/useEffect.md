@@ -26,6 +26,8 @@
 - `Cả 3 trường hợp trên`
     - Callback luôn được gọi khi component mounted
     - CleanUp function luôn được gọi trước khi component được unmount
+    - CleanUp function luôn được gọi trước khi callback được gọi (Trừ lần component được mounted)
+        - Trước khi gọi callback mới thì sẽ dọn dẹp các phần trước đó
         ```js
         return () => {
             //Code
