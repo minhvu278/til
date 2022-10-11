@@ -380,6 +380,9 @@
 
 # State là gì 
 - Ngược lại với props thì state có thể thay đổi được
+- Lưu các giá trị thuộc tính của component 
+- Gía trị state có thể thay đổi được 
+- Khi state thay đổi thì sẽ được re-render lại
 - Có 2 loại state: state và global state (Redux)
 
 ## Khi nào cần sử dụng state và global state 
