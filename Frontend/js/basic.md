@@ -147,3 +147,25 @@
     console.log(`Quả số 1 là: ${Tao}`)
     ```
     - Bẻ bữa ăn ra và lấy các giá trị của properties và gán vào từng biến
+
+# Reduce
+- Là dạng kiểu vòng lặp nhưng viết ngắn gọn hơn 
+    ```js
+
+    function coinHandler(accumulator, currentValue) {
+        return accumulator + currentValue.coin
+    }
+
+    var totalCoin = courses.reduce(coinHandler, 0) //Initial value
+    ```
+    - accumulator: Là giá trị mà truyền biến thứ 2 của **reduce**
+    - currentValue: Trả đúng thứ tự array 
+- Có thể viết theo dạng es6
+    ```js
+    var totalCoin = courses.reduce((a, b) => {
+        a + b.coin, 0
+    })
+    ```
+
+# Filter
+- Lọc ra các phần tử thỏa mãn điều kiện
