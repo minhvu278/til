@@ -193,3 +193,15 @@
 - Sử dụng trong function component thôi, còn 2 đối số truyền vào `reducer, initState` thì nhận ở bên ngoài vào
     - Có thể tách các thành các file riêng: VD tách action, reducer ra các file khác nhau và import vào
     - Làm cho code nhìn gọn hơn 
+
+# So sánh Redux & react-context
+- Cách hoạt động của **context** giống với redux, tuy nhiên thì nó không phải sinh ra để thay thế thằng redux 
+- Ưu điểm của redux: 
+    - Dễ dàng để triển khai debug hơn (Có thư viện react-debugg giúp có thể inspace từng element dễ quan sát state thay đổi trong ứng dụng hơn)
+    - Có cơ chế để apply middleware dễ dàng 
+    - Có addons để dễ dàng mở rộng hơn 
+    - Là Cross-platform(Đa nền tảng) không bị phụ thuộc vào react (Đáp ứng được tất cả các dự án nào sử dụng JS kể cả code thuần - Còn context chỉ sử dụng được cho react)
+    - Có thể dễ dàng cấu hình & performent sẽ hơn hẳn khi sử dụng context
+- Nhược điểm của thằng context: 
+    - Nó sẽ re-render lại toàn bộ lại ứng dụng nếu bao nó vào App (Redux thì cái nào thay đổi nó mới render lại) vì thế chỉ nên sử dụng trong ứng dụng vừa nhỏ
+- `Ứng dụng nhỏ thì nên sử dụng context, còn ứng dụng lớn thì sử dụng redux nó sẽ tối ưu hơn`
