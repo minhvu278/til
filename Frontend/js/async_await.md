@@ -1,4 +1,32 @@
 # Xử lý bất đồng bộ 
+- Xử lý bất đồng bộ là 1 vấn đề khá là nhức nhối cho ae học js. Vậy bất đồng bộ là gì? Có nhất thiết phải sử dụng nó? Chúng ta cùng tìm hiểu nó ở bên dưới nhé 
+
+- Trước khi vào phần giải thích thì có 1 ví dụ như này cho các bạn dễ hình dung
+    - Gỉa sử trong 1 nhà hàng: 
+        - Nhân viên đón khách vào ăn -> khách gọi món -> Nhân viên báo cho đầu bếp -> đầu bếp làm rồi đưa cho nhân viên -> Nhân viên mang ra cho khách -> Khách ăn xong -> Nhân viên dọn bàn -> Mời khách tiếp theo vào
+        - Tuy nhiên thì trong thực tế thì nhân viên không đứng đợi như thế được mà phải làm liên tay liên chân  
+    - Chắc qua ví dụ này thì mọi người cũng có thể hình dung ra sự bất tiện khi phải chờ đợi thời gian quá lâu từ khách, nhân viên hay đầu bếp (Trong js thì nó sẽ làm chậm website đi)
+- Bất đồng bộ trong Js giúp ta không phải đợi 1 việc xong thì mới làm đến việc tiếp theo (Hay là như kiểu xử lý bài toán trên theo cách thực tế =)) ). 
+    - Giải thích như trong VD cho dễ hình dung nhé 
+        - Khi đầu bếp nấu xong thì bấm chuông báo cho nhân viên biết món đã xong để bê ra cho khách - Trong khoảng thời gian đợi đầu bếp nấu xong thì nhân viên đã làm được rất nhiều việc rồi
+    - Trong JS cũng thế: Khi thực hiện lệnh 1 thì thực hiện được lệnh 2,3,4 rồi, lệnh 1 xong thì quay lại lấy dữ liệu rồi thực hiện tiếp lệnh 5,6
+        - Việc này sẽ giúp cho website chạy nhanh hơn, đỡ hao phí tài nguyên hơn
+
+## Sai lầm cơ bản khi xử lý 
+- Function1(callback())
+- Function2()
+    - Vd function1 mất 5s thực hiện thì khi xong thì nó sẽ gọi hàm callback() - Hàm gọi lại
+    - Thì ta không cần đợi hàm 1 thực hiện xong mới chạy hàm 2 
+        
+
+
+
+
+
+
+- Khó, kể cả học xong 
+- Dần dần sử dụng sẽ biết 
+- Nên quay lại đọc lại, xem lại, càng nhiều lần thì càng nhanh hiểu
 ## Callback
 - Bài toán: Muốn gọi cho Nam nhưng không có số -> Gọi điện cho thằng bạn -> Xin số thằng Nam -> Gọi điện cho thằng Nam
     ```js
