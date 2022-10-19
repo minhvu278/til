@@ -65,3 +65,8 @@
 - Redux state là READ-ONLY. Muốn update phải dispatcher 1 action 
 - Những thay đổi của redux state được thực hiện bởi reducer 
 - Redux được sử dụng cho javascript app chứ không chỉ cho riêng react
+
+
+# rootReducer 
+- Kết hợp tất cả các reducer lại tất cả các reducer trong app
+- Tổng hợp các reducer con lại
