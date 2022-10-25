@@ -31,6 +31,7 @@
 - Redux chỉ kết nối với những thằng xử lý logic cho app
 
 # useSelector
+- Lấy state từ redux store 
 - Connect vao store
     ```js
     // Strict comparison ===
@@ -45,3 +46,8 @@
     ```
     - Với cách sử dụng **Strict comparison** thì mỗi lần thằng redux được cập nhật hoặc thay đổi thì useSelector sẽ được chạy lại & tính toán lại 1 state mới. Nó sẽ so sánh *state.hobby.list* cũ so sánh với *state.hobby.list* cũ (So sánh ===) nếu như nó giống nhau thì sẽ không trigger re-render - còn khác thì sẽ trigger
     - Với cách sử dụng **Shallow comparison** nó sẽ luôn trả về 1 object mới vì thế nên lúc nào nó cũng sẽ trigger  re-render 
+
+# Redux toolkit
+- createSlice: Tạo trạng thái ban đầu của state
+- configureState: Tạo store
+- selector: store xuất ra dữ liệu gì đó thì component sẽ nhận dữ liệu đó
