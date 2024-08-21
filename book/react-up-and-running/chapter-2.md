@@ -70,3 +70,89 @@ ReactDOM.render(
     - Thực tế, các class không tồn tại trong các phiên bản đầu tiên của của ngôn ngữ Js; chúng chỉ là 1 suy nghĩ muộn và chỉ là đường cú pháp trên đỉnh của các hàm nguyên mẫu
 - Theo lịch sử về React, các funtion component không thể thực hiện mọi thứ mà các class có thể làm. Cho đến khi phát minh ra hook, điều mà bạn sẽ được học trong thời gian tới. Về tương lai, người ta chỉ có thể suy đoán nhưng khả năng React sẽ chuyển sang function component nhiều hơn
     - Cuốn sách này dạy bạn cả 2 cách và không đưa ra quyết định thay bạn. Quyết định chọn cách nào là ở bạn
+## Properties (Thuộc tính)
+- Việc hiển thị UI được mã hoá cứng trong custom component là hoàn toàn ổn và có công dụng của nó. Nhưng các component cũng có thể nhận được thuộc tính và hiển thị hoặc hoạt động khác nhau tuỳ thuộc vào giá trị của thuộc tính. Hãy nghĩ về phần tử <a> trong HTML và cách nó hoạt động khác nhau dựa trên giá trị của thuộc tính href. Ý tưởng về thuộc tính trong React cũng tương tự (Và cú pháp JSX cũng vậy)
+- Trong các class component, tất cả các thuộc tính đều có sẵn thông qua đối tượng this.props . Hãy xem ví dụ dưới đây
+```js
+class MyComponent extends React.Component {
+  render() {
+    return <span>My name is <em>{this.props.name}</em></span>;
+  }
+}
+```
+  - Trong ví dụ này, bạn có thể sử dụng {} để thêm các giá trị và biểu thức trong JSX của bạn. 
+- Việc truyền 1 giá trị cho thuộc tính name khi hiển thị component sẽ như thế này
+```js
+ReactDOM.render(
+  <MyComponent name="Bob" />,
+  document.getElementById('app')
+);
+```
+- Điều quan trọng cần nhớ là this.props là chỉ đọc. Nó được dùng để truyền cấu hình từ component cha xuống component con, nhưng nó không phải là bộ nhớ chung cho các giá trị. Nếu bạn cảm thấy muốn đặt thuộc tính của this.props, hãy sử dụng các biến cục bộ hoặc thuộc tính của class component của bạn thay vào (có nghĩa là sử dụng this.thing thay vì this.props.thing)
+## Properties in Function Components
+- Trong các function component, không có this (chế độ nghiêm ngặt của Js) hoặc this  đề cập đến đối tượng toàn cục (trong chế độ không nghiêm ngặt, chúng ta có thể nói đó là chế độ cẩu thả). Vì vậy thay vì this.props, bạn nhận được 1 đối tượng props được truyền vào hàm của bạn dưới dạng đối số đầu tiên
+```js
+const MyComponent = function(props) {
+  return <span>My name is <em>{props.name}</em></span>;
+};
+```
+- Một mẫu phổ biến là sử dụng phép gán destructuring của JS và gán các giá trị thuộc tính cho các biến cục bộ. Nói cách khác, ví dụ trên sẽ trở thành như thế này
+```js
+const MyComponent = function({name}) {
+  return <span>My name is <em>{name}</em></span>;
+};
+```
+- Bạn có thể có bao nhiêu thuộc tính tuỳ thích. Ví dụ nếu bạn cần 2 thuộc tính (name và job) 
+```js
+const MyComponent = function({name, job}) {
+  return <span>My name is <em>{name}</em>, the {job}</span>;
+};
+
+ReactDOM.render(
+  <MyComponent name="Bob" job="engineer"/>,
+  document.getElementById('app')
+);
+```
+## Default properties
+- Component của bạn có thể cung cấp 1 số thuộc tính, nhưng đôi khi một số thuộc tính có thể có 1 số giá trị mặc định phù hợp với các trường hợp phổ biến nhất. Bạn có thể chỉ định các giá trị thuộc tính mặc định bằng cách sử dụng thuộc tính defaultProps cho cả class và function
+- Đối với funtion component
+```js
+const MyComponent = function({name, job}) {
+  return <span>My name is <em>{name}</em>, the {job}</span>;
+};
+
+MyComponent.defaultProps = {
+  job: 'engineer',
+};
+
+ReactDOM.render(
+  <MyComponent name="Bob" />,
+  document.getElementById('app')
+);
+```
+- Đối với class component
+```js
+class MyComponent extends React.Component {
+  render() {
+    return (
+      <span>My name is <em>{this.props.name}</em>,
+        the {this.props.job}</span>
+    );
+  }
+}
+
+MyComponent.defaultProps = {
+  job: 'engineer',
+};
+
+ReactDOM.render(
+  <MyComponent name="Bob" />,
+  document.getElementById('app')
+);
+```
+- Trong cả 2 trường hợp, kết quả sẽ là
+```
+My name is Bob, the engineer
+```
+- - Lưu ý:
+    - Các câu lệnh return của phương thức **render()** bao bọc giá trị được trả về trong dấu ngoặc đơn. Điều này chỉ vì cơ chế chèn dấu chấm phẩy tự động (ASI) của Js. Một câu lệnh `return` theo sau 1 dòng mới giống như `return ;` mà cũng giống như **return undefined;** điều này chắc chắn không phải là điều bạn muốn. Việc bao bọc biểu thức được trả về trong dấu ngoặc đơn cho phép định dạng code tốt hơn trong khi vẫn giữ được tính chính xác
