@@ -154,5 +154,90 @@ ReactDOM.render(
 ```
 My name is Bob, the engineer
 ```
-- - Lưu ý:
+- Lưu ý:
     - Các câu lệnh return của phương thức **render()** bao bọc giá trị được trả về trong dấu ngoặc đơn. Điều này chỉ vì cơ chế chèn dấu chấm phẩy tự động (ASI) của Js. Một câu lệnh `return` theo sau 1 dòng mới giống như `return ;` mà cũng giống như **return undefined;** điều này chắc chắn không phải là điều bạn muốn. Việc bao bọc biểu thức được trả về trong dấu ngoặc đơn cho phép định dạng code tốt hơn trong khi vẫn giữ được tính chính xác
+## State
+- Các ví dụ cho đến nay khá tĩnh (hoặc không trạng thái). Mục tiêu chỉ là cung cấp cho bạn một ý tưởng về các block để xây dựng giao diện người dùng của bạn. Nhưng nơi React thực sự toả sáng (và nơi việc thao tác và bảo trì DOM của trình duyệt theo cách cũ trở nên phức tạp) là khi dữ liệu trong ứng dụng của bạn thực sự thay đổi
+- React có khái niệm về state, đó là bất kỳ dữ liệu nào mà các component muốn sử dụng để hiển thị chính mình. Khi state thay đổi, React sẽ xây dựng lại UI người dùng trong DOM mà bạn không cần phải làm gì. Sau khi bạn xây dựng giao diện người dùng ban đầu trong phương thức `render()` của mình (hoặc trong hàm hiển thị trong trường hợp function component), tất cả những gì bạn quan tâm là cập nhật dữ liệu. Bạn không cần phải lo lắng về việc thay đổi giao diện người dùng chút nào. Sau cùng phương thức/hàm `render()` của bạn đã cung cấp bản thiết kế về các component trông thế nào
+    - **“Stateless (không trạng thái)” không phải là 1 từ xấu, không hề. Các component stateless dễ quản lý và suy nghĩ hơn nhiều. Tuy nhiên trong khi việc sử dụng stateless bất cứ khi nào có thể là tốt hơn, các ứng dụng phức tạp cần state**
+- Tương tự như cách bạn truy cập thuộc tính thông qua **this.props**, bạn đọc **state** thông qua đối tượng **this.state**. Để cập nhật state, bạn sử dụng **this.setState()**. Khi **this.setState** được gọi, React sẽ gọi phương thức **render()** của component của bạn (và các component con của nó) và cập nhật UI người dùng
+- Các cập nhật đối với UI người dùng sau khi gọi **this.setState()** được thực hiện bằng cách sử dụng cơ chế xếp hàng hiệu quả để xử lý các thay đổi theo lô. Việc cập nhật `this.state` trực tiếp có thể dẫn đến lỗi không mong muốn và bạn không nên làm điều đó. Tương tự như this.props, hãy xem đối tượng this.state chỉ là đọc, không chỉ về mặt ngữ nghĩa nó là 1 ý tưởng không hay mà còn vì có thể hoạt động theo những cách mà bạn không mong đợi. Tương tự, đừng bao giờ tự gọi `this.render()` - thay vào đó, hãy để React xử lý các thay đổi theo lô, tìm ra lượng công việc tối thiểu và gọi `render()` khi và nếu cần thiết.
+## A textarea Component
+- Hãy cùng tạo 1 component mới - Một textarea đếm số lượng kí tự được nhập vào
+- Bạn (cũng như những người sử dụng component có thể tái sử dụng trong tương lai) có thể sử dụng component mới như sau
+  ```js
+  ReactDOM.render(
+    <TextAreaCounter text="Bob" />,
+    document.getElementById('app')
+  );
+  ```
+- Bây giờ hãy triển khai component. Đầu tiên hãy tạo 1 phiên bản stateless (không trạng thái) không xử lý các cập nhật; điều này không khác biệt nhiều so với các ví dụ trước
+  ```js
+  class TextAreaCounter extends React.Component {
+    render() {
+      const text = this.props.text;
+      return (
+        <div>
+          <textarea defaultValue={text}/>
+          <h3>{text.length}</h3>
+        </div>
+      );
+    }
+  }
+
+  TextAreaCounter.defaultProps = {
+    text: 'Count me as I type',
+  };
+  ```
+  - Bạn có thể nhận thấy rằng `<textarea>` trong đoạn code trên sử dụng thuộc tính defaultValue trái ngược với `text` bạn thường thấy trong HTML thông thường. Điều này là do có 1 số khác biệt nhỏ giữa React và HTML khi nói đến form element. Chúng ta sẽ được thảo luận kỹ hơn trong cuốn sách - hãy yên tâm, không có quá nhiều sự khác biệt
+- Như bạn đã thấy, component `TextAreaCounter` nhận 1 thuộc tính chuỗi văn bản text và hiển thị 1 `textarea` với giá trị được cho, cũng như phần tử <h3> sẽ hiển thị đỗ dài của chuỗi. Nếu `text` không được cung cấp, giá trị mặc định **Count me as I type** sẽ được sử dụng
+## Make It  Stateful 
+- Bước tiếp theo là biến component không trạng thái thành có trạng thái. Hay nói cách khác, hãy để component duy trì 1 số dữ liệu (trạng thái) và sử dụng dữ liệu này để hiển thị chính nó và sau đó cập nhật chính nó (render lại) khi dữ liệu thay đổi
+- Đầu tiên, bạn cần đặt state ban đầu trong hàm tạo lớp bằng `this.state` . Hãy nhớ rằng hàm tạo (constructor) là nơi duy nhất bạn có thể đặt state trực tiếp mà không cần phải gọi **this.setState()**
+- Khởi tạo **this.setState** là bắt buộc; nếu bạn không làm điều đó, việc truy cập liên tục vào **this.state** trong phương thức **render()** sẽ thất bại
+- Trong trường hợp này, việc khởi tạo **this.state.text** là không cần thiết vì bạn có thể sử dụng thuộc tính **this.props.text**
+  ```js
+  class TextAreaCounter extends React.Component {
+    constructor() {
+      super();
+      this.state = {};
+    }
+
+    render() {
+      const text = 'text' in this.state ? this.state.text : this.props.text;
+      return (
+        <div>
+          <textarea defaultValue={text} />
+          <h3>{text.length}</h3>
+        </div>
+      );
+    }
+  }
+  ```
+  - Gọi super() trong constructor là bắt buộc trước khi bạn có thể sử dụng this
+- Dữ liệu mà component này duy trì là nội dung của textarea vì vậy state chỉ có 1 thuộc tính gọi là text - có thể truy cập thông qua this.state.text . Tiếp theo, bạn cần cập nhật state. Bạn có thể sử dụng 1 phương thức trợ giúp cho mục đích này
+  ```js
+  onTextChange(event) {
+    this.setState({
+      text: event.target.value,
+    });
+  }
+  ```
+- - Bạn luôn cập nhật state bằng `this.setState()` , hàm này nhận 1 object và hợp nhất nó với dữ liệu đã tồn tại trong **this.state.** Như bạn có thể đoán, **onTextChange()** là 1 trình xử lý sự kiện nhận vào 1 event object và truy cập vào nó để lấy nội dung của đầu vào textarea
+- Điều cuối cùng cần làm là cập nhật phương thức **render()** để thiết lập event handler
+  ```js
+  render() {
+    const text = 'text' in this.state ? this.state.text : this.props.text;
+    return (
+      <div>
+        <textarea
+          value={text}
+          onChange={event => this.onTextChange(event)}
+        />
+        <h3>{text.length}</h3>
+      </div>
+    );
+  }
+  ```
+- Bây giờ, bất cứ khi nào người dùng gõ vào textarea, giá trị của bộ đếm sẽ được cập nhật để phản ánh nội dung
+- Lưu ý rằng trước đây bạn có `<textarea defaultValue...>` , giờ đây là `<textarea value...>` trong đoạn code trên. Điều này là do cách thức hoạt động của các đầu vào trong HTML, nơi state của chúng ta được duy trì bởi trình duyệt. Nhưng React có thể làm tốt hơn. Trong ví dụ này, việc triển khai **onChange** có nghĩa là textarea hiện được kiểm soát bởi React. Bạn sẽ được tìm hiểu thêm về các component được kiểm soát (controlled components) trong các chương sau của cuốn sách
