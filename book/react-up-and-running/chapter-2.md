@@ -241,3 +241,164 @@ My name is Bob, the engineer
   ```
 - Bây giờ, bất cứ khi nào người dùng gõ vào textarea, giá trị của bộ đếm sẽ được cập nhật để phản ánh nội dung
 - Lưu ý rằng trước đây bạn có `<textarea defaultValue...>` , giờ đây là `<textarea value...>` trong đoạn code trên. Điều này là do cách thức hoạt động của các đầu vào trong HTML, nơi state của chúng ta được duy trì bởi trình duyệt. Nhưng React có thể làm tốt hơn. Trong ví dụ này, việc triển khai **onChange** có nghĩa là textarea hiện được kiểm soát bởi React. Bạn sẽ được tìm hiểu thêm về các component được kiểm soát (controlled components) trong các chương sau của cuốn sách
+## A Note on DOM Events
+- Để tránh nhầm lẫn, cần làm rõ 1 vài điểm về dòng code sau
+```js
+onChange={event => this.onTextChange(event)}
+```
+- React sử dụng hệ thống sự kiện tổng hợp (synthetic events) của riêng mình để cải thiện hiệu suất. Để hiểu rõ lý do, bạn cần xem xét cách thức hoạt động trong thế giới DOM thuần tuý
+### Event Handling in the Olden Days
+- Việc sử dụng event handler nội tuyến để thực hiện những việc như thế này là rất thuận tiện
+```js
+<button onclick="doStuff">
+  ```
+- Mặc dù thuận tiện và dễ đọc (event listeners nằm ngay bên cạnh code UI), việc có quá nhiều event listener phân tán như vậy là không hiệu quả. Cũng khó để có nhiều hơn 1 event listener trên 1 button, đặc biệt là nếu button đó nằm trong “component” hoặc thư viện của người khác và bạn không muốn vào sửa hoặc fork code của họ
+- Đó là lý do tại sao trong thế giới DOM, việc sử dụng `element.addEventListener` để thiết lập event listener (Hiện tại dẫn đến việc có code ở 2 nơi trở lên) và uỷ thác sự kiện (để giải quyết các vấn đề về hiệu suất) là phổ biến.
+- Uỷ thác sự kiện có nghĩa là bạn lắng nghe các sự kiện ở 1 nút cha. Ví dụ như một `<div>` chứa nhiều nút và bạn thiết lập event listener cho tất cả các nút, thay vì một event listener cho mỗi nút. Do đó, bạn uỷ thác việc xử lý sự kiện cho mỗi cơ quan quản lý cấp trên
+- Với uỷ thác sự kiện, bạn thực hiện điều gì đó như thế này:
+```js
+<div id="parent">
+  <button id="ok">OK</button>
+  <button id="cancel">Cancel</button>
+</div>
+
+<script>
+  document.getElementById('parent').addEventListener('click', function(event) {
+    const button = event.target;
+    // thực hiện các hành động khác nhau dựa trên nút nào được nhấp
+    switch (button.id) {
+      case 'ok':
+        console.log('OK!');
+        break;
+      case 'cancel':
+        console.log('Cancel');
+        break;
+      default:
+        new Error('Unexpected button ID');
+    };
+  });
+</script>
+```
+- Cách này hoạt động và hiệu suất tốt, nhưng có những nhược điểm:
+    - Khai báo event listener ở xa component UI: Điều này khiến code khó tìm và gỡ lỗi hơn
+    - Sử dụng uỷ thác và luôn chuyển đổi(switch): Tạo ra code mẫu không cần thiết ngay cả trước khi bạn thực hiện công việc thực sự (phản hồi khi nhấp vào nút trong trường hợp này)
+    - Sự không nhất quán của trình duyệt: Thực tế yêu cầu code này phải dài hơn (không được đề cập ở đây)
+- Thật không may, khi nói đến việc đưa code này vào hoạt động trước người dùng thực, bạn cần thêm 1 vài điều nữa nếu bạn muốn các browser cũ hỗ trợ
+    - Bạn cần `attachEvent` ngoài và `addEventListener`
+    - Bạn cần const `event = event || windown.event` ở đầu trình nghe
+    - Bạn cần `const button = [event.target](http://event.target) || event.srcElement`
+- Tất cả những điều này là cần thiết và đủ khó chịu đến nỗi bạn sẽ kết thúc bằng việc sử dụng 1 thư viện xử lý các sự kiện nào đó. Nhưng tại sao lại thêm 1 thư viện nữa (và học thêm API) khi React được tích hợp sẵn một giải pháp cho những cơn ác mộng của event handler?
+## Event Handling in React
+- React sử dụng sự kiện tổng hợp (synthetic events) để gom góp các event từ browser, loại bỏ hết các sự bất đồng, có nghĩa là không còn sự không nhất quán của browser nữa. Bạn sẽ luôn có thể sử dụng [`event.target`](http://event.target) một cách *ngon lành* trên mọi browser. Nói nôm na là bạn chả phải lo gì nữa, code của bạn sẽ chạy mượt trên mọi thiết bị
+- Ví dụ, trong đoạn code `TextAreaCounter` bạn chỉ cần sử dụng **event.target.value** và mọi thứ sẽ hoạt động trơn tru. Điều này có nghĩa là API để huỷ các event cũng giống nhau trên các browser, đơn giản là `event.stopPropagation()` và `event.preventDefault()` sẽ hoạt động ngay cả trên những phiên bản Internet Explorer hơi cũ
+- Cú pháp trong React cũng dễ dàng giữ UI và các event listener gần nhau. Nó trông giống như các event handler cổ điển được nhúng trực tiếp vào HTML. Nhưng thực tế thì React đang sử dụng sự kiện uỷ thác (event delagation) để tăng hiệu suất
+- React sử dụng camelCase cho các event handler, nên bạn sẽ sử dụng `onClick` thay cho `onclick`
+- Nếu bạn cần sự kiện gốc của browser vì bất cứ lý do gì, bạn có thể truy cập thông qua `event.nativeEvent` nhưng rất ít khi sử dụng nó
+- Và 1 điều nữa, event **onChange()** (như được sử dụng trong ví dụ Textare) sẽ hoạt động như bạn mong đợi, nó sẽ kích hoạt khi người dùng typing, thay vì khi họ nhập xong và di chuyển ra khỏi input như DOM thông thường
+- **Việc sử lý event trong React dễ như đớp bánh, bạn sẽ không cần phải “đau đầu” với các trình duyệt khác nhau nữa**
+## Event-Handling Syntax
+- Trong ví dụ trước, chúng ta đã sử dụng arrow function để gọi hàm onTextChange()
+```js
+onChange={event => this.onTextChange(event)}
+```
+- Lý do đơn giản là cú pháp `onChange={this.onTextChange}` sẽ không hoạt động
+- Có 1 lựa chọn khác là ràng buộc (bind)
+```js
+onChange={this.onTextChange.bind(this)}
+```
+- Và còn 1 cách nữa là bind tất cả các event handler trong constructor
+```js
+constructor() {
+  super();
+  this.state = {};
+  this.onTextChange = this.onTextChange.bind(this);
+}
+
+// ...
+
+<textarea
+  value={text}
+  onChange={this.onTextChange}
+/>
+```
+- Đây là 1 chút code mẫu cần thiết, nhưng cách này giúp ràng buộc event handler chỉ 1 lần duy nhất thay vì mỗi lần hàm `render()` được gọi. Điều này giúp làm giảm thiểu bộ nhớ của ứng dụng
+- Cách làm phổ biến này đã được thay thế phần lớn bởi khả năng sử dụng hàm như thuộc tính trong class Js
+```js
+// truoc
+class TextAreaCounter extends React.Component {
+  constructor() {
+    // ...
+    this.onTextChange = this.onTextChange.bind(this);
+  }
+
+  onTextChange(event) {
+    // ...
+  }
+}
+```
+```js
+// sau
+class TextAreaCounter extends React.Component {
+  constructor() {
+    // ...
+  }
+
+  onTextChange = (event) => {
+    // ...
+  };
+}
+```
+- **Tóm lại, bí mật của this trong React là phải ràng buộc đúng cách để đảm bảo rằng nó trỏ đến đối tượng lớp, tránh tình trạng this trỏ lung tung gây ra lỗi khó hiểu**
+## Props Versus State
+- Bạn đã biết rằng có thể truy cập `this.props` và `this.state` trong phương thức `render()` để hiển thị component. Nhưng làm thế nào để biết được khi nào sử dụng props, khi nào sử dụng state?
+- **Props** là cơ chế để người dùng component cấu hình component của bạn. Nó giống như những thông tin được truyền vào component từ bên ngoài
+- **State** là dữ liệu nội bộ của component, dùng để quản lý state của nó
+- Để hiểu rõ hơn, hãy tưởng tượng một ví dụ về lập trình hướng đối tượng
+    - `this.props` giống như tập hợp các đối số được truyền vào constructor
+    - `this.state` giống như túi chứa các thuộc tính riêng tư của class
+- **Hãy cố gắng chia nhỏ ứng dụng của bạn thành nhiều component không state (stateless) và có ít component có trạng thái (stateful) hơn**
+- Ví dụ:
+    - Một component hiển thị danh sách các sản phẩm sẽ nhận `props` là mảng các sản phẩm từ component cha
+    - Component này sẽ có `state` để quản lý trạng thái hiển thị của danh sách (danh sách đang được sắp xếp theo giá, đang được lọc theo loại,…)
+- **Tóm lại `props` là thông tin từ bên ngoài, `state` là thông tin nội bộ. Hãy sử dụng `props` để cấu hình component và `state` để quản lý trạng thái của component**
+## Props in Initial State: an Antipattern
+- Trong ví dụ Textarea trước, rất dễ để sử dụng this.props để thiết lập giá trị ban đầu cho this.state
+```js
+// Cảnh báo: Mẫu thiết kế phản tác dụng
+this.state = {
+  text: props.text,
+};
+```
+- Đây được gọi là anti-pattern. Bạn nên sử dụng kết hợp `this.props` và `this.state` để xây dựng UI trong phương thức `render()`
+- Mặc dù không có gì sai khi sử dụng props để thiết lập intitial cho state, nhưng điều này có thể dẫn đến kỳ vọng sai lệch từ phía người gọi component. Người gọi component có thể mong đợi giá trị của `props` (vd text ở ví dụ trên) luôn là giá trị mới nhất, nhưng mã trên không đáp ứng kỳ vọng này
+- Để giải quyết vấn đề này, bạn có thể thay đổi tên của props thành 1 cái gì đó như `defaultText` hoăc initialValue thay vì chỉ là text
+```js
+// Cách tốt hơn
+this.state = {
+  text: this.props.defaultText,
+};
+```
+## Accessing the Component from the Outside
+- Bạn không phải lúc nào cũng có cơ hội bắt đầu 1 ứng dụng React từ đầu. Đôi khi bạn phải kết nối với 1 ứng dụng hoặc 1 trang web hiện có và di chuyển sang React từng phần 1. May mắn thay, React được thiết kế để hoạt động với bất kỳ cơ sở code nào đã tồn tại
+- Rốt cuộc, nhưng người tạo ra React ban đầu cũng không thể dừng hết lại và viết hoàn toàn lại 1 ứng dụng khổng lồ(facebook.com) từ đầu, đặc biệt là trong những ngày React còn non trẻ
+- Một cách để ứng dụng React của bạn giao tiếp với thế giới bên ngoài là lấy 1 tham chiếu đến component được render bằng React.DOM.render() và sử dụng nó từ bên ngoài component
+```js
+const myTextAreaCounter = ReactDOM.render(
+  <TextAreaCounter text="Bob" />,
+  document.getElementById('app')
+);
+```
+- Bây giờ bạn có thể sử dụng myTextAreaCounter để truy cập các phương thức và thuộc tính giống như bạn thường làm với this bên trong component. Bạn thậm chí có thể tương tác với component bằng cách sử dụng console.log của Js(myTextAreaCounter.props, myTextAreaCounter.state,…)
+![alt text](img/02-textarea.png)
+- Trong ví dụ này, myTextAreaCounter.state kiểm tra state (ban đầu là trống); myTextAreaCounter.props kiểm tra các thuộc tính và dòng bên dưới thiết lập state mới
+```js
+myTextAreaCounter.setState({text: "Hello outside world!"});
+```
+- Dòng này lấy tham chiếu đến node DOM cha chính mà React tạo ra
+```js
+const reactAppNode = ReactDOM.findDOMNode(myTextAreaCounter);
+```
+- Đây là con đầu tiên của `<div id='app'>` nơi bạn bắt React thực hiện pháp thuật của nó
+- Bạn có thể truy cập toàn bộ API của component từ bên ngoài, nhưng hãy sử dụng siêu năng lực này 1 cách tiết kiệm, nếu có thể. Có thể bạn sẽ muốn “lục lọi” state của các component mà bạn không sở hữu và “sửa chữa” chúng, nhưng điều này sẽ vi phạm kỳ vọng và gây ra lỗi trong tương lai vì component không đoán được những sự can thiệp như vậy
+- Tóm lại, bạn có thể truy cập component từ bên ngoài bằng cách giữ 1 tham chiếu đến component được render Tuy nhiên hãy sử dụng cách này thật thận trọng để tránh gặp các lỗi không mong muốn
+
