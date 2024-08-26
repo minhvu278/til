@@ -402,3 +402,222 @@ const reactAppNode = ReactDOM.findDOMNode(myTextAreaCounter);
 - Bạn có thể truy cập toàn bộ API của component từ bên ngoài, nhưng hãy sử dụng siêu năng lực này 1 cách tiết kiệm, nếu có thể. Có thể bạn sẽ muốn “lục lọi” state của các component mà bạn không sở hữu và “sửa chữa” chúng, nhưng điều này sẽ vi phạm kỳ vọng và gây ra lỗi trong tương lai vì component không đoán được những sự can thiệp như vậy
 - Tóm lại, bạn có thể truy cập component từ bên ngoài bằng cách giữ 1 tham chiếu đến component được render Tuy nhiên hãy sử dụng cách này thật thận trọng để tránh gặp các lỗi không mong muốn
 
+## Lifecycle Methods
+- React cung cấp 1 số lifecycle methods để bạn có thể theo dõi những thay đổi trong component liên quan đến thao tác DOM
+- Gồm 3 giai đoạn:
+    - **Mounting:** Component được thêm vào DOM lần đầu tiên
+    - **Updating:** Component được cập nhật do gọi `setState()` hoặc 1 props được cung cấp cho component đó đã thay đổi
+    - **Unmounting:** Component được gỡ bỏ khỏi DOM
+- React thực hiện 1 số công việc của nó trước khi cập nhật DOM. Giai đoạn này được gọi là giai đoạn render. Sau đó nó cập nhật DOM và giao đoạn này được gọi là giai đoạn commit
+- Hãy xem xét 1 số lifecycle methods
+    - `componentDidMount()` : Được gọi sau khi mounting ban đầu và sau khi commit vào DOM. Đây là nơi để thực hiện bất kỳ công việc khởi tạo nào yêu cầu DOM. Những công việc nào không yêu cầu DOM thì sẽ được thực hiện trong constructor. Hầu hết các công việc khởi tạo của bạn không cần DOM. Nhưng với method này bạn có thể. Ví dụ đo chiều cao của component vừa được render, thêm bất kỳ event listener nào (Vd: addEventListener(’resize’)) hoặc lấy dữ liệu từ server
+    - `componentWillUnMount()` : Được gọi ngay trước khi component được gỡ khỏi DOM. Đây là nơi để thực hiện bất kỳ công việc cleanup nào bạn có thể cần. Bất kỳ event handler nào hoặc bất kỳ thứ gì đó có thể gây rò rỉ bộ nhớ nên được cleanup ở đây. Sau đó component sẽ biến mất mãi mãi
+    - `getSnapshotBeforeUpdate(prevProps, prevState)` : Được gọi trước khi component được cập nhật. Phương thức này nhận các props và state trước đó làm đối số. Nó có thể trả về 1 giá trị “snapshot”, bất kỳ giá trị nào bạn muốn truyền qua phương thức vòng đời tiếp theo gọi là **componentDidUpdate()**
+    - `componentDidUpdate(prevProps, prevState, snapshot)` : Được gọi khi bất cứ component nào được cập nhật. Bởi vì tại thời điểm này, `this.props` và `this.state` có giá trị được cập nhật, bạn nhận được bản sao của giá trị trước đó. Bạn có thể sử dụng thông tin này để so sánh state mới và cũ và có khả năng thực hiện thêm các yêu cầu mạng nếu cần thiết
+    - `shouldComponentUpdate(nextProps, nextState)` : Đây là cơ hội để tối ưu hoá. Bạn được cung cấp state sắp tới, bạn có thể so sánh với state hiện tại và quyết định không cập nhật component, trong trường hợp này phương thức `render()` của nó sẽ không được gọi
+## Lifecycle Example: Log It All
+- Để hiểu rõ hơn về lifecycle, thay thêm 1 số log vào component TextAreaCount . Đơn giản chỉ cần triển khai tất cả các phương thức của vòng đời để ghi vào log khi chúng được gọi cùng với bất kỳ đối số nào
+```js
+class TextAreaCounter extends React.Component {
+  // ...
+  componentDidMount() {
+    console.log('componentDidMount');
+  }
+
+  componentWillUnmount() {
+    console.log('componentWillUnmount');
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    console.log('componentDidUpdate ', prevProps, prevState, snapshot);
+  }
+
+  getSnapshotBeforeUpdate(prevProps, prevState) {
+    console.log('getSnapshotBeforeUpdate', prevProps, prevState);
+    return 'hello';
+  }
+
+  shouldComponentUpdate(newProps, newState) {
+    console.log('shouldComponentUpdate ', newProps, newState);
+    return true;
+  }
+
+  // ...
+}
+```
+- Sau khi load, chỉ hiện duy nhất log là `componentDidMount`
+- Tiếp theo, điều gì xảy ra nếu bạn khi bạn nhập “b” để tạo thành text “Bobb”?
+- `shouldComponentUpdate()` được gọi với props mới (giống như props cũ) và state mới. Vì phương thức này trả về true, React tiến hành gọi `getSnapshotBeforeUpdate()` và truyền props và state cũ. Đây là cơ hội của bạn để làm điều gì đó với chúng và với DOM cũ và truyền bất kỳ thông tin kết quả nào dưới dạng snapshot cho phương thức tiếp theo. Ví dụ, đây là cơ hội để thực hiện 1 số phép đo phần tử hoặc vị trí cuộn và snapshot chúng để xem liệu chúng có thay đổi sau khi cập nhật hay không
+- Cuối cùng, **componentDidUpdate()**  được gọi với thông tin cũ (bạn có thông tin mới trong this.props và this.state) và bất kỳ snapshot nào được định nghĩa bởi phương thức trước đó
+- Hãy cập nhật textrarea thêm 1 lần nữa, lần này nhập “y”
+- Cuối cùng để chứng minh componentWillUnMount() hoạt động, bạn có thể viết vào console log
+```js
+ReactDOM.render(React.createElement('p', null, 'Enough counting!'), app);
+```
+- Điều này thay thế toàn bộ component textarea bằng 1 component <p> mới. Sau đó bạn có thể thấy thông báo log componentWillUnMount() bên trong 
+## Paranoid State Protection
+- Giả sử bạn muốn giới hạn ký tự được nhập vào textarea. Bạn nên làm điều này trong event handler `onTextChange()` được gọi khi người dùng nhập
+- Nhưng nếu ai đó (có thể là bạn trong quá khứ?) gọi setState() từ bên ngoài component (điều này đã được nói trước đó, đây là 1 ý tưởng tồi)? Bạn vẫn có thể bảo vệ tính nhất quán và state của component? Chắc chắn rồi. Bạn có thể thực hiện validate trong `componentDidUpdtate()` và nếu số ký tự lớn hơn số cho phép, bạn có thể khôi phục state về state ban đầu.
+```js
+componentDidUpdate(prevProps, prevState) {
+  if (this.state.text.length > 3) {
+    this.setState({
+      text: prevState.text || this.props.text,
+    });
+  }
+}
+```
+- Điều kiện **prevState.text || this.props.text** được sử dụng cho lần cập nhật đầu tiên khi chưa có state trước đó.
+- Điều này có vẻ hơi “paranoid” nhưng vẫn có thể thực hiện được. Một cách khác để đạt được cùng một mức độ bảo vệ là sử dụng `shouldComponentUpdate()`
+```js
+shouldComponentUpdate(_, newState) {
+  return newState.text.length > 3 ? false : true;
+}
+```
+  - Trong đoạn code trên, việc sử dụng _ làm tên của 1 đối số hàm là 1 quy ước báo hiệu cho người đọc code trong tương lai: “Tôi biết rằng có 1 số đối số khác trong chữ ký hàm, nhưng tôi sẽ không sử dụng nó”
+- Tóm lại, việc bảo về paranoid là cách để đảm bảo rằng state của component luôn nhất quán và đúng như dự định, ngay cả khi nó có các tác động từ bên ngoài
+## Lifecycle Example: Using a Child Component
+- Bạn đã biết rằng bạn có thể kết hợp và lồng các component React theo ý muốn. Cho đến nay, bạn chỉ thấy các component `ReactDOM` (thay vì các custom component) trong phương thức render()
+- Hãy xem 1 custom component đơn giản khác để sử dụng làm component con
+- Hãy tách phần chịu trách nhiệm cho bộ đếm ra thành 1 component riêng biệt. Rốt cuộc, chia để trị chính là từ khoá
+- Đầu tiên, hãy tách các log lifecycle vào 1 class riêng biệt và cho phép 2 component con kế thừa nó. Kế thừa hầu như không bao giờ được đảm bảo khi nói đến React bởi vì đối với công việc UI, việc ghép nối (composition) được ưu tiên hơn, và đối với công việc không phải UI, một module Js thông thường sẽ phù hợp hơn. Tuy nhiên, thật hữu ích khi biết cách nó hoạt động và nó giúp bạn tránh các sao chép và dán các phương thức ghi log
+- Đây là component cha
+```js
+class LifecycleLoggerComponent extends React.Component {
+  static getName() {}
+
+  componentDidMount() {
+    console.log(this.constructor.getName() + '::componentDidMount');
+  }
+
+  componentWillUnmount() {
+    console.log(this.constructor.getName() + '::componentWillUnmount');
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    console.log(this.constructor.getName() + '::componentDidUpdate');
+  }
+}
+```
+- Component Counter mới chỉ hiển thị số đếm. Nó không duy trì state nhưng hiển thị thuộc tính count được cung cấp bởi component cha
+```js
+class Counter extends LifecycleLoggerComponent {
+  static getName() {
+    return 'Counter';
+  }
+
+  render() {
+    return <h3>{this.props.count}</h3>;
+  }
+}
+
+Counter.defaultProps = {
+  count: 0,
+};
+```
+- Component textarea thiết lập 1 phương thức tĩnh getName()
+```js
+class TextAreaCounter extends LifecycleLoggerComponent {
+  static getName() {
+    return 'TextAreaCounter';
+  }
+
+  // ....
+}
+```
+- Cuối cùng, phương thức render() của textarea sủ dụng <Counter /> và sử dụng nó có điều kiện; nếu số đếm bằng 0, không có gì được hiển thị
+```js
+render() {
+  const text = 'text' in this.state ? this.state.text : this.props.text;
+  return (
+    <div>
+      <textarea value={text} onChange={this.onTextChange} />
+      {text.length > 0 ? <Counter count={text.length} /> : null}
+    </div>
+  );
+}
+```
+- Lưu ý câu điều kiện trong JSX. Bao bọc biểu thức trong {} và render có điều kiện là <Counter /> hoặc không có gì (null). Và chỉ để minh hoạ: Một lựa chọn khác là di chuyển điều kiện ra ngoài hàm return. Gán kết quả của một biểu thức JSX cho 1 biến hoàn toàn ổn
+```js
+render() {
+  const text = 'text' in this.state ? this.state.text : this.props.text;
+  let counter = null;
+  if (text.length > 0) {
+    counter = <Counter count={text.length} />;
+  }
+  return (
+    <div>
+      <textarea value={text} onChange={this.onTextChange} />
+      {counter}
+    </div>
+  );
+}
+```
+- Bây giờ bạn có thể quan sát các phương thức vòng đời được ghi log cho cả 2 component
+- Trong quá trình tải ban đầu, component được mouting và được cập nhật trước component cha
+```js
+Counter::componentDidMount
+TextAreaCounter::componentDidMount
+```
+- Sau khi xoá 2 ký tự, bạn sẽ thấy cách component con được cập nhật, sau đó đến component cha
+```js
+Counter::componentDidUpdate
+TextAreaCounter::componentDidUpdate
+Counter::componentDidUpdate
+TextAreaCounter::componentDidUpdate
+```
+- Sau khi xoá ký tự cuối cùng, component con được gỡ bỏ hoàn toàn khỏi DOM
+```js
+Counter::componentWillUnmount
+TextAreaCounter::componentDidUpdate
+```
+- Cuối cùng khi nhập 1 ký tự sẽ đưa component con trở lại DOM
+```js
+Counter::componentDidMount
+TextAreaCounter::componentDidUpdate
+```
+- Tóm lại ví dụ này cho thấy cách các phương thức vòng đời được gọi khi component con được render và update. Việc sử dụng component con giúp bạn tổ chức code và các component độc lập và dễ tái sử dụng hơn
+## Performance Win: Prevent Component Updates
+- Bạn đã biết về `shouldComponentUpdate()` và đã thấy cách nó hoạt động. Nó đặt biệt quan trọng khi xây dựng các phần quan trọng về hiệu suất của ứng dụng. Nó được gọi trước `componentWillUpdate()` và cho bạn cơ hội huỷ bỏ cập nhật nếu bạn quyết định nó không cần thiết
+- Có 1 loại component chỉ sử dụng this.props và this.state trong phương thức render() và không có bất kỳ cuộc gọi hàm bổ sung nào. Những component này được gọi là component “thuần tuý”(pure component). Chúng có thể triển khai `shouldComponentUpdate()` và so sánh state và props trước và sau khi cập nhật. NẾu không có thay đổi nào, chúng ta trả về `false` và tiết kiệm 1 số năng lực xử lý
+- Ngoài ra có thể có những component tĩnh thuần tuý (pure static component) không sử dụng props hoặc state. Những component này có thể trả về trực tiếp là `false`
+- React có thể giúp bạn dễ dàng sử dụng trường hợp phổ biến (và chung chung) là kiểm tra tất cả props và state trong `shouldComponentUpdate()` : Thay vì lặp lại công việc này, bạn có thể cho các component kế thừa từ `React.PureComponent` thay vì `React.Component` . Bằng cách này, bạn không cần phải triển khai `shouldComponentUpdate` - nó đã thực hiện cho bạn
+- Hãy tận dụng và chỉnh lại ví dụ trước
+- Vì cả 2 component đều kế thừa từ logger, nên tất cả những gì bạn cần là
+```js
+class LifecycleLoggerComponent extends React.PureComponent {
+  // ... không có thay đổi nào khác
+}
+```
+- Bây giờ cả 2 component đều là 2 pure component. Hãy thêm 1 dòng log vào render()
+```js
+render() {
+  console.log(this.constructor.getName() + '::render');
+  // ... không có thay đổi nào khác
+}
+```
+- Khi load lại trang
+```js
+TextAreaCounter::render
+Counter::render
+Counter::componentDidMount
+TextAreaCounter::componentDidMount
+```
+- Thay đổi Bob thành Bobb sẽ cho chúng ta kết quả mong đợi về việc render và cập nhật
+```js
+TextAreaCounter::render
+Counter::render
+Counter::componentDidUpdate
+TextAreaCounter::componentDidUpdate
+```
+- Bây giờ nếu bạn dán chuỗi “LOLz” thay thế “Bobb” (hoặc bất kỳ chuỗi này có 4 ky tự), bạn sẽ thấy
+```js
+TextAreaCounter::render
+TextAreaCounter::componentDidUpdate
+```
+- Như bạn đã thấy, không có lý do gì để render lại <Couter> vì props của nó không thay đổi. Chuỗi mới có cùng số lượng ký tự
+- **Việc sử dụng `React.PureComponent` giúp bạn tránh render lại các component không cần thiết, tăng hiệu suất ứng dụng. Điều này đặc biệt hữu ích khi ứng dụng của bạn có nhiề component và dữ liệu thay đổi thường xuyên**
+## Whatever Happened to Function Components?
+- Bạn có thể nhận thây các Function component đã “biến mất” trong chương này khi chúng ta đã bắt bàn về `this.state`. Chúng sẽ quay trở lại trong các chương sau, khi bạn học về khái niệm “hooks”
+- Vì không có “this” trong các hàm, nên cần có 1 cách tiếp cận khác để quản lý state trong component. Tin tốt là một khi bạn hiểu các khái niệm về props và state, sự khác biệt giữa Function component chỉ là cú pháp
+- Chúng ta đã dành khá nhiều thời gian cho textarea, bây giờ hãy chuyển sang 1 điều gì  đó “thách thức hơn”. Trong chương tiếp theo, bạn sẽ thấy những lợi ích của React - tập chung vào dữ liệu của bạn và để React xử lý mọi cập nhật UI
