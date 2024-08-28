@@ -15,7 +15,7 @@ const data = [
     'French', '1943', '150 million',
   ],
   [
-    "Harry Potter and the Philosopher's Stone", 'J. K. Rowling',
+    'Harry Potter and the Philosopher's Stone', 'J. K. Rowling',
     'English', '1997', '120 million',
   ],
   [
@@ -125,3 +125,40 @@ class Excel extends React.Component {
 })}
 ```
 - Bạn có thể chọn cách yêu thích của mình để lặp qua mảng để tạo đầu ra JSX dựa trên sở thích cá nhân và độ phức tạp của nội dung cần render. Data đơn giản được lặp qua 1 cách thuận tiện trong JSX (v2 đến v5). Nếu dữ liệu quá nhiều đối với 1 map nội tuyến, bạn có thể thấy dễ đọc hơn khi tạo nội dung ở đầu hàm render() và giữ cho JSX đơn giản, bằng cách nào đó tách biệt việc xử lý dữ liệu khỏi UI (v1 là 1 ví dụ). Đôi khi có quá nhiều biểu thức nội tuyến có thể gây nhầm lẫn khi theo dõi các dấu đóng mở ngoặc
+## Debugging the Console Warning
+- Khi load 2 ví dụ trước, bạn sẽ thấy warning trong console log của browser
+```js
+Warning: Each child in a list should have a unique "key" prop.
+Check the render method of `Excel`.
+```
+- Warning này có nghĩa là gì và làm thế nào để khắc phục? Như thông báo cảnh cáo, React muốn bạn cung cấp 1 ID duy nhất cho các phần tử mảng để nó có thể cập nhật chúng hiệu quả hơn sau này. Để khắc phục, bạn thêm thuộc tính `key` vào mỗi title. Các giá trị của thuộc tính mới này có thể là bất kỳ thứ gì miễn là chúng duy nhất cho mỗi phần tử
+- Ở đây bạn có thể sử dụng các chỉ mục của mảng
+```js
+// Truoc
+for (const title of this.props.headers) {
+  headers.push(<th>{title}</th>);
+}
+
+// Sau
+for (const idx in this.props.headers) {
+  const title = this.props.headers[idx];
+  headers.push(<th key={idx}>{title}</th>);
+}
+```
+- Các `key` chỉ cần là duy nhất tromg mỗi vòng lặp mảng, không phải là duy nhất trọng toàn bộ ứng dụng React, vì vậy giá trị 0, 1 là hoàn toàn có thể chấp nhận được
+- Cách sửa đổi tương tự như phiên bản nội tuyến (v5) lấy index của phần tử từ đối số thứ 2 được truyền vào callback
+```js
+// Truoc
+<tr>
+  {this.props.headers.map((title) => {
+    return <th>{title}</th>;
+  })}
+</tr>
+
+// Sau
+<tr>
+  {this.props.headers.map((title, idx) => {
+    return <th key={idx}>{title}</th>;
+  })}
+</tr>
+```
