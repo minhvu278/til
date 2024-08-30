@@ -162,3 +162,72 @@ for (const idx in this.props.headers) {
   })}
 </tr>
 ```
+## Adding <td> Content
+- Bây giờ bạn đã có phần title rồi, hãy hoàn thiện phần thân bảng. Dữ liệu cần render là mảng 2 chiều (hàng và cột) trông như sau
+```js
+const data = [
+  [
+    'A Tale of Two Cities', 'Charles Dickens',
+    'English', '1859', '200 million',
+  ],
+  ....
+];
+```
+- Để truyền dữ liệu vào `<Excel>` , hãy sử dụng 1 prop mới là `initialData` . Tại sao lại là “initial” thay vì chỉ “data”? Như đã đề cập ngắn gọn trong chương trước, đó và về việc quản lý kỳ vọng. Người gọi component `Excel` của bạn nên có thể truyền dữ liệu để khởi tạo bảng. Nhưng sau đó, khi tiếp tục tồn tại, dữ liệu sẽ thay đổi, bởi vì người dùng có thể sắp xếp, chỉnh sửa,… Nói cách khác, state của component sẽ thay đổi. Vì vậy hãy sử dụng [`this.state.data`](http://this.state.data) để theo dõi các thay đổi và sử dụng `this.props.initialData` để cho phép người gọi khởi tạo component
+- Render 1 component excel sẽ trông như thế này
+```js
+ReactDOM.render(
+  <Excel headers={headers} initialData={data} />,
+  document.getElementById('app'),
+);
+```
+- Tiếp theo, bạn cần thêm 1 hàm constructor để đặt state ban đầu từ dữ liệu đã cho. Hàm constructor nhận props làm đối số và cũng cần gọi hàm constructor của cha mẹ thông qua super() 
+```js
+constructor(props) {
+  super();
+  this.state = {data: props.initialData};
+}
+```
+- Tiếp tục render this.state.data . Dữ liệu là 2 chiều, vì vậy bạn cần 2 vòng lặp: Một vòng lặp lặp qua dữ liệu các hàng và 1 vòng lặp lặp qua dữ liệu (ô) cho mỗi hàng. Điều này có thể thực hiện bằng cách sử dụng 2 vòng lặp map()
+```js
+{this.state.data.map((row, idx) => (
+  <tr key={idx}>
+    {row.map((cell, idx) => (
+      <td key={idx}>{cell}</td>
+    ))}
+  </tr>
+))}
+```
+- Như bạn có thể thấy, cả 2 vòng lặp đều cần key={idx} và trong trường hợp này, tên idx  đã được tái sử dụng để làm biến cục bộ bên trong mỗi vòng lặp
+```js
+class Excel extends React.Component {
+  constructor(props) {
+    super();
+    this.state = {data: props.initialData};
+  }
+
+  render() {
+    return (
+      <table>
+        <thead>
+          <tr>
+            {this.props.headers.map((title, idx) => (
+              <th key={idx}>{title}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {this.state.data.map((row, idx) => (
+            <tr key={idx}>
+              {row.map((cell, idx) => (
+                <td key={idx}>{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+}
+```
+
