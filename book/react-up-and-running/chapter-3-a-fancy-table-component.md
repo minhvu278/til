@@ -230,4 +230,72 @@ class Excel extends React.Component {
   }
 }
 ```
+## Prop Types
+- Khả năng xác định kiểu dữ liệu trong các biến mà bạn đã làm việc (string, number,…) không tồn tại trong Js. Nhưng đối với các dev đến từ ngôn ngữ khác, và những người làm việc trên các dự án lớn với nhiều dev khác, họ thực sự nhớ đến điều đó
+- Có 2 lựa chọn phổ biến cho phép bạn viết Js với kiểu dữ liệu: Flow và Ts. Bạn chắc chắn có thể sử dụng chúng để viết code React. Nhưng có 1 lựa chọn khác, giới hạn chỉ xác định kiểu dữ liệu của các props mà component của bạn mong đợi bằng `props type` . Ban đầu, chúng là 1 phần của React, nhưng đã được chuyển sang thành 1 thư viện riêng biệt từ bản v15.5
+- `Props type` cho phép bạn cụ thể hơn về loại dữ liệu mà `Excel` nhận và do đó hiển thị lỗi cho dev ngay từ đầu. Bạn có thể thiết lập các `props type` như sau
+```js
+Excel.propTypes = {
+  headers: PropTypes.arrayOf(PropTypes.string),
+  initialData: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
+};
+```
+- Khả năng xác định kiểu dữ liệu trong các biến mà bạn đã làm việc (string, number,…) không tồn tại trong Js. Nhưng đối với các dev đến từ ngôn ngữ khác, và những người làm việc trên các dự án lớn với nhiều dev khác, họ thực sự nhớ đến điều đó
+- Có 2 lựa chọn phổ biến cho phép bạn viết Js với kiểu dữ liệu: Flow và Ts. Bạn chắc chắn có thể sử dụng chúng để viết code React. Nhưng có 1 lựa chọn khác, giới hạn chỉ xác định kiểu dữ liệu của các props mà component của bạn mong đợi bằng `props type` . Ban đầu, chúng là 1 phần của React, nhưng đã được chuyển sang thành 1 thư viện riêng biệt từ bản v15.5
+- `Props type` cho phép bạn cụ thể hơn về loại dữ liệu mà `Excel` nhận và do đó hiển thị lỗi cho dev ngay từ đầu. Bạn có thể thiết lập các `props type` như sau
+```
+$ curl -L https://unpkg.com/prop-types/prop-types.js > ~/reactbook/react/proptypes.js
+```
+- Sau đó, trong HTML bạn bao gồm thư viện mới cùng với các thư viện khác
+```js
+<script src="react/react.js"></script>
+<script src="react/react-dom.js"></script>
+<script src="react/babel.js"></script>
+<script src="react/prop-types.js"></script>
+<script type="text/babel">
+  class Excel extends React.Component {
+    /* ... */
+  }
+</script>
+```
+- Sau đó, trong HTML bạn bao gồm thư viện mới cùng với các thư viện khác
+```js
+// Truoc
+const headers = ['Book', 'Author', 'Language', 'Published', 'Sales'];
+
+// Sau
+const headers = [0, 'Author', 'Language', 'Published', 'Sales'];
+```
+- Khi load lại trang, bạn sẽ thấy trong tab console của browser
+```js
+Warning: Failed prop type: Invalid prop `headers[0]` of type `number` supplied
+to `Excel`, expected `string`.
+```
+- Thật nghiêm ngặt! Để khám phá các propsType khác, hãy nhập PropsType vào console
+## Sorting
+- Bao nhiêu lần bạn đã nhìn thấy một table trên trang web mà bạn ước nó được sắp xếp khác đi? May mắn thay, việc này đơn giản với React. Thực tế đây là một ví dụ điển hình về sự “toả sáng” của React, bởi vì bạn chỉ cần sắp xếp mảng dữ liệu và tất cả các cập nhật UI sẽ được xử lý tự động
+- Để thuận tiện và dễ đọc, toàn bộ logic được sắp xếp trong phương thức `sort()` của lớp `Excel` . Sau khi tạo phương thức này, bạn cần thêm 2 mảnh ghép quan trọng. Đầu tiên, thêm handler click vào hàng title
+```js
+<thead onClick={this.sort}>
+  ```
+- Tiếp theo, ràng thuộc this.sort trong hàm constructor 
+```js
+class Excel extends React.Component {
+  constructor(props) {
+    super();
+    this.state = {data: props.initialData};
+    this.sort = this.sort.bind(this);
+  }
+
+  sort(e) {
+    // TODO: thực hiện sắp xếp
+  }
+
+  render() { /* ...*/}
+}
+```
+- Bây giờ hãy thực hiện phương thức sort() . Bạn cần biết cột nào cần được sắp xếp, điều này có thể dễ dàng truy xuất bằng thuộc tính cellIndex của DOM (DOM là “lõi” của trang web, nơi chứa các phần tử HTML) thuộc đối tượng sự kiện (event target - đây là tiêu đề cột <th>) 
+```js
+const column = e.target.cellIndex;
+```
 
