@@ -152,3 +152,159 @@
       );
     }
     ```
+## Sorting the Table
+
+- Trong 1 class component, tất cả các phần state khác nhau sẽ được đưa vào object `this.state` , một “túi đựng” các thông tin thường không liên quan đến nhau. Sử dụng state hook, bạn vẫn có thể làm điều tương tự, nhưng bạn cũng có thể quyết định giữ các phần state trong các biến khác nhau
+- Khi nói đến việc sort table, data có trong table là 1 phần thông tin, trong khi thông tin bổ sung dành riêng cho việc sort là 1 phần thông tin khác. Nói cách khác, bạn có thể sử dụng state hook nhiều lần tuỳ thích
+    
+    ```jsx
+    function Excel({ headers, initialData }) {
+      const [data, setData] = React.useState(initialData);
+      const [sorting, setSorting] = React.useState({
+        column: null,
+        descending: false,
+      });
+      // ....
+    }
+    ```
+    
+- `data` là những gì bạn hiển thị trong table; object `sorting` là một mối quan tâm riêng biệt. Nó liên quan đến cách bạn sắp xếp (tăng hoặc giảm dần) và theo cột vào (title, author,…)
+- Function thực hiện việc sắp xếp giờ được đặt inline bên trong hàm Excel
+    
+    ```jsx
+    function Excel({ headers, initialData }) {
+      // ..
+      function sort(e) {
+        // thực hiện...
+      }
+      return (
+        <table>
+          {/* ... */}
+        </table>
+      );
+    }
+    ```
+    
+- Function `sort()` xác định cột nào cần được sắp xếp (bằng cách sử dụng chỉ số của nó) và việc sort có thể giảm dần hay không
+    
+    ```jsx
+    const column = e.target.cellIndex;
+    const descending = sorting.column === column && !sorting.descending;
+    ```
+    
+- Sau đó, nó sao chép array data vì vẫn là 1 ý tưởng tồi khi sửa đổi state trực tiếp
+    
+    ```jsx
+    const dataCopy = clone(data);
+    ```
+    
+- Lưu ý rằng function `clone()` vẫn là cách nhanh chóng và bẩn để sao chép sâu bằng cách mã hoá/giải mã JSON
+    
+    ```jsx
+    function clone(o) {
+      return JSON.parse(JSON.stringify(o));
+    }
+    ```
+    
+- Việc sắp xếp thực tế giống như trước
+    
+    ```jsx
+    dataCopy.sort((a, b) => {
+      if (a[column] === b[column]) {
+        return 0;
+      }
+      return descending
+        ? a[column] < b[column]
+          ? 1
+          : -1
+        : a[column] > b[column]
+        ? 1
+        : -1;
+    });
+    ```
+    
+- Và cuối cùng, hàm `sort()` cần cập nhật 2 phần state với các giá trị mới
+    
+    ```jsx
+    setData(dataCopy);
+    setSorting({ column, descending });
+    ```
+    
+- Và đó là về cơ bản cho việc sort. Những gì còn lại là chỉ cập nhật UI (giá trị trả về của Excel()) để phản ánh cột nào được sử dụng để sắp xếp và để xử lý click vào bất kỳ tiêu đề nào
+    
+    ```jsx
+    <thead onClick={sort}>
+      <tr>
+        {headers.map((title, idx) => {
+          if (sorting.column === idx) {
+            title += sorting.descending ? ' \u2191' : ' \u2193';
+          }
+          return <th key={idx}>{title}</th>;
+        })}
+      </tr>
+    </thead>
+    ```
+    
+- Bạn có thể nhận thấy 1 điều thú vị khác về việc sử dụng state hook: Không cần phải ràng buộc bất kỳ callback function nào như bạn đã làm trong constructor của 1 class component. Không có việc `this.sort = this.sort.bind(this) nào nữa. Không có this, không co hàm constructor(). 1 function là tất cả những gì bạn cần để định nghĩa 1 component
+
+## Editing Data
+
+- Như bạn nhớ từ chương 3, chức năng chỉnh sửa bao gồm các bước sau
+    - dbClick vào 1 ô table và nó chuyển thành 1 input
+    - Nhập dữ liệu vào input
+    - Khi hoàn thành, nhấn enter để send form
+- Để theo dõi quá trình này, hãy thêm 1 object `edit` . Nó có giá trị null khi không edit; nếu không, nó sẽ lưu trữ chỉ số hàng và cột của ô đang được edit
+    
+    ```jsx
+    const [edit, setEdit] = useState(null);
+    ```
+    
+- Trong UI, bạn cần xử lý dbClick và nếu người dùng đang edit, hãy hiển thị 1 form. Nếu không, chỉ cần hiển thị data. Khi người dùng nhấn enter, bạn sẽ bắt event submit
+    
+    ```jsx
+    <tbody onDoubleClick={showEditor}>
+      {data.map((row, rowidx) => (
+        <tr key={rowidx} data-row={rowidx}>
+          {row.map((cell, columnidx) => {
+            if (
+              edit &&
+              edit.row === rowidx &&
+              edit.column === columnidx
+            ) {
+              cell = (
+                <form onSubmit={save}>
+                  <input type="text" defaultValue={cell} />
+                </form>
+              );
+            }
+            return <td key={columnidx}>{cell}</td>;
+          })}
+        </tr>
+      ))}
+    </tbody>
+    ```
+    
+- Có 2 function ngắn còn lại cần được thực hiện: `showEditor()` và `save()`
+- Hàm `showEditor` được gọi khi dbClick và 1 ô trong phần tử table. Tại đó, bạn cập nhật trạng thái edit với chỉ sô hàng và cột, để việc hiển thị biết ô nào cần được thay thế bởi form
+    
+    ```jsx
+    function showEditor(e) {
+      setEdit({
+        row: parseInt(e.target.parentNode.dataset.row, 10),
+        column: e.target.cellIndex,
+      });
+    }
+    ```
+    
+- Function `save()` bắt event submit, ngăn chặn việc gửi và cập nhật state với giá trị mới trong ô đang được edit. Nó cũng gọi `setEdit()` truyền null làm state edit mới, có nghĩa là việc chỉnh sửa đã hoàn thành
+    
+    ```jsx
+    function save(e) {
+      e.preventDefault();
+      const input = e.target.firstChild;
+      const dataCopy = clone(data);
+      dataCopy[edit.row][edit.column] = input.value;
+      setEdit(null);
+      setData(dataCopy);
+    }
+    ```
