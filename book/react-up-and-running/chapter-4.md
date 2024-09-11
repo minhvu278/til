@@ -566,3 +566,290 @@
       };
     }, []);
     ```
+## useReducer
+
+- Hãy kết thúc chương trình với 1 hook được tích hợp sẵn khác có tên là `useReducer()`. SỬ dụng 1 reducer là 1 lựa chọn thay thế cho `useState()`. Thay vì nhiều phần của component gọi thay đổi state, tất cả các thay đổi có thể xử lý ở một vị trí duy nhất
+- Reducer chỉ là 1 hàm Js nhận 2 đầu vào - state cũ và 1 action - và trả về state mới. Hãy nghĩ về action như 1 cái gì đó đã xảy ra trong ứng dụng, có thể là một lần click, lấy data hoặc timeout. Cái gì đó đã xảy ra và nó yêu cầu thay đổi. Cả ba biến (state mới, state cũ, action) có thể có bất kỳ kiểu nào, mặc dù phổ biến nhất là object
+
+### Reducer Functions
+
+- Reducer function ở dạng đơn giản nhất trông như thế này
+    
+    ```jsx
+    function myReducer(oldState, action) {
+      const newState = {};
+      // làm gì đó với `oldState` và `action`
+      return newState;
+    }
+    ```
+    
+- Hãy tưởng tượng rằng reducer function chịu trách nhiệm cho mọi thứ có ý nghĩa khi có điều gì đó xảy ra trong thế giới. Thế giới là một mớ hỗn độn, sau đó một event xảy ra. Function `makeSense()` nên làm cho thế giới hoà hợp với event mới và giảm tất cả sự phức tạp thành một state hoặc thứ tự đẹp
+    
+    ```jsx
+    function makeSense(mess, event) {
+      const order = {};
+      // làm gì đó với mess và event
+      return order;
+    }
+    ```
+    
+- Một phép ẩn dụ khác đến từ thế giới ẩm thực. Một số loại sốt và súp cũng được gọi là nước sốt “giảm” (reduction), được tạo ra bằng quá trình “giảm” (làm đặc, tăng cường hương vị). State ban đầu là 1 nồi nước, sau đó nhiều hành động (đun sôi, thêm nguyên liệu, khuấy) thay đổi state của nội dung trong nồi với mỗi action
+
+### Actions
+
+- Reducer function có thể nhận bất cứ thứ gì (một chuỗi, một object) nhưng một cách thực hiện phổ biến là một object event với
+    - **Một kiểu (VD click trong DOM)**
+    - **Option, một số payload chứa thông tin khác về event**
+- Sau đó, các action sẽ được “gửi”. Khi action được gửi, reducer function phù hợp sẽ được React gọi với state hiện tại và event mới (action) của bạn
+- Với `useState` bạn có
+    
+    ```jsx
+    const [data, setData] = useState(initialData);
+    ```
+    
+- Có thể được thay thế bằng reducer
+    
+    ```jsx
+    const [data, dispatch] = useReducer(myReducer, initialData);
+    ```
+    
+- `data` vẫn được sử dụng theo cùng 1 cách để hiển thị component. Nhưng khi có điều gì đó xảy ra, thay vì thực hiện 1 chút công việc rồi gọi `setData()`, bạn sẽ gọi hàm `dispatch()` được trả về bởi `useReducer()` . Từ đó, reducer sẽ tiếp quản và trả về phiên bản mới của `data`. Không có function nào khác cần được gọi để thiết lập state mới; dữ liệu mới sẽ được React sử dụng để hiển thị lại component
+    
+    ![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/9a9d30aa-4822-4cd2-ade5-57a403553962/e5baa271-a46d-4743-bab3-3c4323888340/image.png)
+    
+
+### An Example Reducer
+
+- Hãy xem 1 ví dụ nhanh chóng, tách biệt về việc sử dụng reducer. Giả sử bạn co 1 bảng dữ liệu ngẫu nhiên cùng với các nút có thể làm mới, thay đổi màu nền và màu chữ của bảng thành màu ngẫu nhiên
+- Ban đầu, không có data và màu đen trắng được sử dụng làm mặc định
+    
+    ```jsx
+    const initialState = { data: [], color: 'black', background: 'white' };
+    ```
+    
+- Reducer được khởi tạo ở đầu component `<RandomData>`
+    
+    ```jsx
+    function RandomData() {
+      const [state, dispatch] = useReducer(myReducer, initialState);
+      // ...
+    }
+    ```
+    
+- Ở đây, chúng ta quay lại với state là 1 object “túi đựng”  chứa nhiều phần state khác nhau (nhưng điều đó không cần phải như vậy). Phần còn lại của component là “bình thường”, hiển thị dựa trên state, với 1 sự khác biệt. Trước đây, bạn có event `onClick` của button là 1 function update state, bây giờ tất cả các trình xử lý chỉ gọi `dispatch()` , gửi thông tin về event
+    
+    ```jsx
+    return (
+      <div>
+        <div className="toolbar">
+          <button onClick={() => dispatch({ type: 'newdata' })}>
+            Get data
+          </button>{' '}
+          <button
+            onClick={() =>
+              dispatch({ type: 'recolor', payload: { what: 'color' } })
+            }
+          >
+            Recolor text
+          </button>{' '}
+          <button
+            onClick={() =>
+              dispatch({ type: 'recolor', payload: { what: 'background' } })
+            }
+          >
+            Recolor background
+          </button>
+        </div>
+        <table style={{ color, background }}>
+          <tbody>
+            {data.map((row, idx) => (
+              <tr key={idx}>
+                {row.map((cell, idx) => (
+                  <td key={idx}>{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+    ```
+    
+- Mỗi object event/action được gửi đều có thuộc tính `type` , vì vậy reducer function có thể xác định những gì cần được thực hiện. Có thể có hoặc không có payload chỉ định thêm chi tiết về event
+- Cuối cùng, reducer. Nó có 1 số câu lệnh if/else (hoặc một switch nếu đó là sở thích của bạn) kiểm tra loại event nào được gửi đến. Sau đó, data được thao tác theo action và 1 phiên bản mới của state được trả về
+    
+    ```jsx
+    function myReducer(oldState, action) {
+      const newState = clone(oldState);
+      if (action.type === 'recolor') {
+        newState[action.payload.what] = `rgb(${rand(256)},${rand(256)},${rand(256)})`;
+      } else if (action.type === 'newdata') {
+        const data = [];
+        for (let i = 0; i < 10; i++) {
+          data[i] = [];
+          for (let j = 0; j < 10; j++) {
+            data[i][j] = rand(10000);
+          }
+        }
+        newState.data = data;
+      }
+      return newState;
+    }
+    
+    // một số hàm trợ giúp
+    function clone(o) {
+      return JSON.parse(JSON.stringify(o));
+    }
+    
+    function rand(max) {
+      return Math.floor(Math.random() * max);
+    }
+    ```
+    
+- Lưu ý state cũ được copy bằng cách sử dụng hàm `clone()` nhanh chóng và bẩn mà bạn đã biết. Với `useState() / setState()`, điều này không thực sự cần thiết trong nhiều trường hợp. Bạn thường có thể thay đổi 1 biến hiện co và truyền nó cho `setState` . Nhưng ở đây, nếu bạn không clone và chỉ đơn giản là sửa đổi cùng 1 object trong bộ nhớ, React sẽ thấy state cũ và state mới đang trỏ cùng 1 object và sẽ bỏ qua việc hiển thị, cho rằng không có gì thay đổi. Bạn co thể tự thử: Xoá cuộc gọi đến `clone()` và quan sát thấy rằng việc hiển thị lại không xảy ra
+
+### Unit Testing Reducers
+
+- Chuyển sang `useReducer()` để quản lý state giúp việc viết unit test dễ dàng hơn rất nhiều. Bạn không cần phải thiết lập component và các thuộc tính và state của nó. Bạn không cần phải sử dụng trình duyệt hoặc tìm khác để mô phỏng các sự kiện click. Bạn thậm chí không cần phải sử dụng React. Để kiểm tra logic state, tất cả những gì bạn cần làm là truyền cả state cũ và 1 action vào reducer function và kiểm tra xem state mới mong muốn co được trả về hay không. Đây là Js thuần tuý: Hai object vào, một object ra. Các unit test không nên phức tạp hơn nhiều so với việc test ví dụ điển hình
+    
+    ```jsx
+    function add(a, b) {
+      return a + b;
+    }
+    ```
+    
+- Có 1 cuộc thảo luận về test sau trong sách, nhưng chỉ để cho bạn biết, một test mẫu có thể trông như thế này
+    
+    ```jsx
+    const initialState = { data: [], color: 'black', background: 'white' };
+    it('tạo ra một mảng 10x10', () => {
+      const { data } = myReducer(initialState, { type: 'newdata' });
+      expect(data.length).toEqual(10);
+      expect(data[0].length).toEqual(10);
+    });
+    ```
+    
+
+## Excel Component with a Reducer
+
+- Để có thêm 1 VD về việc sử dụng reducer, hãy xem cách bạn có thể chuyển từ `useState()` sang `useReducer()` trong Excel component
+- Trong ví dụ từ phần trước, state được quản lý bởi reducer lại là 1 object chứa nhiều data không liên quan. Nó không cần phải như vậy. Bạn có thể có nhiều reducer để tách biệt các mối quan tâm của mình. Bạn có thể kết hợp useState() với useReducer. Hãy thử với Excel
+    
+    ```jsx
+    const [data, setData] = useState(initialData);
+    // ...
+    const [edit, setEdit] = useState(null);
+    const [search, setSearch] = useState(false);
+    ```
+    
+- Chuyển sang `useReducer()` để quản lý state trong khi phần còn lại giữ nguyên
+    
+    ```jsx
+    const [data, dispatch] = useReducer(reducer, initialData);
+    // ...
+    const [edit, setEdit] = useState(null);
+    const [search, setSearch] = useState(false);
+    ```
+    
+- Vì data giống nhau, không cần thay đổi gì trong phần hiển thị. Những thay đổi chỉ được yêu cầu trong các trình xử lý action. Ví dụ `filter()` được sử dụng để lọc và gọi `setData()`
+    
+    ```jsx
+    function filter(e) {
+      const needle = e.target.value.toLowerCase();
+      if (!needle) {
+        setData(preSearchData);
+        return;
+      }
+      const idx = e.target.dataset.idx;
+      const searchdata = preSearchData.filter((row) => {
+        return row[idx].toString().toLowerCase().indexOf(needle) > -1;
+      });
+      setData(searchdata);
+    }
+    ```
+    
+- Phiên bản được viết lại sẽ gửi một hành động thay thế. Sự kiện có kiểu là "search" và một số tải trọng bổ sung (người dùng đang tìm kiếm gì và ở đâu?):
+    
+    ```jsx
+    function filter(e) {
+      const needle = e.target.value;
+      const column = e.target.dataset.idx;
+      dispatch({
+        type: 'search',
+        payload: { needle, column },
+      });
+      setEdit(null);
+    }
+    ```
+    
+- Một ví dụ khác sẽ là bật/tắt các trường tìm kiếm:
+    
+    ```jsx
+    // trước
+    function toggleSearch() {
+      if (search) {
+        setData(preSearchData);
+        setSearch(false);
+        setPreSearchData(null);
+      } else {
+        setPreSearchData(data);
+        setSearch(true);
+      }
+    }
+    
+    // sau
+    function toggleSearch() {
+      if (!search) {
+        dispatch({ type: 'startSearching' });
+      } else {
+        dispatch({ type: 'doneSearching' });
+      }
+      setSearch(!search);
+    }
+    ```
+    
+- Ở đây bạn có thể thấy sự kết hợp của setSearch() và dispatch() để quản lý trạng thái. !search là một cờ để UI hiển thị hoặc ẩn các hộp nhập liệu, trong khi dispatch() được sử dụng để quản lý dữ liệu.
+- Cuối cùng, hãy xem hàm reducer(). Đây là nơi tất cả các thao tác và lọc dữ liệu xảy ra. Nó lại là một loạt các khối if/else, mỗi khối xử lý một loại hành động khác nhau:
+    
+    ```jsx
+    let originalData = null;
+    function reducer(data, action) {
+      if (action.type === 'sort') {
+        const { column, descending } = action.payload;
+        return clone(data).sort((a, b) => {
+          if (a[column] === b[column]) {
+            return 0;
+          }
+          return descending
+            ? a[column] < b[column]
+              ? 1
+              : -1
+            : a[column] > b[column]
+            ? 1
+            : -1;
+        });
+      }
+      if (action.type === 'save') {
+        data[action.payload.edit.row][action.payload.edit.column] =
+          action.payload.value;
+        return data;
+      }
+      if (action.type === 'startSearching') {
+        originalData = data;
+        return originalData;
+      }
+      if (action.type === 'doneSearching') {
+        return originalData;
+      }
+      if (action.type === 'search') {
+        return originalData.filter((row) => {
+          return (
+            row[action.payload.column]
+              .toString()
+              .toLowerCase()
+              .indexOf(action.payload.needle.toLowerCase()) > -1
+          );
+        });
+      }
+    }
+    ```
