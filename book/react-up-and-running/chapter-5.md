@@ -697,7 +697,7 @@
 
 ### `<textarea>` Value
 
-- Để nhất quán với text input, phiên bản <textarea> của React cũng được sử dụng thuộc tính `defaultValue` . Nó giữ cho `target.value` được cập nhật trong khi `defaultValue` vẫn là bản gốc
+- Để nhất quán với text input, phiên bản `<textarea>` của React cũng được sử dụng thuộc tính `defaultValue` . Nó giữ cho `target.value` được cập nhật trong khi `defaultValue` vẫn là bản gốc
 - Nếu bạn sử dụng HTML và sử dụng một phần tử con của `textarea` để xác định giá trị (không được khuyến khích và React sẽ đưa ra cảnh báo cho bạn), nó sẽ được coi như thể nó là `defaultValue`
 - Toàn bộ lý do `<textarea>` HTML (như được định nghĩa bởi W3C) lấy 1 phần tử con làm giá trị của nó là để các dev có thể sử dụng các dòng mới trong input. Tuy nhiên, React, là Js hoàn toàn, không bị hạn chế này. Khi bạn cần sử dụng 1 dòng mới, bạn chỉ cần sử dụng `\n`
     
