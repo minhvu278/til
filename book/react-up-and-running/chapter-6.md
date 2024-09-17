@@ -64,3 +64,109 @@
     
 - Thao tác này sẽ mở trình duyệt của bạn và trỏ nó đến http://localhost:3000/ nơi bạn có thể thấy một ứng dụng React đang hoạt động.
 - Bây giờ bạn có thể mở ~/reactbook/test/hello/src/App.js và thực hiện một thay đổi nhỏ. Ngay sau khi bạn lưu các thay đổi, trình duyệt sẽ cập nhật với các thay đổi mới.
+### Build and Deploy
+
+- Giả sử bạn đã hài lòng với ứng dụng của bạn và sẵn sàng tung ứng dụng ra thế giới. Hãy dừng ứng dụng của bạn lại và hãy nhập vào terminal
+    
+    ```jsx
+    $ npm run build
+    ```
+    
+- Đây là quá trình build và đóng gói ứng dụng, sẵn sàng để được triển khai - nó sẽ tạo ra 1 thư mục `build`
+- Sao chép nội dung vào server - ngay cả dịch vụ lưu trữ dùng chung đơn giản cũng được - và bạn đã sẵn sàng để công bố ứng dụng mới
+- Khi bạn muốn thay đổi và lặp lại quy trình
+    
+    ```jsx
+    $ npm start
+    // làm việc, làm việc, làm việc ...
+    // Ctrl + C
+    $ npm run build
+    ```
+    
+
+### Mistakes Were Made
+
+- Khi bạn lưu 1 file có lỗi trong đó, (có thể bạn quên đóng thẻ JSX) quá trình build đang diễn ra sẽ thất bại và bạn sẽ nhận được 1 thông báo lỗi cả console và browser
+- Thật tuyệt vời, bạn nhận được phản hồi ngay lập tức. Trích dẫn John C.Maxwell, “Thất bại sớm, thất bại thường xuyên, nhưng luôn thất bại về phía trước”
+
+### package.json and node_modules
+
+- File `package.json` được tìm thấy trong thư mục gốc của ứng dụng chứa các cấu hình khác nhau cho ứng dụng (CRA có tài liệu mở rộng). Một trong những phần liên quan đến phụ thuộc, chẳng hạn như React và React-DOM. Các phụ thuộc này đặt trong `node_modules` và thư mục gốc của ứng dụng. Các phụ thuộc ở đó là để phát triển và buil ứng dụng chứ không để triển khai. Và chúng không nên được bao gồm nếu bạn chia sẻ code ứng dụng của mình với người khác. Ví dụ nếu bạn chia sẻ ứng dụng này lên github, bạn sẽ không đính kèm `node_modules`
+- Khi người khác muốn đóng góp hoặc bạn muốn đóng góp cho 1 ứng dụng khác, bạn cài đặt các phụ thuộc cục bộ
+- Hãy thử điều này, xoá thư mục `node_modules` và sau đó chạy
+    
+    ```jsx
+    npm i
+    ```
+    
+- Bằng cách này, tất cả các phụ thuộc được liên kết trong package.json của bạn (và các phụ thuộc của chúng) được cài đặt trong thư mục `node_modules` mới được tạo
+
+## Poking Around the Code
+
+- Hãy cùng xem xét code được tạo bởi CRA và lưu ý một số chi tiết cụ thể liên quan đến các điểm nhập của ứng dụng (index.html và index.js) và cách xử lý các phụ thuộc Js và Css của nó
+
+### Indices
+
+- Trong `public/html` bạn sẽ thấy trang index html kiểu cũ, là gốc của mọi thứ được hiển thị bởi trình duyệt. Đây là nơi `<div id="root">` được định nghĩa và nơi React sẽ hiển thị component cấp cao nhất của bạn và các phần tử con của nó. Tệp `src/index.js` là mục nhập chính cho ứng dụng theo quan điểm của React
+- Lưu ý phần trên cùng
+    
+    ```jsx
+    import React from 'react';
+    import ReactDOM from 'react-dom';
+    import './index.css';
+    import App from './App';
+    ```
+    
+
+### JavaScript: Modernized
+
+- Các ví dụ trong sách hiện cho đến nay chỉ hoạt động với các component đơn giản và đảm bảo React và React DOM có sẵn dưới dạng biến toàn cục. Khi bạn chuyển sang các ứng dụng phức tạp hơn với component, bạn cần một kế hoạch để tổ chức tốt hơn. Việc “rải” các biến toàn cục là nguy hiểm (chúng có xu hướng gây ra xung đột tên) và việc dựa vào biến toàn cục luôn có mặt là không chắc chắn.
+- Bạn cần các module. Module chia nhỏ các phần chức năng khác nhau tạo nên ứng dụng của bạn thành các file nhỏ, dễ quản lý. Nói chung bạn nên có 1 module riêng biệt cho mỗi mối quan tâm; module và các mối quan tâm có mối quan hệ 1-1.
+- Một số module có thể là các component React riêng lẻ; một số có thể chỉ đơn giản là các tiện ích liên quan hoặc không liên quan đến React - ví dụ: một reducer, một hook tuỳ chỉnh hoặc 1 thư viện xử lý định dạng ngày tháng hoặc tiền tệ
+- Mẫu chung dành cho 1 module là: Khai báo các yêu cầu ở trên cùng, xuất ở dưới cùng triển khai “phần thịt” ở giữa. Nói cách khác 3 nhiệm vụ này
+    - Yêu cầu/ nhập các phụ thuộc
+    - Cung cấp api dưới dạng component/class/object
+    - Xuất API
+- Đối với component React, mẫu có thể trông như sau
+    
+    ```jsx
+    import React from 'react';
+    import MyOtherComponent from './MyOtherComponent';
+    
+    function MyComponent() {
+     return <div>Hello</div>;
+    }
+    
+    export default MyComponent;
+    ```
+    
+- Một lần nữa, một quy ước có thể hữu ích là: **một module xuất 1 component React**
+- Bạn có nhận thấy sự khác biệt khi nhập React so với `MyOtherComponent`: `from 'react'` và `from './MyOtherComponent` không?
+- Cái sau là đường dẫn thư muc - bạn đang yêu cầu module kéo phụ thuộc từ 1 vị trí tệp tương đối so với module, trong khi cái trước đang kéo phụ thuộc từ một nơi được chia sẻ (node_modules)
+
+### CSS
+
+- Trong `src/index.js` bạn có thể thấy cách Css được coi như một module khác
+    
+    ```jsx
+    import './index.css';
+    ```
+    
+- `src/index.css` nên chứa các kiểu khung. chẳng hạn như body, html,… áp dụng cho toàn bộ trang. Ngoài các kiểu trong toàn ứng dụng, bạn cần các kiểu cụ thể cho từng component. Theo quy ước, một file Css (và 1 file Js) cho mỗi component React, bạn nên có `MyComponent.css` chứa các kiểu chỉ liên quan đến `MyComponent.js` và không có gì khác. Cũng nên thêm tiền tố cho tất cả các tên class được sử dụng trong `MyComponent.js` bằng `MyComponent-`
+    
+    ```jsx
+    .MyComponent-table {
+     border: 1px solid black;
+    }
+    
+    .MyComponent-table-heading {
+     border: 1px solid black;
+    }
+    ```
+    
+- Mặc dù có nhiều cách khác để tạo Css, nhưng hãy giữ cho nó đơn giản và “kiểu cũ”: bất cứ thứ gì sẽ chỉ chạy trong trình duyệt mà không cần bất kỳ chuyển đổi nào
+
+## Moving On
+
+- Bây giờ, bạn đã có một ví dụ về quy trình viết, build và triển khai đơn giản. Với tất cả những điều này phía sau bạn, đã đến lúc chuyển sang các chủ đề thú vị hơn
+- Build và thử nghiệm 1 ứng dụng thực tế trong khi tận dụng nhiều tính năng mà Js hiện đại cung cấp
