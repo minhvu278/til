@@ -249,3 +249,204 @@ let fraction = 0.123_456_789; // Cũng hoạt động trong phần phân số.
     ```
     
 - Class `Date` và các methods của nó được đề cập chi tiết trong 11.4 . Nhưng chúng ta sẽ thấy object Date một lần nữa trong 3.9.3 khi mà chúng ta xem xét về các chuyển đổi type của Js
+
+## 3.3. Text
+- Kiểu dữ liệu trong Js để biểu diễn văn bản là string. String là các chuỗi ký tự 16bit bất biến có thứ tự, mỗi giá trị thường đại diện cho một ký tự Unicode. Độ dài của string là số lượng giá trị 16-bit mà nó chứa. String (và array - mảng) của Js sử dụng index dựa trên 0: Giá trị 16-bit đầu tiên ở vị trí 0, giá trị thứ 2 ở vị trí 1,… **Empty string** là string có độ dài là 0
+- Js không có type đặc biệt nào đại diện cho 1 phần tử duy nhất của string. Để biểu diễn giá trị 16-bit duy nhất, chỉ cần sử dụng string có độ dài là 1
+
+### CHARACTERS, CODEPOINTS, AND JAVASCRIPT STRINGS
+
+- Js sử dụng mã hoá UTF-16 của bộ ký tự và string Js là chuỗi các giá trị 16-bit không dấu. Các ký tự Unicode được sử dụng phổ biến nhất (những ký tự từ “mặt phẳng đa ngôn ngữ cơ bản”) có các điểm mã phù hợp với 16-bit có thể được biểu diễn bằng một phần tử của string. Các ký tự Unicode có điểm mã không phù hợp với 16 bit được mã hoá theo quy tắc UTF16 - dưới dạng 1 chuỗi (được gọi là “cặp thay thế”) gồm 2 giá trị 16 bit. Điều này có nghĩa là string Js có độ dài 2 (giá trị 16bit) có thể chỉ đại diện cho một ký tự Unicode duy nhất
+    
+    ```jsx
+    let euro = "€";
+    let love = "❤";
+    euro.length // => 1: ký tự này có một phần tử 16-bit
+    love.length // => 2: mã hóa UTF-16 của ❤ là "\ud83d\udc99"
+    ```
+    
+- Hầu hết các methods thao tác chuỗi được tạo ra bởi Js hoạt động trên các giá trị 16-bit, không phải ký tự. Chúng không xử lý cặp thay thế 1 cách đặc biệt, chúng không thực hiện chuẩn hoá string và thậm chí không đảm bảo rằng string UTF-16 được định dạng tốt
+- Tuy nhiên, trong ES6, strings có thể lặp lại được và nếu bạn sử dụng vòng lặp `for/of` hoặc toán tử `...` với string, nó sẽ lặp lại các ký tự thực tế của string, không phải các giá trị 16-bit
+
+### 3.3.1 String Literals
+
+- Để bao gồm string trong chương trình Js, chỉ cần đặt giá trị string trong cặp dấu nháy đơn, nháy kép hoặc dấu bách tích phù hợp (’ hoặc “ hoặc `). Các ký tự dấu nháy kép và bách tích có thể chứa trong string được phân định bằng dấu nháy kép và dấu bách tích
+    
+    ```jsx
+    "" // Chuỗi rỗng: nó có 0 ký tự
+    'testing'
+    "3.14"
+    'name="myform"'
+    "Wouldn't you prefer O'Reilly's book?"
+    "τ is the ratio of a circle's circumference to its radius"
+    `"She said 'hi'", he said.`
+    ```
+    
+- String được phân định bằng dấu bách tích là 1 tính năng của ES6, cho phép các expression được nhúng trong (hoặc nội suy vào) string literal. Cú pháp nội suy expression này được đề cập trong 3.3.4
+- Các phiên bản ban đầu của JS yêu cầu string literal được viết trên 1 dòng duy nhất và người ta thường thấy code Js tạo string dài bằng cách nối các string 1 dòng bằng toán tử +. Tuy nhiên từ ES5 bạn đã có thể ngắt string thành nhiều dòng bằng cách kết thúc mỗi dòng nhưng dòng cuối cùng bằng dấu (\). Cả dấu gạch chéo ngược và ký tự kết thúc dòng theo sau nó đều không phải là một phần của string literal. Nếu bạn cần bao gồm ký tự xuống dòng trong **string literal** được đặt trong dấu nháy đơn hoặc dấu nháy kép, hãy sử dụng chuỗi ký tự \n (được ghi lại trong phần tiếp theo)
+- Cú pháp dấu bách tích ES6 cho phép strings được ngắt thành nhiều dòng, và trong trường hợp này, các ký tự kết thúc dòng là một phần của string literal
+- Lưu ý rằng, khi bạn sử dụng dấu nháy đơn để phân định string của mình, bạn phải cẩn thận với các từ viết tắt và sở hữu cách tiếng Anh. Chẳng hạn như `can't`. Vì dấu nháy đơn trông giống với ký tự dấu nháy đơn, bạn phải dùng ký tự \  để “thoát” khỏi bất kỳ dấu nháy nào xuất hiện trong string được đặt trong dấu nháy đơn (escape squences) - chuỗi thoát được giải thích trong phần tiếp theo)
+- Trong lập trình phía máy khách, code Js có thể chứa strings code HTML và code HTML có thể chứa string của Js. Giống như Js, HTML sử dụng dấu nháy đơn hoặc nháy kép để phân định string của nó. Do đó, khi kết hợp Js và HTML, bạn nên sử dụng 1 kiểu dấu nháy cho Js và kiểu còn lại cho HTML. Trong ví dụ sau, string “Thank you” được đặt trong dấu nháy đơn trong expression Js, sau đó được đặt trong dấu nháy kép trong thuộc tính trình xử lý sự kiện Js
+    
+    ```jsx
+    <button onclick="alert('Thank you')">Click Me</button>
+    ```
+    
+
+### 3.3.2 Escape Sequences in String Literals
+
+- Ký tự \ có mục đích đặc biệt trong string Js. Kết hợp với 1 ký tự theo sau nó, nó đại diện cho 1 ký tự không thể biểu diễn được trong string. Ví dụ \n là đại diện cho ký tự xuống dòng
+- Một ví dụ khác, đã đề cập trước đó, là escape sequence (\’) đại diện cho 1 ký tự dấu nháy đơn (hoặc dấu nháy). Escape sequences này hữu ích khi bạn bao gồm dấu nháy đơn trong string literal được chứa trong dấu nháy đơn. Bạn có thể thấy tại sao chúng được gọi là **escape sequences**: dấu gạch chéo ngược cho phép bạn thoát khỏi cách hiểu thông thường của ký tự nháy đơn. Thay vì sử dụng nó để đánh dấu kết thúc string, bạn sử dụng nó như 1 dấu nháy đơn
+    
+    ```jsx
+    'You\'re right, it can\'t be a quote'
+    ```
+    
+- Bảng 3-1 liệt kê các **escape sequences** của JavaScript và các ký tự mà chúng đại diện. Ba **escape sequences** là chung chung và có thể được sử dụng để đại diện cho bất kỳ ký tự nào bằng cách chỉ định mã ký tự Unicode của nó dưới dạng số thập lục phân. Ví dụ: chuỗi \xA9 đại diện cho ký hiệu bản quyền, có mã hóa Unicode được cung cấp bởi số thập lục phân A9. Tương tự, **escape sequence** \u đại diện cho ký tự Unicode tùy ý được chỉ định bởi bốn chữ số thập lục phân hoặc từ một đến năm chữ số khi các chữ số được bao bọc trong dấu ngoặc nhọn: \u03c0 đại diện cho ký tự π, ví dụ và \u{1f600} đại diện cho biểu tượng cảm xúc "mặt cười toe toét".
+    
+    ```jsx
+    Chuỗi	Ký tự được biểu diễn
+    \0	Ký tự NUL (\u0000)
+    \b	Backspace (\u0008)
+    \t	Tab ngang (\u0009)
+    \n	Xuống dòng (\u000A)
+    \v	Tab dọc (\u000B)
+    \f	Form feed (\u000C)
+    \r	Trả về đầu dòng (\u000D)
+    \"	Dấu nháy kép (\u0022)
+    \'	Dấu nháy đơn (\u0027)
+    \\	Dấu gạch chéo ngược (\u005C)
+    \xnn	Ký tự Unicode được chỉ định bởi hai chữ số thập lục phân nn
+    \unnnn	Ký tự Unicode được chỉ định bởi bốn chữ số thập lục phân nnnn
+    \u{n}	Ký tự Unicode được chỉ định bởi điểm mã n, trong đó n là từ một đến sáu chữ số thập lục phân từ 0 đến 10FFFF (ES6)
+    ```
+    
+- Nếu ký tự \ đứng trước bất kỳ ký tự nào khác ngoài những ký tự được hiển thị trong Bảng trên, thì dấu gạch chéo ngược sẽ bị bỏ qua (mặc dù các phiên bản tương lai của ngôn ngữ có thể định nghĩa các **escape sequences** mới). Ví dụ: \# giống như #. Cuối cùng, như đã lưu ý trước đó, ES5 cho phép dấu gạch chéo ngược trước dấu xuống dòng để ngắt **string literal** thành nhiều dòng.
+
+### 3.3.3 Working with Strings
+
+- Một trong những tính năng tích hợp của Js là khả năng nối các strings(chuỗi). Nếu bạn sử dụng toán tử + với số, nó sẽ cộng chúng. Nhưng nếu bạn sử dụng nó với string, nó sẽ nối chúng bằng cách thêm chuỗi thứ 2 vào chuỗi thứ 1
+    
+    ```jsx
+    let msg = "Hello, " + "world"; // Tạo ra chuỗi "Hello, world"
+    let greeting = "Welcome to my blog," + " " + name;
+    ```
+    
+- **Strings** có thể được so sánh với các toán tử so sánh bằng `===` và toán tử so sánh khác `!==` tiêu chuẩn: hai strings bằng nhau nếu và chỉ khi chúng bao gồm chính xác cùng một chuỗi các giá trị 16-bit. (Để so sánh và sắp xếp chuỗi theo ngôn ngữ mạnh mẽ hơn)
+- Ngoài thuộc tính length này, Js cung cấp một API phong phú để làm việc với strings
+    
+    ```jsx
+    let s = "Hello, world"; // Bắt đầu với một số văn bản.
+    // Lấy các phần của chuỗi
+    s.substring(1,4) // => "ell": ký tự thứ 2, thứ 3 và thứ 4.
+    s.slice(1,4) // => "ell": giống nhau
+    s.slice(-3) // => "rld": 3 ký tự cuối cùng
+    s.split(", ") // => ["Hello", "world"]: tách tại chuỗi phân cách
+    // Tìm kiếm trong chuỗi
+    s.indexOf("l") // => 2: vị trí của chữ cái 'l' đầu tiên
+    s.indexOf("l", 3) // => 3: vị trí của chữ cái 'l' đầu tiên tại hoặc sau vị trí 3
+    s.indexOf("zz") // => -1: s không bao gồm chuỗi con "zz"
+    s.lastIndexOf("l") // => 10: vị trí của chữ cái 'l' cuối cùng
+    // Các hàm tìm kiếm Boolean trong ES6 trở lên
+    s.startsWith("Hell") // => true: chuỗi bắt đầu bằng các ký tự này
+    s.endsWith("!") // => false: s không kết thúc bằng ký tự đó
+    s.includes("or") // => true: s bao gồm chuỗi con "or"
+    // Tạo các phiên bản đã sửa đổi của chuỗi
+    s.replace("llo", "ya") // => "Heya, world"
+    s.toLowerCase() // => "hello, world"
+    s.toUpperCase() // => "HELLO, WORLD"
+    s.normalize() // Chuẩn hóa Unicode NFC: ES6
+    s.normalize("NFD") // Chuẩn hóa NFD. Cũng có "NFKC", "NFKD"
+    // Kiểm tra các ký tự riêng lẻ (16-bit) của chuỗi
+    s.charAt(0) // => "H": ký tự đầu tiên
+    s.charAt(s.length-1) // => "d": ký tự cuối cùng
+    s.charCodeAt(0) // => 72: số 16-bit tại vị trí được chỉ định
+    s.codePointAt(0) // => 72: ES6, hoạt động cho các điểm mã > 16 bit
+    // Các hàm padding chuỗi trong ES2017
+    "x".padStart(3) // => "  x": thêm khoảng trắng ở bên trái đến độ dài 3
+    "x".padEnd(3) // => "x  ": thêm khoảng trắng ở bên phải đến độ dài 3
+    "x".padStart(3, "*") // => "**x": thêm dấu sao ở bên trái đến độ dài 3
+    "x".padEnd(3, "-") // => "x--": thêm dấu gạch ngang ở bên phải đến độ dài 3
+    // Các hàm cắt bỏ khoảng trắng. trim() là ES5; các hàm khác là ES2019
+    " test ".trim() // => "test": xóa khoảng trắng ở đầu và cuối
+    " test ".trimStart() // => "test ": xóa khoảng trắng ở bên trái. Còn có trimLeft
+    " test ".trimEnd() // => " test": xóa khoảng trắng ở bên phải. Còn có trimRight
+    // Các phương thức chuỗi linh tinh
+    s.concat("!") // => "Hello, world!": chỉ cần sử dụng toán tử + thay thế
+    "<>".repeat(5) // => "<><><><><>": nối n bản sao. ES6
+    ```
+    
+- Hãy nhớ rằng strings là bất biến trong Js. Các methods như replace() và toUpperCase() trả về string mới: Chúng không sửa đổi string mà chúng được gọi
+- Strings cũng được coi là array chỉ đọc và bạn có thể truy cập các ký tự riêng lẻ (giá trị 16-bit) từ string bằng cách sử dụng dấu ngoặc vuông thay vì methods `charAt()`
+    
+    ```jsx
+    let s = "hello, world";
+    s[0] // => "h"
+    s[s.length-1] // => "d"
+    ```
+    
+
+### 3.3.4 Template Literals
+
+- Trong ES6 trở lên, string literal có thể được phân định bởi dấu huyền
+    
+    ```jsx
+    let s = `hello world`;
+    ```
+    
+- Tuy nhiên, đây không chỉ là một cú pháp string literal khác, bởi vì template literals (chuỗi mẫu) này có thể bao gồm các expression Js tuỳ ý. Giá trị cuối cùng của string literal trong dấu huyền được tính toán bằng cách đánh giá bất kỳ expression nào được bao gồm, chuyển đổi values của các expressions đó thành string và kết hợp các strings được tính toán đó với các ký tự literal trong dấu huyền
+    
+    ```jsx
+    let name = "Bill";
+    let greeting = `Hello ${ name }.`; // greeting == "Hello Bill."
+    ```
+    
+- Mọi thứ giữa `${ }` phù hợp được hiểu là expression Js. Mọi thứ bên ngoài dấu ngoặc nhọn là văn bản string literal thông thường. Expression bên trong dấu ngoặc nhọn được đánh giá và sau đó được chuyển thành string và chèn vào mẫu, thay thế dấu $, dấu ngoặc nhọn và mọi thứ ở giữa chúng
+- Template literal có thể bao gồm bất kỳ số lượng expression nào. Nó có thể sử dụng bất kỳ escape character nào mà string thông thường có thể sử dụng và nó có thể kéo dài bất kỳ số dòng nào mà không cần thoát đặc biệt. Template literal bao gồm 4 expression Js, một escape sequence Unicode và ít nhất 4 dấu xuống dòng
+    
+    ```jsx
+    let errorMessage = `\
+    \u2718 Test failure at ${filename}:${linenumber}:
+    ${exception.message}
+    Stack trace:
+    ${exception.stack}
+    `;
+    ```
+    
+- Dấu \ ở cuối dòng đầu tiên ở đây thoát khỏi dấu xuống dòng ban đầu để string kết quả bắt đầu bằng ký tự Unicode ✘ (\u2718) thay vì dấu xuống dòng.
+
+### **TAGGED TEMPLATE LITERALS**
+
+- Một tính năng mạnh mẽ nhưng ít được sử dụng hơn của template literals là nếu tên hàm (hoặc “thẻ”) đứng ngay trước dấu huyền mở, thì văn bản và values của các expressions trong template literal sẽ được chuyển đến hàm. Giá trị của “tagged template literal” này là giá trị trả về của hàm. Ví dụ điều này có thể được sử dụng để áp dụng thoát HTML hoặc SQL cho các giá trị trước khi thay thế chúng vào văn bản
+- ES6 có một hàm thẻ tích hợp sẵn: `String.raw()`. Nó trả về văn bản trong dấu huyền mà không cần xử lý bất kỳ escape sequences dấu gạch chéo ngược nào
+    
+    ```jsx
+    `\n`.length // => 1: chuỗi có một ký tự xuống dòng duy nhất
+    String.raw`\n`.length // => 2: một ký tự dấu gạch chéo ngược và chữ cái n
+    ```
+    
+- Lưu ý rằng mặc dù phần thẻ của tagged template literal là một hàm, nhưng không có dấu ngoặc đơn nào được sử dụng trong lời gọi của nó. Trong trường hợp rất cụ thể này, các ký tự dấu huyền thay thế dấu ngoăc đơn mở và đóng
+- Khả năng định nghĩa các hàm thẻ mẫu của riêng bạn là một tính năng mạnh mẽ của JS. Các hàm này không cần trả về strings và chúng có thể được sử dụng như các hàm tạo, như thể định nghĩa cú pháp literal mới cho ngôn ngữ. Chúng ta sẽ thấy 1 ví dụ trong 14.5
+
+### 3.3.5 Pattern Matching
+
+- Js định nghĩa một datatype được gọi là regular expression hoặc (RegExp) để mô tả khớp với các mẫu trong strings văn bản. RegExp không phải là một trong những datatypes cơ bản trong JS nhưng chúng có cú pháp literal giống như number và string, vì vậy đôi khi chúng có vẻ như là cơ bản. Ngữ pháp của regular expression literals (giá trị ký tự biểu thức chính quy) rất phức tạp và API mà chúng định nghĩa không tầm thường. Chúng được ghi lại chi tiết trong 11.3. Tuy nhiên vì RegExp mạnh mẽ và thường được sử dụng để xử lý văn bản, phần này cung cấp 1 cái nhìn tổng quan ngắn gọn
+- Văn bản giữa một cặp dấu gạch chéo tạo thành regular expression literal. Dấu gạch chéo thứ 2 trong cặp cũng có thể được theo sau bởi một hoặc nhiều chữ cái, điều này sửa đổi ý nghĩa của mẫu.
+    
+    ```jsx
+    /^HTML/; // Khớp các chữ cái H T M L ở đầu chuỗi
+    /[1-9][0-9]*/; // Khớp một chữ số khác 0, theo sau là bất kỳ số chữ số nào
+    /\bjavascript\b/i; // Khớp "javascript" như một từ, không phân biệt chữ hoa chữ thường
+    ```
+    
+- Các objects RegExp định nghĩa 1 số methods hữu ích và strings cũng có methods chấp nhận đôi số RegExp
+    
+    ```jsx
+    let text = "testing: 1, 2, 3"; // Văn bản mẫu
+    let pattern = /\d+/g; // Khớp tất cả các trường hợp của một hoặc nhiều chữ số
+    pattern.test(text) // => true: tồn tại kết quả khớp
+    text.search(pattern) // => 9: vị trí của kết quả khớp đầu tiên
+    text.match(pattern) // => ["1", "2", "3"]: mảng của tất cả các kết quả khớp
+    text.replace(pattern, "#") // => "testing: #, #, #"
+    text.split(/\D+/) // => ["","1","2","3"]: tách trên các ký tự không phải chữ số
+    ```
