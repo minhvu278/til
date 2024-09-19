@@ -450,3 +450,59 @@ let fraction = 0.123_456_789; // Cũng hoạt động trong phần phân số.
     text.replace(pattern, "#") // => "testing: #, #, #"
     text.split(/\D+/) // => ["","1","2","3"]: tách trên các ký tự không phải chữ số
     ```
+## 3.4 Boolean Values
+- Một giá trị boolean đại diện cho đúng sai, bật tắt, có hoặc không. Chỉ có 2 giá trị khả dĩ cho kiểu dữ liệu này. Các từ khoá dành riêng true và false đánh giá (evaluate) thành hai giá trị này. Giá trị boolean thường là kết quả của các phép so sánh bạn thực hiện trong các chương trình Js của mình
+    
+    ```jsx
+    a === 4
+    ```
+    
+- Đoạn mã này kiểm tra giá trị của biến a có bằng số 4 hay không. Nếu có, kết quả của phép so sánh này là giá trị boolean true. Nếu a không bằng 4, kết quả của phép so sánh là false.
+- Giá trị boolean thường được sử dụng trong các cấu trúc điều khiển Js. Ví dụ: if else trong Js thực hiện hành động nếu giá trị là true hoặc false. Bạn thường kết hợp một phép so sánh tạo ra các giá trị boolean trực tiếp với 1 câu lệnh sử dụng nó. Kết quả trông như này
+    
+    ```jsx
+    if (a === 4) {
+      b = b + 1;
+    } else {
+      a = a + 1;
+    }
+    ```
+    
+- Đoạn code này sẽ kiểm tra xem a có bằng 4 không. Nếu có, nó sẽ cộng 1 vào b; nếu không, nó sẽ cộng 1 vào a
+- Như chúng ta sẽ thảo luận trong 3.9, bất kỳ giá trị Js nào cũng có thể được chuyển đổi thành giá trị boolean. Các giá trị sau được chuyển đổi thành và do đó hoạt động như false
+    - **undefined**
+    - **null**
+    - 0
+    - 0
+    - **NaN**
+    - "" // chuỗi rỗng
+- Tất cả các giá trị khác, bao gồm tất cả các object(và array) được chuyển đổi và hoạt động giống như true. false và 6 giá trị được chuyển đổi thành nó, đôi khi được gọi là giá trị falsy, và tất cả các giá trị khác được gọi là truthy. Bất cứ khi nào Js mong đợi 1 giá trị boolean, một giá trị falsy hoạt động như false và một giá trị truthy hoạt động như true
+- Ví dụ giả sử biến o chứa 1 object hoặc giá trị null. Bạn có thể kiểm tra rõ ràng xem o có phải là non-null hay không bằng câu lệnh if
+    
+    ```jsx
+    if (o !== null) ... 
+    ```
+    
+- Toán tử không bằng `!==` so sánh o với null và đánh giá thành true hoặc false. Nhưng bạn có thể bỏ qua phép so sánh và thay vào đó dựa vào thực tế là null là falsy và các object là truthy
+    
+    ```jsx
+    if (o) ... 
+    ```
+    
+- Trong trường hợp đầu tiên, phần thân của if sẽ chỉ được thực thi nếu o không phải là null. Trường hợp thứ 2 ít nghiêm ngặt hơn: Nó sẽ chỉ thực thi phần thân của if nếu o không phải là false hoặc bất kỳ giá trị falsy nào (chẳng hạn như null hoặc undefined). Câu lệnh if nào phù hợp với chương trình của bạn thực sự phụ thuộc vào những giá trị bạn mong đợi sẽ gán cho o. Nếu bạn cần phân biệt null với 0 và “”, thì bạn nên sử dụng phép so sánh rõ ràng
+- Giá trị boolean có phương thức `toString()` mà bạn có thể sử dụng để chuyển đổi chúng thành chuỗi “true” hoặc “false”, nhưng chúng không có bất kỳ phương thức hữu ích nào khác. Mặc dù API không đáng kể, có 3 toán tử boolean quan trọng
+- Toán từ `&&` thực hiện phép toán booean AND. Nó đánh giá thành một giá trị truthy nếu và chỉ nếu cả 2 toán hạng của nó đều là truthy nếu và chỉ nếu cả 2 toán hạng của nó đều là truthy; nó đánh giá thành giá trị falsy nếu không. Toán từ `||` là phéo toán Boolean OR: nó đánh giá thành một giá trị truthy nếu 1 trong 2 (hoặc cả 2) toán hạng của nó là truthy và đánh giá thành một giá trị falsy nếu cả 2 toán hạng đều là falsy. Cuối cùng, toán tử unary `!` thực hiện phép toán Boolean NOT: nó đánh giá thành true nếu toán hạng của nó là falsy và thành false nếu giá trị là truthy
+    
+    ```jsx
+     if ((x === 0 && y === 0) || !(z === 0)) {
+      // x và y đều bằng không hoặc z khác không 
+    }
+    ```
+    
+- Chi tiết đầy đủ về các toán tử này có trong 4.10
+
+## 3.5 null and undefined
+- `null` là một từ khoá đặc biệt của ngôn ngữ, đánh giá một giá trị đặt biệt thường được sử dụng để hiển thị sự vắng mặt của một giá trị. Sử dụng toán tử `typeof` trên null trả về chuỗi “object”, cho biết rằng null có thể được coi như một giá trị object đặc biệt biểu thị “không có đối tượng”. Tuy nhiên trong thực tế, null thường được coi là thành viên duy nhất của kiểu dữ liệu riêng của nó và nó có thể được sử dụng để biểu thị “không có giá trị” cho số và chuỗi cũng như các object. Hầu hết các ngôn ngữ lập trình đều có một giá trị tương đương với null của Js: bạn có thể đã quen thuộc nó dưới dạng NULL, nil hoặc None
+- Js cũng có một giá trị thứ 2 để biểu thị sự vắng mặt của value. Giá trị undefined đại diện cho một kiểu vắng mặt sâu hơn. Nó là giá trị của các biến chưa được khởi tạo và giá trị bạn nhận được khi bạn truy vấn giá trị của một thuộc tính object hoặc phần tử array không tồn tại. Giá trị undefined cũng là giá trị trả về của các function không trả về giá trị một cách rõ ràng và giá trị của các tham số function mà không có đối số nào được truyền vào. `undefined` là một hằng số toàn cục được xác định trước (không phải là từ khoá ngôn ngữ như null, mặc dù đây không phải là sự khác biệt quan trọng trong thực tế) được khởi tạo thành giá trị undefined. Nếu bạn áp dụng toán tử typeof cho giá trị undefined, nó sẽ trả về “undefined”, cho biết rằng giá trị này là thành viên duy nhất của một kiểu đặc biệt
+- Mặc dù có những khác biệt này, cả null và undefined đều biểu thị sự vắng mặt của giá trị và thường có thể được sử dụng thay thế cho nhau. Toán tử == coi chúng như là bằng nhau. (Sử dụng toán từ === để phân biệt chúng). Cả 2 đều là giá trị falsy: chúng hoạt động giống như false khi yêu cầu giá trị boolean. Cả null và undefined đều không có bất kỳ thuộc tính hoặc phương thức nào. Trên thực tế, sử dụng `.` hoặc `[]` để truy cập thuộc tính hoặc phương thức của các giá trị này sẽ gây ra TypeError
+- Tôi coi `undefined` là đại diện cho sự vắng mặt giá trị ở cấp hệ thống, không mong muốn hoặc giống như lỗi và null đại diện cho sự vắng mặt giá trị ở cấp chương trình, bình thường hoặc mong đợi. Tôi tránh sử dụng null và undefined khi có thể, nhưng nếu tôi cần gán một trong những giá trị này cho một biến hoặc 1 thuộc tính hoặc truyền hoặc trả về một trong những giá trị này đến hoặc từ một function, tôi thường sử dụng null. Một số lập trình viên cố gắng tránh null hoàn toàn và sử dụng undefined thay thế bất cứ khi nào họ có thể
