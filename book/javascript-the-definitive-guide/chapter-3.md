@@ -506,3 +506,46 @@ let fraction = 0.123_456_789; // Cũng hoạt động trong phần phân số.
 - Js cũng có một giá trị thứ 2 để biểu thị sự vắng mặt của value. Giá trị undefined đại diện cho một kiểu vắng mặt sâu hơn. Nó là giá trị của các biến chưa được khởi tạo và giá trị bạn nhận được khi bạn truy vấn giá trị của một thuộc tính object hoặc phần tử array không tồn tại. Giá trị undefined cũng là giá trị trả về của các function không trả về giá trị một cách rõ ràng và giá trị của các tham số function mà không có đối số nào được truyền vào. `undefined` là một hằng số toàn cục được xác định trước (không phải là từ khoá ngôn ngữ như null, mặc dù đây không phải là sự khác biệt quan trọng trong thực tế) được khởi tạo thành giá trị undefined. Nếu bạn áp dụng toán tử typeof cho giá trị undefined, nó sẽ trả về “undefined”, cho biết rằng giá trị này là thành viên duy nhất của một kiểu đặc biệt
 - Mặc dù có những khác biệt này, cả null và undefined đều biểu thị sự vắng mặt của giá trị và thường có thể được sử dụng thay thế cho nhau. Toán tử == coi chúng như là bằng nhau. (Sử dụng toán từ === để phân biệt chúng). Cả 2 đều là giá trị falsy: chúng hoạt động giống như false khi yêu cầu giá trị boolean. Cả null và undefined đều không có bất kỳ thuộc tính hoặc phương thức nào. Trên thực tế, sử dụng `.` hoặc `[]` để truy cập thuộc tính hoặc phương thức của các giá trị này sẽ gây ra TypeError
 - Tôi coi `undefined` là đại diện cho sự vắng mặt giá trị ở cấp hệ thống, không mong muốn hoặc giống như lỗi và null đại diện cho sự vắng mặt giá trị ở cấp chương trình, bình thường hoặc mong đợi. Tôi tránh sử dụng null và undefined khi có thể, nhưng nếu tôi cần gán một trong những giá trị này cho một biến hoặc 1 thuộc tính hoặc truyền hoặc trả về một trong những giá trị này đến hoặc từ một function, tôi thường sử dụng null. Một số lập trình viên cố gắng tránh null hoàn toàn và sử dụng undefined thay thế bất cứ khi nào họ có thể
+
+## 3.6 Symbols
+
+- `Symbols` được giới thiệu trong ES6 để đóng vai trò là tên thuộc tính không phải chuỗi. Để hiểu Symbol, bạn cần biết rằng kiểu Object cơ bản của Js là một tập hợp các property không có thứ tự, trong đó mỗi property có một tên và một giá trị. Tên property thường là (và cho đến ES6, là duy nhất) chuỗi. Nhưng trong ES6 trở về sau, Symbol cũng có thể phục vụ mục đích này
+    
+    ```jsx
+    let strname = "string name"; // Một chuỗi để sử dụng làm tên thuộc tính
+    let symname = Symbol("propname"); // Một Symbol để sử dụng làm tên thuộc tính
+    
+    typeof strname // => "string": strname là một chuỗi
+    typeof symname // => "symbol": symname là một symbol
+    
+    let o = {}; // Tạo một object mới
+    o[strname] = 1; // Định nghĩa một thuộc tính với tên chuỗi
+    o[symname] = 2; // Định nghĩa một thuộc tính với tên Symbol
+    
+    o[strname] // => 1: truy cập thuộc tính có tên chuỗi
+    o[symname] // => 2: truy cập thuộc tính có tên symbol
+    ```
+    
+- Type Symbol không có cú pháp literal. Để lấy giá trị Symbol, bạn gọi hàm `Symbol()`. Hàm này không bao giờ trả về cùng 1 giá trị 2 lần, ngay cả khi được gọi với cùng một đối số. Điều này có nghĩa là nếu bạn gọi Symbol() để lấy giá trị `Symbol`, bạn có thể sử dụng an toàn giá trị đó làm tên thuộc tính để thêm thuộc tính mới vào object và không cần phải lo lắng rằng bạn có thể đang ghi đè một thuộc tính hiện có cùng tên. Tương tự, nếu bạn sử dụng tên thuộc tính tượng trưng và không chia sẻ các symbol đó, bạn có thể tự tin rằng các module khác trong chương trình của bạn sẽ không vô tình ghi đè lên các thuộc tính của bạn
+- Trong thực tế, Symbol đóng vai trò như một cơ chế mở rộng ngôn ngữ. Khi ES6 giới thiệu `for/of` và các object có thể lặp lại, nó cần xác định phương thức chuẩn mà các lớp có thể triển khai để tự làm cho chúng có thể lặp lại. Những việc chuẩn hoá bất kỳ tên chuỗi cụ thể nào cho phương thức iterator này sẽ phá vỡ code hiện có, vì vậy thay vào đó, một tên tượng trưng đã được sử dụng. Như chung ta sẽ thấy trong chương 12, `Symbol.iterator` là một giá trị Symbol có thể được sử dụng làm tên method để làm cho 1 object có thể lặp lại
+- Hàm `Symbol()` nhận 1 đối số tuỳ chọn và trả về một giá trị Symbol duy nhất. Nếu bạn cung cấp một đối số chuỗi, chuỗi đó sẽ được bao gồm trong đầu ra của method `toString()` của Symbol
+- Tuy nhiên, lưu ý rằng việc gọi `Symbol()` hai lần cùng một chuỗi sẽ tạo ra hai giá trị Symbol hoàn toàn khác nhau
+    
+    ```jsx
+    let s = Symbol("sym_x");
+    s.toString() // => "Symbol(sym_x)"
+    ```
+    
+- `toString()` là method thú vị duy nhất của các instance Symbol
+- Tuy nhiên, có 2 hàm liên quan đến Symbol khác mà bạn nên biết. Đôi khi sử dụng Symbol, bạn muốn giữ chúng ở chế độ riêng tư đối với code của riêng mình để bạn có thể đảm bảo rằng các property của bạn sẽ không bao giờ xung đột với các property được sử dụng bởi code khác. Tuy nhiên, những lần khác, bạn có thể muốn xác định một giá trị Symbol và chia sẻ rộng rãi với code khác. Đây sẽ là trường hợp, ví dụ: Nếu bạn đang xác định một số loại tiện ích mở rộng mà bạn muốn code khác có thể tham gia, như với cơ chế `Symbol.iterator` được mô tả trước đó
+- Để phục vụ trường hợp sử dụng thứ 2 này, Js xác định một registry Symbol toàn cục. Function `Symbol.for()` nhận một đối số chuỗi và trả về một giá trị Symbol được liên kết với chuỗi bạn truyền vào. Nếu chưa có Symbol nào được liên kết với chuỗi đó, thì một Symbol mới sẽ được trả về; ngược lại, Symbol đã tồn tại sẽ được trả về
+- Tức là `Symbol.for()` hoàn toàn khác với `Symbol()`: `Symbol()` không bao giờ trả về cùng một giá trị 2 lần nhưng `Symbol.for()` luôn trả về cùng một giá trị khi được gọi với cùng 1 chuỗi. Chuỗi này được truyền cho `Symbol.for()` xuất hiện trong đầu ra của `toString()` cho Symbol được trả về và nó cũng có thể được truy xuất bằng cách gọi `Symbol.keyFor()` trên Symbol được trả về
+    
+    ```jsx
+    let s = Symbol.for("shared");
+    let t = Symbol.for("shared");
+    
+    s === t // => true
+    s.toString() // => "Symbol(shared)"
+    Symbol.keyFor(t) // => "shared" 
+    ```
