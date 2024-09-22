@@ -630,4 +630,167 @@ let fraction = 0.123_456_789; // Cũng hoạt động trong phần phân số.
       return true; // Nếu không, chúng bằng nhau
     }**
     ```
+## 3.9 Type Conversions
+- Js rất linh hoạt về các kiểu giá trị mà nó yêu cầu. Chúng ta đã thấy điều này với boolean: khi Js mong đợi 1 giá trị boolean, bạn có thể cung cấp một giá trị thuộc bất kỳ kiểu nào và Js sẽ chuyển đổi nó khi cần thiết. Một số giá trị (giá trị “truthy”) chuyển đổi thành true và các giá trị khác (giá trị “falsy”) chuyển đổi thành false. Điều này cũng đúng với các kiểu khác: Nếu Js muốn 1 chuỗi, nó sẽ chuyển đổi bất kỳ giá trị nào bạn cung cấp cho nó thành 1 chuỗi. Nếu Js muốn một số, nó sẽ cố gắng chuyển đổi giá trị bạn cung cấp cho nó thành 1 số (hoặc thành NaN nếu nó không thể thực hiện chuyển đổi có ý nghĩa)
+    
+    ![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/9a9d30aa-4822-4cd2-ade5-57a403553962/bc5e624f-7db1-4d4f-a424-eb0a01e7bc81/image.png)
+    
+- Các chuyển đổi nguyên thuỷ sang nguyên thuỷ được hiển thị trong bảng tương đối đơn giản. Chuyển đổi sang boolean đã được thảo luận trong 3.4. Chuyển đổi sang chuỗi được xác định rõ cho tất cả các giá trị nguyên thuỷ. Chuyển đổi sang số phức tạp hơn 1 chút. Các chuỗi có thể được phân tích cú pháp dưới dạng số sẽ chuyển đổi thành các số đó. Khoảng trắng ở đầu và cuối được phép, nhưng bất kỳ ký tự không phải khoảng trắng ở đầu hoặc cuối nào không phải là một phần của một literal số sẽ khiến chuyển đổi số tạo ra NaN. Một số chuyển đổi số có vẻ đáng ngạc nhiên: true chuyển đổi thành 1 false và chuỗi rỗng chuyển đổi thành 0
+- Chuyển đổi object sang nguyên thuỷ phức tạp hơn 1 chút và nó là chủ đề của 3.9.3
+
+### 3.9.1 Conversions and Equality
+
+- Js có 2 toán tử kiểm tra và xem 2 giá trị có bằng nhau không
+- Toán từ tuyệt đối ===, không coi các toán hạng của nó là bằng nhau nếu chung không cùng kiểu và đây hầu như luôn là toán tử phù hợp để sử dụng khi viết code. Nhưng vì Js rất linh hoạt với các chuyển đổi kiểu, nó cũng định nghĩa toán tử == với định nghĩa linh hoạt về sự bằng nhau. Ví dụ, tất cả các so sánh sau đều đúng
+    
+    ```jsx
+    null == undefined // => true: Hai giá trị này được coi là bằng nhau.
+    "0" == 0 // => true: Chuỗi chuyển đổi thành số trước khi so sánh.
+    0 == false // => true: Boolean chuyển đổi thành số trước khi so sánh.
+    "0" == false // => true: Cả hai toán hạng chuyển đổi thành 0 trước khi so sánh!
+    ```
+    
+    - 4.9.1 giải thích chính xác những chuyển đổi nào được thực hiện bởi toán tử == để xác định xem hai giá trị có nên được coi là bằng nhau hay không
+- Hãy nhớ rằng khả năng chuyển đổi của 1 giá trị này sang giá trị khác không có nghĩa là 2 giá trị đó bằng nhau. Ví dụ nếu undifined được sử dụng ở nơi mong đợi giá trị boolean, nó sẽ chuyển đổi thành false. Nhưng điều này không có nghĩa là `undefined == false`. Các toán tử và câu lệnh Js mong đợi các giá trị thuộc nhiều kiểu khác nhau và thực hiện chuyển đổi sang các kiểu đó. Câu lệnh if chuyển đổi undefined thành false nhưng toán tử == không bao giờ cố gắng chuyển đổi các toán hạng của nó thành boolean
+
+### 3.9.2 Explicit Conversions
+
+- Mặc dù Js thực hiện nhiều chuyển đổi kiểu tự động, nhưng đôi khi bạn có thể cần thực hiện chuyển đổi rõ ràng để giữ cho code của mình rõ ràng hơn. Cách đơn giản nhất để thực hiện chuyển đổi kiểu rõ ràng là sử dụng hàm `Boolean(), Number() và String()`
+    
+    ```jsx
+    Number("3") // => 3
+    String(false) // => "false": Hoặc sử dụng false.toString()
+    Boolean([]) // => true
+    ```
+    
+- Bất kỳ giá trị nào khác ngoài null hoặc undefined đều có thể sử dụng toString() và kết quả của method này thường giống với kết quả được trả về bởi `String()`
+- Lưu ý rằng `Boolean(), Number() và String()` cũng có thể được gọi - với `new` - như hàm khởi tạo. Nếu bạn sử dụng chúng theo cách này, bạn sẽ nhận được 1 object “bao bọc” hoạt động giống như 1 giá trị boolean, number hoặc string nguyên thuỷ. Các object bao bọc này là một di vật lịch sử từ những ngày đầu tiên của Js và không bao giờ có lý do chính đáng nào để sử dụng chúng
+- Một số toán tử Js nhất định thực hiện chuyển đổi kiểu ngầm định và đôi khi được sử dụng rõ ràng cho mục đích chuyển đổi kiểu. Nếu 1 toán hạng của toán tử `+` là 1 chuỗi, nó sẽ chuyển đổi toán hạng kia thành 1 chuỗi. Toán tử `+` đơn nhất chuyển đổi toán hạng của nó thành một số. Và toán tử `!` đơn nhất chuyển đổi toán hạng của nó thành boolean và phủ định nó
+    
+    ```jsx
+    x + "" // => String(x)
+    +x // => Number(x)
+    x-0 // => Number(x)
+    !!x // => Boolean(x): Lưu ý !! kép
+    ```
+    
+- Khi làm việc với dữ liệu tài chính hoặc khoa học, bạn có thể muốn chuyển đổi số thành chuỗi theo cách cho phép bạn kiểm soát chữ sô thập phân hoặc số chữ số có nghĩa trong đầu ra hoặc bạn có thể muốn kiểm soát xem có sử dụng ký hiệu mũ hay không. Class `Number` định nghĩa ba phương thức cho các loại chuyển đổi số thành chuỗi này
+    - `toFixed()`: Chuyển đổi 1 số thành 1 chuỗi với một số chữ số thập phân được chỉ định. Nó không bao giờ sử dụng ký hiệu mũ
+    - `toExponential()`: Chuyển đổi một số thành một chuỗi bằng cách sử dụng ký hiệu mũ, với một chữ số trước dấu thập phân và một số chữ số thập phân được chỉ định (có nghĩa là số chữ số có nghĩa lớn hơn một đơn vị so với giá trị ban đầu chỉ định)
+    - `toPrecision()`: Chuyển đổi một số thành một chuỗi với số chữ số có nghĩa mà bạn chỉ định. Nó sử dụng ký hiệu mũ nếu số chữ số có nghĩa không đủ lớn để hiển thị toàn bộ phần nguyên của số. Lưu ý rằng cả 3 phương thức đều làm tròn các chữ số ở cuối hoặc thêm số 0 khi thích hợp
+        
+        ```jsx
+        let n = 123456.789;
+        n.toFixed(0) // => "123457"
+        n.toFixed(2) // => "123456.79"
+        n.toFixed(5) // => "123456.78900"
+        n.toExponential(1) // => "1.2e+5"
+        n.toExponential(3) // => "1.235e+5"
+        n.toPrecision(4) // => "1.235e+5"
+        n.toPrecision(7) // => "123456.8"
+        n.toPrecision(10) // => "123456.7890"
+        ```
+        
+- Ngoài các phương thức định dạng số được hiển thị ở đây, `Intl.NumberFormat` định nghĩa 1 phương thức định dạng sô quốc tế hoá chung hơn. Xem 11.7.1 để biết thêm chi tiết
+- Nếu bạn chuyển một chuỗi cho hàm chuyển đổi `Number()`, nó sẽ cố gắng phân tích cú pháp chuỗi đó dưới dạng 1 số nguyên hoặc số dấu phẩy động. Hàm đó chỉ hoạt động cho các số nguyên cơ số 10 và không cho phép các ký tự ở cuối không phải là một phần của literal
+- Các hàm `parseInt() và parseFloat()` (đây là global function, không phải method của bất kỳ class nào) linh hoạt hơn. `parseInt()` chỉ phân tích cú pháp số nguyên, trong khi parseFloat() phân tích cú pháp cả số nguyên và số dấu phẩy động. Nếu một chuỗi bắt đầu bằng “0x” hoặc “0X”, `parseInt()` sẽ hiểu nó là một số thập lục phân. Cả `parseInt(0 và parseFloat()` đều bỏ qua khoảng trắng ở đầu, phân tích cú pháp càng nhiều ký tự số càng tốt và bỏ qua mọi thứ theo sau. Nếu ký tự không phải là khoảng trắng đầu tiên mà là một phần của literal số hợp lệ, chung sẽ trả về NaN
+    
+    ```jsx
+    parseInt("3 blind mice") // => 3
+    parseFloat(" 3.14 meters") // => 3.14
+    parseInt("-12.34") // => -12
+    parseInt("0xFF") // => 255
+    parseInt("0xff") // => 255
+    parseInt("-0XFF") // => -255
+    parseFloat(".1") // => 0.1
+    parseInt("0.1") // => 0
+    parseInt(".1") // => NaN: số nguyên không thể bắt đầu bằng "."
+    parseFloat("$72.47") // => NaN: số không thể bắt đầu bằng "$"
+    ```
+    
+- `parseInt()` chấp nhận đối số thứ 2 tuỳ chọn chỉ định cơ số của số được phân tích cú pháp. Các giá trị hợp lệ nằm ở khoảng 2 đến 36
+    
+    ```jsx
+    parseInt("11", 2) // => 3: (1*2 + 1)
+    parseInt("ff", 16) // => 255: (15*16 + 15)
+    parseInt("zz", 36) // => 1295: (35*36 + 35)
+    parseInt("077", 8) // => 63: (7*8 + 7)
+    parseInt("077", 10) // => 77: (7*10 + 7)
+    ```
+    
+
+### 3.9.3 Object to Primitive Conversions
+
+- Các phần trước đã giải thích cách bạn có thể chuyển đổi rõ ràng các giá trị từ kiểu này sang kiểu khác và đã giải thích các chuyển đổi ngầm định của Js về các giá trị từ kiểu nguyên thuỷ này sang kiểu nguyên thuỷ khác. Phần này sẽ bao gồm các quy tắc phức tạp mà Js sử dụng để chuyển đổi Object thành giá trị nguyên thuỷ. Nó dài và khó hiểu, và nếu đây là lần đầu tiên bạn đọc chương này, bạn nên thoải mái bỏ qua đến 3.10
+- Một ky do cho sự phức tạp của các chuyển đổi object sang nguyên thuỷ của Js là một số kiểu object có nhiều hơn một biêu diễn nguyên thuỷ. Vd object Date có thể được biểu diễn dưới dạng chuỗi hoặc dấu thời gian số. Đặt tả Js định nghĩa ba thuật toán cơ bản để chuyển đổi object thành giá trị nguyên thuỷ
+    - `prefer-string` : Thuật toán này trả về một giá trị nguyên thuỷ, ưu tiên giá trị chuỗi, nếu chuyển đổi thành chuỗi
+    - `prefer-number`: Thuật toán này trả về một giá trị nguyên thuỷ, ưu tiên 1 số, nếu có thể chuyển đổi như vậy
+    - `no-preference`: Thuật toán này không thể hiện sự ưu tiên về loại giá trị nguyên thuỷ nào được mong muốn và các lớp có thể xác định các chuyển đổi của riêng chúng. Trong số các kiểu Js tích hợp sẵn, tất cả ngoài trừ Date đều triển khai thuật toán này dưới dạng `prefer-number`. Class Date triển khai thuật toán này dưới dạng `prefer-string`
+- Việc triển khai các thuật toán chuyển đổi object sang nguyên thuỷ này được giải thích ở cuối phần này. Tuy nhiên, trước tiên chúng ta sẽ giải thích cách các thuật toán được sử dụng trong Js
+
+### **CHUYỂN ĐỔI OBJECT SANG BOOLEAN**
+
+- Chuyển đổi object sang boolean rất đơn giản: tất cả các objet đều chuyển đổi thành true. Lưu ý rằng chuyển đổi này không yêu cầu sử dụng các thuật toán object sang nguyên thuỷ được mô tả và nó thực sự áp dụng cho tất cả các object, bao gồm array rỗng và thậm chí cả object bao bọc `new Boolean(false)`
+
+### **CHUYỂN ĐỔI OBJECT SANG STRING**
+
+- Khi một object cần được chuyển đổi thành chuỗi, Js trước tiên chuyển đổi nó thành một nguyên thuỷ bằng thuật toán `prefer-string`, sau đó chuyển đổi giá trị nguyên thuỷ kết quả thành chuỗi, nếu cần, theo quy tắc trong bảng 3-2
+- Loại chuyển đổi này xảy ra, ví dụ: nếu bạn chuyển 1 object cho 1 hàm tích hợp sẵn mong đợi một đối số chuỗi, nếu bạn gọi `String()` như 1 hàm chuyển đổi và khi bạn nội suy object vào literal mẫu (3.3.4)
+
+### **CHUYỂN ĐỔI OBJECT SANG SỐ**
+
+- Khi 1 object cần được chuyển thành số, Js trước tiên chuyển đổi nó thành một giá trị nguyên thuỷ bằng thuật toán `prefer-number`, sau đó chuyển đổi giá trị nguyên thuỷ kết quả thành số, nếu cần, theo các quy tắc trong bảng 3-2
+- Các fuction và method của Js tích hợp sẵn mong đợi các đối số sẽ chuyển đổi các đối số object thành số theo cách này và hầu hết (xem các ngoại lệ sau) các toán tử Js mong đợi các toán hạng số cũng chuyển đổi object thành số theo cách này
+
+### **CHUYỂN ĐỔI TOÁN TỬ TRƯỜNG HỢP ĐẶC BIỆT**
+
+- Các toán tử được đề cập chi tiết trong chương 4. Ở đây, chung tôi sẽ giải thích các toán tử trường hợp đặc biệt không sử dụng các chuyển đổi object sang chuỗi và object sang số cơ bản được mô tả trước đó
+- Toán từ `+` trong Js thực hiện phép cộng số và nối chuỗi. Nếu một trong 2 toán hạng của nó là 1 object, Js sẽ chuyển đổi chúng thành giá trị nguyên thuỷ bằng thuật toán `no-preference` . Khi nó có hai giá trị nguyên thuỷ, nó sẽ kiểm tra kiểu của chúng. Nếu một trong 2 đôi số là một chuỗi, nó sẽ chuyển đổi số kia thành một chuỗi và nối các chuỗi. Nếu không, nó sẽ chuyển đổi cả 2 đối số thành số và cộng chúng
+- Các toán tử == và ≠ thực hiện kiểm tra bằng và không bằng theo cách lỏng lẻo cho phép chuyển đổi kiểu. Nếu một toán hạng là 1 object và toán hạng kia là một giá trị nguyên thuỷ, các toán tử này sẽ chuyển đổi object thành nguyên thuỷ bằng thuật toán `no-preference` và sau đó so sánh 2 giá trị nguyên thuỷ
+- Cuối cùng, các toán tử quan hệ `<, <=, > và >=` so sánh thứ tự của toán hạng của chúng và có thể được sử dụng để so sánh cả số và chuỗi. Nếu một trong 2 toán hạng là 1 object, nó sẽ được chuyển đổi thành một giá trị nguyên thuỷ bằng thuật toán `prefer-number`. Tuy nhiên, lưu ý rằng không giống như chuyển đổi object sang số, các giá trị nguyên thuỷ được trả về bởi chuyển đổi `prefer-number` sau đó không được chuyển đổi thành số
+- Lưu ý rằng biểu diễn số của object Date có thể so sánh một cách có ý nghĩa với < và >, nhưng biểu diễn chuỗi thì không. Đối với objet Date, thuật toán no-preference chuyển đổi thành 1 chuỗi vì vậy, thực tế là Js sử dụng thuật toán`prefer-number` cho các toán tử này có nghĩa là chúng ta có thể sử dụng chúng để so sánh thứ tự của object Date
+
+### **PHƯƠNG THỨC TOSTRING() VÀ VALUEOF()**
+
+- Tất cả các object đều kế thừa hai method chuyển đổi được sử dụng bởi các chuyển đổi object sang nguyên thuỷ và trước khi chung ta có thể giải thích các thuật toán chuyển đổi `prefer-string, prefer-number và no-preference` , chúng ta phải giải thích 2 phương thức này
+- Method đầu tiên là `toString()` và công việc của nó là trả về 1 biểu diễn chuỗi của object. Method `toString()` mặc định không trả về một giá trị thú vị lắm (mặc dù chúng ta sẽ thấy nó hữu ích trong 14.4.3)
+    
+    ```jsx
+    ({x: 1, y: 2}).toString() // => "[object Object]" 
+    ```
+    
+- Nhiều class định nghĩa các phiên bản cụ thể hơn của method `toString()`. Ví dụ `toString()` của class `Array` chuyển đổi mỗi element array thành string và nối các string kết quả lại với nhau bằng dấu phẩy ở giữa. Method `toString()` của class Function chuyển đổi các hàm do người dùng định nghĩa thành chuỗi mã nguồn Js. Class Date định nghĩa 1 method `toString()` trả về một chuỗi ngày và giờ có thể đọc được (và Js có thể phân tích cú pháp). Class RegExp định nghĩa 1 method `toString()` chuyển đổi object RegExp thành một chuỗi trông giống như một literal RegExp
+    
+    ```jsx
+    [1,2,3].toString() // => "1,2,3"
+    (function(x) { f(x); }).toString() // => "function(x) { f(x); }"
+    /\d+/g.toString() // => "/\\d+/g"
+    let d = new Date(2020,0,1);
+    d.toString() // => "Wed Jan 01 2020 00:00:00 GMT-0800 (Pacific Standard Time)" 
+    ```
+    
+- Function chuyển đổi object khác được gọi là `valueOf()`. Công việc của method này ít được định nghĩa rõ ràng hơn: nó được cho là chuyển đổi một object thành 1 giá trị nguyên thuỷ đại diện cho object, nếu có tồn tại giá trị nguyên thuỷ như vậy. Object là các giá trị phức hợp và hầu hết các object không thực sự có thể được biểu diễn bằng một giá trị nguyên thuỷ duy nhất, vì vậy method `valueOf()` mặc định chỉ đơn giản trả về chính object đó thay vì trả về 1 nguyên thuỷ. Các lớp bao bọc như `String, Number và Boolean` định nghĩa các phương thức `valueOf()` chỉ đơn giả là trả về giá trị nguyên thuỷ được bao bọc. Array, function và biểu thức chính quy chỉ đơn giản là kế thừa phương thức mặc định. Việc gọi `valueOf()` cho các instance của các kiểu này chỉ đơn giản là trả về chính object đó
+- Class Date định nghĩa một method `valueOf()` trả về ngày ở dạng biểu diễn nội bộ của nó: số mili giây kể từ 1/1/1970
+    
+    ```jsx
+    let d = new Date(2010, 0, 1); // 1 tháng 1, 2010, (giờ Thái Bình Dương) 
+    d.valueOf() // => 1262332800000 
+    ```
+    
+
+### **THUẬT TOÁN CHUYỂN ĐỔI OBJECT SANG NGUYÊN THỦY**
+
+- Với method `toString()` và `valueOf()` đã được giải thích, giờ đây chúng ta có thể giải thích gần đúng cách thức hoạt động của ba thuật toán object sang nguyên thuỷ (các chi tiết đầy đủ được trình bày sau cho đến 14.4.7)
+    - Thuật toán `prefer-string` trước tiên thử method `toString()` . Nếu method được định nghĩa và trả về 1 giá trị nguyên thuỷ thì Js sẽ sử dụng giá trị nguyên thuỷ đó (ngay cả khi nó không phải là string!). Nếu `toString()` không tồn tại hoặc nó trả về 1 object, thì Js sẽ thử phương thức `valueOf()`. Nếu method đó tồn tại và trả về 1 giá trị nguyên thuỷ, thì Js sẽ sử dụng giá trị đó. Nếu không chuyển đổi sẽ thất bại với `TypeError`
+    - Thuật toán `prefer-number` hoạt động giống như thuật toán prefer-string, ngoại trừ nó thử `valueOf()` trước `toString()` thứ 2
+    - Thuật toán `no-preference` phụ thuộc vào class của object đang được chuyển đổi. Nếu object là object Date thì Js sẽ sử dụng thuật toán prefer-string. Đối với bất kỳ object nào khác, Js sẽ sử dụng thuật toán `prefer-number
+    - Các quy tắc được mô tả ở đây đúng cho tất cả các kiểu Js tích hợp sẵn và là các quy tắc mặc định cho bất kỳ class nào bạn tự định nghĩa. 14.4.7 giải thích cách bạn có thể xác định các thuật toán chuyển đổi object sang nguyên thuỷ của riêng mình cho các class bạn định nghĩa
+- Trước khi chúng ta rời khỏi chủ đề này, điều đáng chú ý là các chi tiết của chuyển đổi `perfer-number` giải thích lý do tại sao array rỗng chuyển đổi thành số 0 và array một phần tử cũng có thể chuyển đổi thành số
+    
+    ```jsx
+    Number([]) // => 0: điều này là bất ngờ!
+    Number([99]) // => 99: thật sao? 
+    ```
+    
+- Chuyển đổi object sang số trước tiên chuyển đổi object thành một số nguyên thuỷ bằng thuật toán `prefer-number` , sau đó chuyển đổi giá trị nguyên thuỷ kết quả thành 1 số. Thuật toán `prefer-number` thử `valueOf()` trước và sau đó chuyển sang `toString()`. Nhưng class Array kế thừa method `valueOf()` mặc định, method này không trả về giá trị nguyên thuỷ. Vì vậy, khi chúng ta cố gắng chuyển đổi một array thành một số, cuối cùng chung ta sẽ gọi method `toString()` của array. Array rỗng chuyển đổi thành chuỗi rỗng. Và chuỗi rỗng chuyển đổi thành số 0. Array có một phần tử chuyển đổi thành một chuỗi mà phần tử đó thực hiện. Nếu 1 array chứa một số duy nhất, số đó sẽ được chuyển đổi thành chuỗi và sau đó trở lại thành số
 
