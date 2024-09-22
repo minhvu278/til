@@ -119,3 +119,63 @@
   // xuất
   export default Excel;
   ```
+
+## Version 0.0.1 of the New App
+- Bây giờ bạn đã có một component có thể tái sử dụng độc lập. Vì vậy hãy sử dụng nó. File `App.js` được tạo bởi CRA là component cấp cao nhất cho ứng dụng và bạn có thể nhập Excel ở đó
+- Xoá code do CRA tạo và thay thế bằng Excel và một số dữ liệu tạm thời, bạn sẽ nhận được
+    
+    ```jsx
+    import './App.css';
+    import Excel from './components/Excel';
+    
+    function App() {
+     return (
+     <div>
+     <Excel
+     headers={['Tên', 'Năm']}
+     initialData={[
+     ['Charles', '1859'],
+     ['Antoine', '1943'],
+     ]}
+     />
+     </div>
+     );
+    }
+    
+    export default App;
+    ```
+    
+- Với điều này, bạn có 1 ứng dụng đang hoạt động. Nó khá khiêm tốn nhưng nó vẫn có thể tìm kiếm và chỉnh sửa dữ liệu
+
+## CSS
+
+- Như đã thảo luận trong chương 6, hãy có 1 file CSS cho mỗi component. Vì vậy, component `Excel.js` nên đi kèm (nếu cần) với `Excel.css`. Bất kỳ tên class nào trong `Excel.js` phải có tiền tố là `Excel-`.
+- Trong triển khai hiện đại từ chương 4, các phần tử được tạo kiểu bằng cách sử dụng bộ chọn HTML (vd `table th {...}`), nhưng trong 1 ứng dụng thực tế bao gồm các phần tử có thể tái sử dụng, các kiểu nên được giới hạn trong các component để chúng không can thiệp vào các component khác
+- Lưu ý có rất nhiều tuỳ chọn khi nói đến việc tạo kiểu cho ứng dụng của bạn. Nhưng vì mục đích của cuộc thảo lluận này, chúng ta hãy tập chung vào các phần React. Một quy ước đặt tên CSS đơn giản sẽ thực hiện được mánh khoé này
+- Bất kỳ kiểu “global” nào cũng có thể nằm trong `App.css` do CRA tạo, nhưng những kiểu này nên được giới hạn trong 1 tập hợp nhỏ các kiểu thực sự chung chung, ví dụ như phông chữ cho toàn bộ ứng dụng. CRA cũng tạo ra một `index.css` nhưng để tránh nhầm lẫn về kiểu global nào đi đâu, chúng ta hãy xoá no
+- Vì vậy div cao nhất mà Excel hiển thị trở thành
+    
+    ```jsx
+    return (
+     <div className="Excel">
+     {/* mọi thứ khác */}
+     <div>
+    );
+    ```
+    
+- Bây giờ bạn có thể giới hạn phạm vi các kiểu chỉ áp dụng cho component này bằng cách sử dụng tiền tố Excel
+    
+    ```jsx
+    .Excel table {
+     width: 100%;
+    }
+    
+    .Excel td {
+     /* etc. */
+    }
+    
+    .Excel th {
+     /* etc. */
+    }
+    ```
+
