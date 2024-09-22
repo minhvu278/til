@@ -549,3 +549,85 @@ let fraction = 0.123_456_789; // Cũng hoạt động trong phần phân số.
     s.toString() // => "Symbol(shared)"
     Symbol.keyFor(t) // => "shared" 
     ```
+## 3.7 The Global Object
+
+- Các phần trước đã giải thích các kiểu giá trị nguyên thuỷ của Js. Các kiểu object, array và function - được đề cập trong các chương riêng của chúng ta sau này trong cuốn sách này. Nhưng có một giá trị object rất quan trọng mà chúng ta phải đề cập bây giờ. `Global Object` là 1 object js thông thường phục vụ một mục đích rất quan trọng: các thuộc tính của object này là các định danh được xác định toàn cục có sẵn cho một chương trình JS
+- Khi trình thông dịch Js khởi động (hoặc bất cứ khi nào trình duyệt web tải 1 trang mới), nó sẽ tạo 1 global object mới và cung cấp cho nó một tập hợp các thuộc tính ban đầu xác định
+    - Các const global như undefined, Infinity và NaN
+    - Các function toàn cục như isNaN(), parseInt() và eval()
+    - Các constructor như Date(), RegExp(), String(), Object() và Array()
+    - Các global object như Math và Json
+- Các thuộc tính ban đầu của global object không phải là các từ khoá dành riêng, nhưng chúng xứng đáng được coi là như vậy. Chương này đã mô tả một số thuộc tính toàn cục này. Hầu hết những cái khác sẽ được đề cập ở những nơi khác trong cuốn sách này
+- Trong Node, global object có 1 thuộc tính có tên là global có giá trị chính global object, vì vậy, bạn luôn có thể tham chiếu đến global object bằng tên `global` trong các chương trình Node
+- Trong các browser web, object Window đóng vai trò là global object cho tất cả các code Js chứa trong cửa sổ trình duyệt mà nó đại diện. Object Window global này có một thuộc tính window tự tham chiếu có thể được sử dụng để tham chiếu đến global object. Object Window xác định các property toàn cục cốt lõi, nhưng nó cũng xác định 1 số lượng lớn các biến toàn cục khác dành riêng cho browser web và Js phía máy khách. Các luồng web worker có global object khác với Window mà chúng được liên kết. Code trong worker có thể tham chiếu đến object toàn cục của nó là self
+- ES2020 cuối cùng đã xác định `globalThis` là cách chuẩn để tham chiếu đến `object` toàn cục trong bất kỳ ngữ cảnh nào. Tính đến đầu năm 2020, tính năng này đã được triển khai bởi tất cả các trình duyệt hiện đại và bởi Node
+
+## 3.8 Immutable Primitive Values and Mutable Object References
+
+- Có một sự khác biệt cơ bản trong Js giữa các giá trị nguyên thuỷ (undefined, null, boolean, number, string) và các object (array và function)
+- Giá trị nguyên thuỷ là bất biến: Không có cách nào để thay đổi (hoặc “biến đổi”) một giá trị nguyên thuỷ. Điều này là hiển nhiên đối với number và boolean - thậm chí không có ý nghĩa gì khi thay đổi giá trị của 1 số. Tuy nhiên, nó không quá rõ ràng đôi với chuỗi
+- Vì chuỗi giống như array ký tự, bạn có thể mong đợi có thể thay đổi ký tự ở bất kỳ mục nào được chỉ định. Trên thực tế, Js không cho phép điều này và tất cả các phương thức chuỗi dường như trả về một chuỗi đã sửa đổi, trên thực tế, đang trả về 1 chuỗi mới
+    
+    ```jsx
+    let s = "hello"; // Bắt đầu với một số văn bản viết thường
+    s.toUpperCase(); // Trả về "HELLO", nhưng không thay đổi s
+    s // => "hello": chuỗi ban đầu không thay đổi
+    ```
+    
+- Giá trị nguyên thuỷ cũng được so sánh theo giá trị: hai giá trị giống nhau nếu và chỉ khi chúng có cùng giá trị. Điều này nghe có vẻ lặp lại đối với number, boolean, null và undefined: không có cách nào khác để chung có thể được so sánh. Tuy nhiên, một lần nữa, nó không quá rõ ràng đối với string. Nếu hai giá trị string riêng biệt được so sánh, Js sẽ coi chúng là bằng nhau nếu và chỉ khi chúng có cùng độ dài và nếu ký tự ở mỗi index là giống nhau
+- Object khác với giá trị nguyên thuỷ. Đầu tiên, chúng khả biến - giá trị của chúng có thể thay đổi
+    
+    ```jsx
+    let o = { x: 1 }; // Bắt đầu với một object
+    o.x = 2; // Biến đổi nó bằng cách thay đổi giá trị của một thuộc tính
+    o.y = 3; // Biến đổi nó một lần nữa bằng cách thêm một thuộc tính mới
+    
+    let a = [1,2,3]; // Array cũng khả biến
+    a[0] = 0; // Thay đổi giá trị của một phần tử mảng
+    a[3] = 4; // Thêm một phần tử mảng mới
+    ```
+    
+- Object không được so sánh theo giá trị: hai object riêng biệt không bằng nhau ngay cả khi chúng có cùng thuộc tính và giá trị. Và hai array riêng biệt không bằng nhau ngay cả khi chúng có cùng các phần tử theo cùng thứ tự
+    
+    ```jsx
+    let o = {x: 1}, p = {x: 1}; // Hai object có cùng thuộc tính
+    o === p // => false: các object riêng biệt không bao giờ bằng nhau
+    
+    let a = [], b = []; // Hai array riêng biệt, rỗng
+    a === b // => false: các array riêng biệt không bao giờ bằng nhau
+    ```
+    
+- Object đôi khi đươc gọi là kiểu tham chiếu để phân biệt chúng với kiểu nguyên thuỷ của Js. Sử dụng thuật ngữ này, giá trị object là tham chiếu và chúng ta nói rằng object được so sánh bằng tham chiếu: hai giá trị object giống nhau nếu và chỉ khi chung tham chiếu đến cùng 1 object cơ bản
+    
+    ```jsx
+    let a = []; // Biến a tham chiếu đến một array rỗng.
+    let b = a; // Bây giờ b tham chiếu đến cùng một array.
+    b[0] = 1; // Biến đổi array được tham chiếu bởi biến b.
+    a[0] // => 1: thay đổi cũng hiển thị thông qua biến a.
+    a === b // => true: a và b tham chiếu đến cùng một object, vì vậy chúng bằng nhau.
+    ```
+    
+- Như bạn có thể thấy từ code này, việc gán 1 object (hoặc array) cho 1 biến chỉ đơn giản là gán tham chiếu: nó không tạo ra 1 bản sao mới của object. Nếu bạn muốn tạo 1 bản sao mới của 1 object hoặc array, bạn phải sao chép rõ ràng các property của object hoặc các element của array. Ví dụ sử dụng vòng lặp for
+    
+    ```jsx
+    let a = ["a","b","c"]; // Một array chúng ta muốn sao chép
+    let b = []; // Một array riêng biệt mà chúng ta sẽ sao chép vào
+    for(let i = 0; i < a.length; i++) { // Đối với mỗi chỉ mục của a[]
+      b[i] = a[i]; // Sao chép một phần tử của a vào b
+    }
+    let c = Array.from(b); // Trong ES6, sao chép array với Array.from() 
+    ```
+    
+- Tương tự nếu chúng ta muốn so sánh 2 object hoặc array riêng biệt, chúng ta phải so sánh các property hoặc element của chung. Code này định nghĩa 1 hàm để so sánh 2 array
+    
+    ```jsx
+    **function equalArrays(a, b) {
+      if (a === b) return true; // Array giống hệt nhau là bằng nhau
+      if (a.length !== b.length) return false; // Array có kích thước khác nhau không bằng nhau
+      for(let i = 0; i < a.length; i++) { // Lặp qua tất cả các phần tử
+        if (a[i] !== b[i]) return false; // Nếu có bất kỳ sự khác biệt nào, array không bằng nhau
+      }
+      return true; // Nếu không, chúng bằng nhau
+    }**
+    ```
+
