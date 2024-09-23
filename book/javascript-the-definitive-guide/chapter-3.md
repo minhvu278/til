@@ -794,3 +794,251 @@ let fraction = 0.123_456_789; // Cũng hoạt động trong phần phân số.
     
 - Chuyển đổi object sang số trước tiên chuyển đổi object thành một số nguyên thuỷ bằng thuật toán `prefer-number` , sau đó chuyển đổi giá trị nguyên thuỷ kết quả thành 1 số. Thuật toán `prefer-number` thử `valueOf()` trước và sau đó chuyển sang `toString()`. Nhưng class Array kế thừa method `valueOf()` mặc định, method này không trả về giá trị nguyên thuỷ. Vì vậy, khi chúng ta cố gắng chuyển đổi một array thành một số, cuối cùng chung ta sẽ gọi method `toString()` của array. Array rỗng chuyển đổi thành chuỗi rỗng. Và chuỗi rỗng chuyển đổi thành số 0. Array có một phần tử chuyển đổi thành một chuỗi mà phần tử đó thực hiện. Nếu 1 array chứa một số duy nhất, số đó sẽ được chuyển đổi thành chuỗi và sau đó trở lại thành số
 
+## 3.10 Variable Declaration and Assignment
+
+- Một trong những kỹ thuật cơ bản nhất của lập trình máy tính là sử dụng tên - hoặc định danh - để biểu diễn các giá trị. Việc liên kết một tên với 1 giá trị cho phép chúng ta tham chiếu đến giá trị đó và sử dụng nó trong các chương trình mà chúng ta viết. Khi chúng ta có thể làm điều này, chúng ta thường nói rằng chúng ta đang gán 1 giá trị cho 1 biến. Thuật ngữ “biến” ngụ ý rằng các giá trị mới có thể được gán : rằng giá trị được liên kết với biến có thể thay đổi khi chương trình của chúng ta chạy. Nếu chúng ta gán vĩnh viễn 1 giá trị cho một tên, thì chung ta gọi tên đó là hằng số thay vì biến
+- Trước khi bạn có thể sử dụng một biến hoặc hằng số trong chương trình Js, bạn phải khai báo no. Trong ES6 trở về sau, điều này được thực hiện với các từ khoá let và const, mà chúng ta sẽ giải thích tiếp theo. Trước ES6, các biến được khai báo bằng var điều này đặc biệt hơn và được giải thích sau trong phần này
+
+### 3.10.1 Declarations with let and const
+
+- Trong Js hiện đại (ES6 trở về sau), các biến được khai báo bằng let như sau
+    
+    ```jsx
+    let i;
+    let sum; 
+    ```
+    
+- Bạn cũng có thể khai báo nhiều biến trong 1 câu lệnh let duy nhất
+    
+    ```jsx
+    let i, sum; 
+    ```
+    
+- Thực hành lập trình tốt là gán 1 giá trị ban đầu cho các biến của bạn khi bạn khai báo chúng, khi điều này là có thể
+    
+    ```jsx
+    let message = "hello";
+    let i = 0, j = 0, k = 0;
+    let x = 2, y = x*x; // Bộ khởi tạo có thể sử dụng các biến đã khai báo trước đó
+    ```
+    
+- Nếu bạn không chỉ định giá trị ban đầu cho một biến bằng câu lệnh let, biến đó sẽ được khai báo nhưng giá trị của nó là undefined cho đến khi code của bạn gán 1 giá trị cho nó
+- Để khai báo 1 hằng số thay vì một biến, hãy sử dụng const thay vì let. const hoạt động như let ngoại trừ việc bạn phải khởi tạo hằng số khi bạn khai báo nó
+    
+    ```jsx
+    const H0 = 74; // Hằng số Hubble (km/s/Mpc)
+    const C = 299792.458; // Tốc độ ánh sáng trong chân không (km/s)
+    const AU = 1.496E8; // Đơn vị thiên văn: khoảng cách đến mặt trời (km) 
+    ```
+    
+- Như tên gọi của nó, các hẳng số không thể thay đổi giá trị của chúng và bất kỳ nỗ lực nào để làm như vậy sẽ khiến `TypeError` bị ném ra
+- Theo quy ước phổ biến (nhưng không phổ biến), khai báo các hằng số bằng cách sử dụng tên bằng tất cả các chữ cái viết hoa chẳng hạn như HO hoặc HTTP_NOT_FOUND như 1 cách để phân biệt chúng với các biến
+
+### Khi nào nên sử dụng const
+
+- Có 2 trường phái tử tưởng về việc sử dụng từ khoá const. Một cách tiếp cận la chỉ sử dụng const cho các giá trị về cơ bản là không thay đổi, như các hằng số vật lý được hiển thị hoặc số phiên bản của chương trình hoặc chuỗi byte được sử dụng để xác định kiểu file chẳng hạn. Một cách tiếp cận khác nhận ra rằng nhiều biến được gọi là trong chương trình của chúng ta không thực sự thay đổi khi chương trình của chúng ta chạy. Trong cách tiếp cận này, chúng ta khai báo mọi thứ bằng const, và sau đó nếu chúng ta thấy rằng chúng ta thực sự muốn cho phép giá trị thay đổi, chúng ta chuyển khai báo sang let. Điều này có thể giúp ngăn ngừa lỗi bằng cách loại trừ các thay đổi ngẫu nhiên đối với các biến mà chúng ta không định
+- Một trong những cách tiếp cận, chúng ta chỉ sử dụng const cho các giá trị không được thay đổi. Ở cách kia, chúng ta sử dụng const cho bất kỳ giá trị nào không xảy ra thay đổi. Tôi thích cách tiếp cận trước đây trong code của riêng mình
+- Trong chương 5, chúng ta sẽ tìm hiểu về các câu lệnh trong vòng lặp for, for/in và for/of trong Js. Mỗi vòng lặp này bao gồm 1 biến vòng lặp được gán 1 giá trị mới trên mỗi lần lặp của vòng lặp. Js cho phép chúng ta khai báo biến vòng lặp như một phần của chính cú pháp vòng lặp và đây là một cách phổ biến khác để sử dụng let
+    
+    ```jsx
+    for(let i = 0, len = data.length; i < len; i++) 
+      console.log(data[i]);
+    
+    for(let datum of data) 
+      console.log(datum);
+    
+    for(let property in object) 
+      console.log(property);
+    ```
+    
+- Có vẻ đáng ngạc nhiên, nhưng bạn cũng có thể sử dụng const để khai báo các biến vòng lặp cho vòng lặp `for/in` và `for/of`, miễn là phần thân của vòng lặp không gán lại một giá trị mới. Trong trường hợp này, khai báo const chỉ đơn giản là nói rằng giá trị hằng số trong thời gian của mỗi lần lặp
+    
+    ```jsx
+    for(const datum of data) console.log(datum);
+    for(const property in object) console.log(property); 
+    ```
+    
+
+### VARIABLE AND CONSTANT SCOPE
+
+- Phạm vi của một biến là vùng mã nguồn chương trình của bạn mà nó được xác định. Các biến, hằng số được khai báo bằng let và const có phạm vi khối. Điều này có nghĩa là chúng chỉ được xác định trong khối mã mà câu lệnh let hoặc const xuất hiện
+- Định nghĩa class và function Js là các block và phần thân của if else, while, for,.. cũng vậy. Nói một cách đại khái, nếu một biến hoặc hẳng số được khai báo trong 1 tập hợp các dấu ngoặc nhọn, thì các dấu ngoặc nhọn đó sẽ phân định vùng code mà biến hoặc hằng số được xác định (mặc dù tất nhiên không hợp lệ khi tham chiếu đến 1 biến hoặc hằng số từ các dòng code được thực thi trước câu lệnh let hoặc const khai báo biến)
+- Các biến và hằng số được khai báo như 1 phần của vòng lặp for, for in hoặc for of có phần thân vòng lặp làm phạm vi của chúng, mặc dù về mặt kỹ thuật chúng xuất hiện bên ngoài dấu ngoặc nhọn
+- Khi 1 khai báo xuất hiện ở cấp cao nhất, bên ngoài bất kỳ block code nào, chúng  ta nói rằng đó là một biến hoặc hằng số toàn cục và có phạm vi toàn cục. Trong Node và trong các module Js phía client (xem chương 10), phạm vi của một biến toàn cục là file mà nó được xác định. Tuy nhiên, trong Js phía client truyền thống, phạm vi của một biến toàn cục là tài liệu HTML mà nó được xác định. Đó là: Nếu một `<script>` khai báo 1 biến hoặc hằng số toàn cục, thì biến hoặc hằng số đó được xác định trong tất cả các phần tử `<script>` trong document đó (hoặc ít nhất là tất cả các tập lệnh được thực thi sau khi câu lệnh let hoặc const được thực thi)
+
+### REPEATED DECLARATIONS
+
+- Đó là lỗi cú pháp khi sử dụng cùng một tên với nhiều hơn một khai báo let hoặc const trong cùng một phạm vi. Hợp lệ (mặc dù là một cách thực hành tốt nhất nên tránh) để khai báo một biến mới có cùng tên trong 1 phạm vi lồng nhau
+    
+    ```jsx
+    const x = 1; // Khai báo x là hằng số toàn cục
+    if (x === 1) {
+      let x = 2; // Bên trong một khối, x có thể tham chiếu đến một giá trị khác
+      console.log(x); // In 2
+    }
+    console.log(x); // In 1: bây giờ chúng ta đã trở lại phạm vi toàn cục
+    let x = 3; // LỖI! Lỗi cú pháp khi cố gắng khai báo lại x 
+    ```
+    
+
+### DECLARATIONS AND TYPES
+
+- Nếu bạn đã quen với các ngôn ngữ lập trình tĩnh như C hoặc Java, bạn có thể nghĩ rằng mục đích chính của khai báo biến là chỉ định kiểu giá trị có thể được gán cho 1 biến. Nhưng như bạn đã thấy, không có kiểu nào được liên kết với khai bá biến của Js. Một biến Js có thể chứa 1 giá trị thuộc bất kỳ kiểu nào. Ví dụ: hoàn toàn hợp lệ (nhưng nhìn chung là kiểu lập trinh kém) trong Js để gán 1 số cho một biến và sau đó gán một chuỗi cho biến đó
+    
+    ```jsx
+    let i = 10;
+    i = "ten"; 
+    ```
+    
+
+### 3.10.2 Variable Declarations with var
+
+- Trong các phiên bản Js trước ES6, cách duy nhất để khai báo biến là sử dụng từ khoá var và không có cách nào để khai báo hằng số. Cú pháp của var giống như cú pháp của let
+    
+    ```jsx
+    var x;
+    var data = [], count = data.length;
+    for(var i = 0; i < count; i++) console.log(data[i]); 
+    ```
+    
+- Mặc dù var và let có cùng cú pháp nhưng co những điểm khác biệt quan trọng trong cách chúng hoạt động
+    - Các biến được khai báo bằng var không có phạm vi block. Thay vào đó, chúng có phạm vi phần thân của hàm chứa bất kể chúng được lồng sâu bao nhiêu bên trong hàm đó
+    - Nếu bạn sử dụng var bên ngoài phần thân hàm, nó sẽ khai báo 1 biến toàn cục. Nhưng các biến toàn cục được khai báo bằng var khác với các biến toàn cục được khai báo bằng let theo một cách quan trọng. Các biến toàn cục được khai báo bằng var được triển khai dưới dạng thuộc tính của object toàn cục (3.7). Object toàn cục có thể được tham chiếu dưới dạng globalThis. Vì vậy, nếu bạn viết `var x = 2;` bên ngoài hàm thì nó giống như bạn viết `globalThis.x = 2`. Tuy nhiên, lưu ý rằng phép tương tự không hoàn hảo: các property được tạo bằng khai báo var toàn cục không thể thị xoá bằng toán tử delete (4.13.4). Các biến và hằng số toàn cục được khai báo bằng let và const không phải là thuộc tính của global object
+    - Không giống như các biến đươc khai báo bằng let, bạn có thể khai báo cùng một biến nhiều lần bằng var. Và bởi vì các biến var có phạm vi hàm thay vì phạm vi khối, nên việc thực hiện loại khai báo lại này thực sự phổ biến. Biến i thường được sử dụng cho các giá trị số nguyên và đặc biệt là biến index của vòng lặp for. Trong 1 function có nhiều vòng lặp for, thông thường mỗi vòng lặp sẽ bắt đầu khai báo bằng `for(var = 0;...)` . Vì var không phạm vi các biến này cho phần thân vòng lặp, nên mỗi vòng lặp này đang (vô hại) khai báo lại và khởi tạo lại cùng 1 biến
+    - Một trong những tính năng khác thường nhất khi khai báo var được gọi là `hoisting`. Khi 1 biến được khai báo bằng var, khai báo sẽ được nâng lên (hoặc “hoisted”) lên đầu hàm bao quanh. Việc khởi tạo biến vẫn ở nơi bạn đã viết nó, nhưng định nghĩa của biến được chuyển lên đầu hàm. Vì vậy, các biến được khai báo bằng var có thể được sử dụng, mà không có lỗi ở bất kỳ đâu trong hàm bao quanh. Nếu mã khởi tạo chưa chạy, thì giá trị của biến có thể là undefined, nhưng bạn sẽ không gặp lỗi nếu sử dụng biến trước khi nó được khởi tạo. (Đây có thể là một nguồn gây ra lỗi và là một trong những tính năng quan trọng sai lầm mà let sửa chữa: nếu bạn khai báo 1 biến bằng let nhưng cố gắng sử dụng nó trước khi câu lệnh let chạy, bạn sẽ gặp lỗi thực tế thay vì chỉ nhìn thấy 1 giá trị undefined.)
+
+### USING UNDECLARED VARIABLES
+
+- Ở chế độ nghiêm ngặt (5.6.3) nếu bạn cố gắng sử dụng 1 biến không được khai báo, bạn sẽ nhận được 1 lỗi tham chiếu khi chạy code của mình. Tuy nhiên, bên ngoài chế độ nghiêm ngặt, nếu bạn gán một giá trị cho một tên chưa được khai báo bằng let, const hoặc var, cuối cùng bạn sẽ tạo một biến toàn cục mới. Nó sẽ là một biến toàn cục bất kể mã của bạn được lồng sâu bên trong các hàm và khối bao nhiêu, điều này gần như chắc chắn không phải là điều bạn muốn, dễ bị lỗi và là một trong những lý do tốt nhất để sử dụng chết độ nghiêm ngặt
+- Các biến toàn cục được tạo theo cách ngẫu nhiên này giống như các biến toàn cục được khai báo bằng var: chúng định nghĩa các thuộc tính của object toàn cục. Nhưng không giống như các thuộc tính được xác định bởi khai báo var thích hợp, các thuộc tính này có thể xoá bỏ bằng toán từ delete(4.13.4)
+
+### 3.10.3 Destructuring Assignment
+
+- ES6 triển khai một loại cú pháp khai báo và gán phức hợp được gọi là phân rã. Trong phép gán phân rã, giá trị ở phía bên phải của dấu bằng là 1 array hoặc object (một giá trị “có cấu trúc”), và phía bên trái chỉ định một hoặc nhiều tên biến bằng cách sử dụng cú pháp bắt trước cú pháp literal array và object. Khi xảy ra phép gán phân rã, một hoặc nhiều giá trị được trích xuất (phân rã) từ giá trị bên phải và được lưu trữ vào các biến được đặt tên ở bên trái
+- Phép gán phân rã có lẽ được sử dụng phổ biến nhất để khởi tạo các biến như một phần của câu lệnh khai báo const, let hoặc var, nhưng nó cũng có thể được thực hiện trong các biểu thức gán thông thường (với các biến được khai báo). Và như chung ta sẽ thấy trong 8.3.5, phân rã cũng có thể được sử dụng khi định nghĩa các tham số cho 1 hàm
+- Dưới đây là các phép gán phân rã đơn giản sử dụng array giá trị
+    
+    ```jsx
+    let [x,y] = [1,2]; // Giống như let x=1, y=2
+    [x,y] = [x+1,y+1]; // Giống như x = x + 1, y = y + 1
+    [x,y] = [y,x]; // Hoán đổi giá trị của hai biến
+    [x,y] // => [3,2]: các giá trị được tăng lên và hoán đổi 
+    ```
+    
+- Lưu ý cách phép gán phân rã giúp dễ dàng làm việc với các hàm trả về array giá trị
+    
+    ```jsx
+    // Chuyển đổi tọa độ [x,y] thành tọa độ cực [r,theta]
+    function toPolar(x, y) {
+      return [Math.sqrt(x*x+y*y), Math.atan2(y,x)];
+    }
+    
+    // Chuyển đổi tọa độ cực thành tọa độ Descartes
+    function toCartesian(r, theta) {
+      return [r*Math.cos(theta), r*Math.sin(theta)];
+    }
+    
+    let [r,theta] = toPolar(1.0, 1.0); // r == Math.sqrt(2); theta == Math.PI/4
+    let [x,y] = toCartesian(r,theta); // [x, y] == [1.0, 1,0] 
+    ```
+    
+- Chúng ta thấy rằng các biến và hằng số có thể được khai báo như một phần của vòng lặp for khác nhau của JS. Cũng như có thể sử dụng phân rã biến trong ngữ cảnh này. Dưới đây là một code lặp qua các cặp name/value của tất cả các property của 1 object và sử dụng phép phân rã để chuyển đổi các cặp đó từ array hai phần tử thành các biến riêng lẻ
+    
+    ```jsx
+    let o = { x: 1, y: 2 }; // Object mà chúng ta sẽ lặp qua
+    for(const [name, value] of Object.entries(o)) {
+      console.log(name, value); // In "x 1" và "y 2"
+    }
+    ```
+    
+- Số lượng biến bên trái của phép gán phân rã không nhất thiết phải khớp với số lượng phần tử array ở bên phải. Các biến bổ sung ở bên trái được đặt thành undefined và các giá trị bổ sung ở bên phải bị bỏ qua. Danh sách các biến ở bên trái có thể bao gồm các dấu phẩy bổ sung để bỏ qua các giá trị nhất định ở bên phải
+    
+    ```jsx
+    let [x,y] = [1]; // x == 1; y == undefined
+    [x,y] = [1,2,3]; // x == 1; y == 2
+    [,x,,y] = [1,2,3,4]; // x == 2; y == 4 
+    ```
+    
+- Nếu bạn muốn thu thập tất cả các giá trị không sử dụng hoặc còn lại vào một biến duy nhất khi phân rã 1 array, hãy sử dụng … trước tên biến cuối cùng ở phía bên trái
+    
+    ```jsx
+    let [x, ...y] = [1,2,3,4]; // y == [2,3,4] 
+    ```
+    
+- Chúng ta sẽ thấy dấu … được sử dụng theo cách này 1 lần nữa trong 8.3.2, nơi chúng được sử dụng để chỉ ra rằng tất cả các đối số còn lại sẽ được thu thập vào 1 array duy nhất.
+- Phép gán phân rã có thể được sử dụng với array lồng nhau. Trong trường hợp này, phía bên trái của phép gán sẽ trông giống như một literal array lồng nhau
+    
+    ```jsx
+    let [a, [b, c]] = [1, [2,2.5], 3]; // a == 1; b == 2; c == 2.5 
+    ```
+    
+- Một tính năng mạnh mẽ của phân rã array là nó không thực sự yêu cầu 1 array! Bạn có thể sử dụng bất kỳ object có thể lặp lại nào (Chương 12) ở phía bên phải của phép gán; bất kỳ object nào có thể được sử dụng với vòng lặp for of (5.4.4) cũng có thể được phân rã
+    
+    ```jsx
+    let [first, ...rest] = "Hello"; // first == "H"; rest == ["e","l","l","o"] 
+    ```
+    
+- Phép phân rã cũng có thể được thực hiện khi bên phải là một giá trị object. Trong trường hợp này, phía bên trái của phép gán trông như 1 literal object: một danh sách các tên biến được phân tách bằng dấu phẩy trong dấu ngoặc nhọn
+    
+    ```jsx
+    let transparent = {r: 0.0, g: 0.0, b: 0.0, a: 1.0}; // Màu RGBA
+    let {r, g, b} = transparent; // r == 0.0; g == 0.0; b == 0.0 
+    ```
+    
+- Ví dụ tiếp theo sao chép các hàm toàn cục của object Math vào các biến, điều này có thể đơn giản hoá code thực hiện nhiều phép lượng giác
+    
+    ```jsx
+    // Giống như const sin=Math.sin, cos=Math.cos, tan=Math.tan
+    const {sin, cos, tan} = Math; 
+    ```
+    
+- Lưu ý trong code ở đây rằng `object Math` có nhiều thuộc tính khác ngoài ba thuộc tính được phân rã thành các biến riêng lẻ. Những cái không được đặt tên chỉ đơn giản là bị bỏ qua. Nếu phía bên trái của phép gán này bao gồm 1 biến có tên không phải là property của `Math`, thì biến đó sẽ được gán `undefined`
+- Trong mỗi ví dụ phân rã object này, chúng ta đã chọn các tên biến khớp với tên thuộc tính của object mà chúng ta đã phân rã. Điều này giúp cú pháp đơn giản, dễ hiểu, nhưng nó không bắt buộc. Mỗi định danh ở phía bên trái của phép gán phân rã object cũng có thể là một cặp định danh được phân tách bằng dấu hai chấm, trong đó định danh đầu tiên là tên của property có giá trị được gán và định danh thứ 2 là tên của biến để gán nó cho
+    
+    ```jsx
+    // Giống như const cosine = Math.cos, tangent = Math.tan;
+    const { cos: cosine, tan: tangent } = Math; 
+    ```
+    
+- Tôi thấy cú pháp phân rã object trở nên quá phức tạp để hữu ích khi tên biến và tên thuộc tính không giống nhau và tôi có xu hướng tránh viết tắt trong trường hợp này. Nếu bạn chọn sử dụng nó, hãy nhớ rằng tên property luôn ở bên trái của dấu hai chấm, trong cả literal object và ở bên trái của phép gán phân rã
+- Phép gán phân rã thậm chí còn trở nên phức tạp hơn khi nó được sử dụng với object lồng nhau hoặc array object hoặc object array, nhưng nó hợp lệ
+    
+    ```jsx
+    let points = [{x: 1, y: 2}, {x: 3, y: 4}]; // Một array gồm hai object điểm
+    let [{x: x1, y: y1}, {x: x2, y: y2}] = points; // được phân rã thành 4 biến.
+    (x1 === 1 && y1 === 2 && x2 === 3 && y2 === 4) // => true 
+    ```
+    
+- Hoặc thay vì phân rã 1 array object, chúng ta có thể phân rã một object array
+    
+    ```jsx
+    let points = { p1: [1,2], p2: [3,4] }; // Một object có 2 thuộc tính array
+    let { p1: [x1, y1], p2: [x2, y2] } = points; // được phân rã thành 4 biến
+    (x1 === 1 && y1 === 2 && x2 === 3 && y2 === 4) // => true 
+    ```
+    
+- Cú pháp phân rã phức tạp như thế này có thể khó viết và khó đọc và bạn có thể nên viết rõ ràng các phép gán của mình bằng code truyền thống như `let x1 = points.p1[0]`
+
+### UNDERSTANDING COMPLEX DESTRUCTURING
+
+- Nếu bạn thấy mình đang làm việc với code sử dụng các phép gán phân rã phức tạp, thì có một quy tắc hữu ích giúp bạn hiểu rõ các trường hợp phức tạp
+- Hãy nghĩ trước về một phép gán thông thường (giá trị đơn). Sau khi phép gán được thực hiện, bạn có thể lấy tên biến từ phía bên trái của phép gán và sử dụng nó như 1 biểu thức trong code của mình, nơi nó sẽ được đánh giá thành bất kỳ giá trị nào bạn đã gán cho nó. Điều tương tự cũng đúng với phép gán phân rã. Phía bên trái của phép gán phân rã trông giống như 1 literal array hoặc một literal object (6.2.1 và 6.10). Sau khi phép gán đã được thực hiện, phía bên trái sẽ thực sự hoạt động như một literal array hoặc literal object hợp lệ ở nơi khác trong code của bạn. Bạn có thể kiểm tra xem mình đã viết phép gán phân rã chính xác hay chưa bằng cách thử sử dụng phía bên trái ở phía bên phải của một biể thức gán khác
+    
+    ```jsx
+    // Bắt đầu với một cấu trúc dữ liệu và một phân rã phức tạp
+    let points = [{x: 1, y: 2}, {x: 3, y: 4}];
+    let [{x: x1, y: y1}, {x: x2, y: y2}] = points;
+    
+    // Kiểm tra cú pháp phân rã của bạn bằng cách lật ngược phép gán
+    let points2 = [{x: x1, y: y1}, {x: x2, y: y2}]; // points2 == points 
+    ```
+    
+
+## 3.11. Summary
+
+- Một số điểm cần nhớ về chương này:
+    - Cách viết và thao tác với số và chuỗi văn bản trong Js
+    - Cách làm việc với các kiểu nguyên thuỷ khác của Js: boolean, Symbol, null và undefined
+    - Sự khác biệt giữa các kiểu nguyên thuỷ bất biến và các kiểu tham chiếu khả biến
+    - Cách Js chuyển đổi giá trị ngầm định từ kiểu này sang kiểu khác và cách bạn có thể làm như vậy 1 cách rõ ràng trong chương trình của mình
+    - Cách khai báo và khởi tạo hằng số và biến (bao gồm cả việc gán phân rã) và phạm vi từ vựng của các biến và hằng số mà bạn khai báo
