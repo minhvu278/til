@@ -91,3 +91,89 @@
     
 - Biểu thức định nghĩa hàm cũng có thể bao gồm một tên cho hàm. Các hàm cũng có thể được định nghĩa bằng cách sử dụng câu lệnh hàm thay vì biểu thức hàm. Và trong ES6 trở về sau, các biểu thức hàm có thể sử dụng cú pháp “arrow” mới, gọn nhẹ
 - Chi tiết đầy đủ về định nghĩa hàm có trong chương 8
+
+## 4.4 Property Access Expressions
+
+- Biểu thức truy cập thuộc tính ước lượng thành giá trị của một thuộc tính object hoặc 1 phần tử array. Js định nghĩa 2 cú pháp để truy cập thuộc tính
+    
+    ```jsx
+    expression . identifier
+    expression [ expression ]
+    
+    biểu_thức . định_danh
+    biểu_thức [ biểu_thức ]
+    ```
+    
+- Khi truy cập thuộc tính đầu tiên là một biểu thức theo sau là dấu chấm và một định danh. Biểu thức chỉ định object và định danh chỉ định tên thuộc tính mong muốn. Kiểu truy cập thuộc tính thứ 2 theo sau biểu thức đầu tiên (object hoặc array) với một biểu thức khác trong dấu ngoặc vuông. Biểu thức thứ 2 này chỉ định tên của thuộc tính mong muốn hoặc index của phần tử array mong muốn
+    
+    ```jsx
+    let o = {x: 1, y: {z: 3}}; // Một object ví dụ
+    let a = [o, 4, [5, 6]]; // Một array ví dụ chứa object
+    
+    o.x // => 1: thuộc tính x của biểu thức o
+    o.y.z // => 3: thuộc tính z của biểu thức o.y
+    o["x"] // => 1: thuộc tính x của object o
+    a[1] // => 4: phần tử tại chỉ mục 1 của biểu thức a
+    a[2]["1"] // => 6: phần tử tại chỉ mục 1 của biểu thức a[2]
+    a[0].x // => 1: thuộc tính x của biểu thức a[0] 
+    ```
+    
+- Với một trong 2 loại biểu thức truy cập thuộc tính, biểu thức trước dấu `.` hoặc `[` được ước lượng trước. Nếu giá trị là null hoặc undefined, biểu thức sẽ ném ra TypeError, vì đây là 2 giá trị Js không thể có property
+- Nếu biểu thức object được theo sau bởi một dấu chấm và một định danh, giá trị của thuộc tính được đặt tên bởi định danh đó sẽ được tra cứu và trở thành giá trị chung của biểu thức
+- Nếu biểu thức object được theo sau bởi một biểu thức khác trong dấu ngoặc vuông, thì biểu thức thứ 2 đó sẽ được ước lượng và chuyển đổi thành một chuỗi. Giá trị chung của biểu thức  sau đó là giá trị của một thuộc tính được đặt tên bởi chuỗi đó
+- Trong cả 2 trường hợp, nếu thuộc tính được đặt tên không tồn tại, thì giá trị của biểu thức truy cập thuộc tính là undefined
+- Cú pháp `.identify` là đơn giản hơn trong hai tuỳ chọn truy cập thuộc tính, nhưng lưu ý rằng nó chỉ có thể được sử dụng khi thuộc tính của bạn muốn truy cập có tên là một định danh hợp lệ và khi bạn biết tên khi bạn viết chương trình. Nếu tên thuộc tính bao gồm khoảng trắng hoặc dấu câu hoặc khi nó là một số (đối với array), bạn phải sử dụng ký hiệu dấu ngoặc vuông
+- Dấu ngoặc vuông cũng được sử dụng khi tên thuộc tính không tĩnh mà bản thân nó là kết quả của một phép tính (xem 6.3.1 để biết ví dụ)
+- Object và thuộc tính của chung được đề cập chi tiết trong chương 6 và array và các phần tử của chúng trong chương 7
+
+### 4.4.1 Conditional Property Access
+
+- ES2020 thêm 2 loại biểu thức truy cập thuộc tính mới
+    
+    ```jsx
+    expression ?. identifier
+    expression ?.[ expression ]
+    
+    biểu_thức ?. định_danh
+    biểu_thức ?.[ biểu_thức ] 
+    ```
+    
+- Trong Js, các giá trị null và undefined là 2 giá trị duy nhất không có properties. Trong một biểu thức truy cập thuộc tính thông thường sử dụng `.` hoặc `[]`, bạn sẽ nhận được TypeError nếu biểu thức ở bên trái ước lượng thành null hoặc undefined. Bạn có thể sử dụng cú pháp `?.` và `?.[]` để bảo vệ khỏi các lỗi thuộc loại này
+- Hãy xem xét biểu thức `a?.b`. Nếu `a` là null hoặc undefined, thì biểu thức sẽ ước lượng thành undefined mà không cần bất kỳ nỗ lực nào để truy cập property `b`. Nếu `a` là một số giá trị khác, thì `a?.b` ước lượng thành bất kỳ giá trị nào mà `a.b` sẽ ước lượng (và nếu `a` không có property có tên `b`, thì giá trị sẽ lại là undefined)
+- Dạng biểu thức truy cập thuộc tính này đôi khi được gọi là “chuỗi tuỳ chọn” bởi vì nó cũng hoạt động cho các biểu thức truy cập thuộc tính “chuỗi” dài hơn như biểu thức này
+    
+    ```jsx
+    let a = { b: null };
+    a.b?.c.d // => undefined 
+    ```
+    
+- `a` là một object, vì vậy `a.b` là một biểu thức truy cập property hợp lệ. Nhưng giá trị của `a.b` là null, vì vậy `a.b.c` sẽ ném ra TypeError. Bằng cách sử dụng `?.` thay vì `.`, chúng ta tránh được TypeError và `a.b?.c` ước lượng thành undefined
+- Điều này có nghĩa là `(a.b?.c).d` sẽ ném ra TypeError, bởi vì biểu thức đó cố gắng truy cập một property của giá trị undefined
+- Nhưng - và đây là một phần quan trọng của “chuỗi tuỳ chọn” - `a.b?.c.d` (không có dâu ngoặc đơn) chỉ đơn giản là ước lượng thành undefined và không ném ra lỗi
+- Điều này là do truy cập thuộc tính bằng `?.` là “ngắn mạch”: Nếu biểu thức con ở bên trái của `?.` ước lượng thành null hoặc undefined, thì toàn bộ biểu thức ngay lập tức ước lượng thành undefined mà không cần bất kỳ nỗ lực truy cập thuộc tính nào nữa
+- Tất nhiên nếu `a.b` là 1 object và nếu object đó không có property có tên là `c`, thì `a.b?.c.d` sẽ ném ra TypeError và chúng ta sẽ muốn sử dụng một truy cập thuộc tính có điều kiện khác
+    
+    ```jsx
+    let a = { b: {} };
+    a.b?.c?.d // => undefined 
+    ```
+    
+- Truy cập thuộc tính có điều kiện cũng có thể thực hiện được bằng cách sử dụng `?.[]` thay vì `[]`. Trong biểu thức `a?.[b].[c]` nếu giá trị của `a` là null hoặc undefined, thì toàn bộ biểu thức ngay lập tức ước lượng thành undefined và các biểu thức con b và c thậm chí không bao giờ được ước lượng
+- Nếu một trong 2 biểu thức đó có tác dụng phụ, tác dụng phụ sẽ không xảy ra nếu a không được xác định
+    
+    ```jsx
+    let a; // Ôi, chúng ta quên khởi tạo biến này!
+    let index = 0;
+    
+    try {
+      a[index++]; // Ném ra TypeError
+    } catch(e) {
+      index // => 1: tăng xảy ra trước khi TypeError bị ném ra
+    }
+    
+    a?.[index++] // => undefined: bởi vì a là undefined
+    index // => 1: không được tăng lên bởi vì ?.[] ngắn mạch
+    a[index++] // !TypeError: không thể lập chỉ mục undefined. 
+    ```
+    
+- Truy cập property với `?.` và `?.[]` là một trong những tính năng mới nhất của Js. Tính đến đầu năm 2020, cú pháp mới này được hỗ trợ trong các phiên bản hiện tại hoặc beta của hầu hết các trình duyệt chính
