@@ -177,3 +177,154 @@
     ```
     
 - Truy cập property với `?.` và `?.[]` là một trong những tính năng mới nhất của Js. Tính đến đầu năm 2020, cú pháp mới này được hỗ trợ trong các phiên bản hiện tại hoặc beta của hầu hết các trình duyệt chính
+
+## 4.5 Invocation Expressions (Biểu thức gọi)
+
+- Là cú pháp của Js để gọi (hoặc thực thi) một hàm hoặc một method. Nó bắt đầu bằng một biểu thức hàm xác định hàm được gọi. Biểu thức hàm được theo sau bởi dấu ngoặc đơn mở, danh sách không hoặc nhiều biểu thức đối số được phân tách bằng dấu phẩy và dấu ngoặc đơn đóng
+    
+    ```jsx
+    f(0) // f là biểu thức hàm; 0 là biểu thức đối số.
+    Math.max(x,y,z) // Math.max là hàm; x, y và z là các đối số.
+    a.sort() // a.sort là hàm; không có đối số. 
+    ```
+    
+- Khi một biểu thức gọi được ước lượng, biểu thức hàm được ước lượng trước, sau đó các biểu thức đối số được ước lượng để tạo ra một danh sách các giá trị số. Nếu giá trị của biểu thức hàm không phải là hàm, TypeError sẽ bị ném ra. Tiếp theo, các giá trị đối số được gán, theo thứ tự, cho các tên tham số được chỉ định khi hàm được định nghĩa và sau đó phần thân của hàm được thực thi
+- Nếu hàm sử dụng câu lệnh `return` để trả về 1 giá trị, thì giá trị đó sẽ trở thành giá trị của biểu thức gọi. Nếu không, giá trị của biểu thức gọi là undefined
+- Chi tiết đầy đủ về gọi hàm, bao gồm giải thích điều gì xảy ra khi số lượng biểu thức đối số không khớp với số lượng tham số trong định nghĩa hàm, có trong chương 8
+- Mọi biểu thức đều bao gồm một cặp dấu ngoặc đơn và một biểu thức trước dấu ngoặc đơn mở. Nếu biểu thức đó là biểu thức truy cập thuộc tính, thì lời gọi được gọi là `gọi phương thức`. Trong `gọi phương thức`, object hoặc array là chủ thể của truy cập thuộc tính sẽ trở thành giá trị của từ khoá `this` trong khi phần thân của hàm đang được thực thi
+- Điều này cho phép một mô hình OOP trong đó các hàm (mà chúng ta gọi là “method” khi được sử dụng theo cách này) hoạt động trên object mà chúng là một phần. Xem chi tiết ở chương 9
+
+### 4.5.1 Conditional Invocation
+
+- Trong ES2020, bạn cũng có thể gọi một hàm bằng cách sử dụng `?.()` thay vì `()
+- Thông thường khi bạn gọi 1 hàm, nếu biểu thức ở bên trái dấu ngoặc đơn là null hoặc undefined hoặc bất kỳ hàm không nào khác, thì TypeError sẽ bị ném ra. Với cú pháp gọi `?.()` mới, nếu biểu thức ở bên trái của `?.` ước lượng thành null hoặc undefined, thì toàn bộ biểu thức gọi sẽ được ước lượng thành undefined và không có ngoại lệ được ném ra
+- `Object Array` có một method `sort()` có thể tuỳ chọn được truyền một đối số hàm xác định thứ tự sắp xếp mong muốn cho các phần tử array. Trước ES2020, nếu bạn muốn viết 1 method như `sort()` nhận 1 đối số hàm tuỳ chọn, bạn thường sẽ sử dụng câu lệnh if để kiểm tra xem đối số hàm đã được xác định hay chưa trước khi gọi nó trong phần thân của if
+    
+    ```jsx
+    function square(x, log) { // Đối số thứ hai là một hàm tùy chọn
+      if (log) { // Nếu hàm tùy chọn được truyền vào
+        log(x); // Gọi nó
+      }
+      return x * x; // Trả về bình phương của đối số
+    } 
+    ```
+    
+- Tuy nhiên, với cú pháp gọi có điều kiện này của ES2020, bạn có thể chỉ cần viết lời gọi hàm bằng cách sử dụng `?.()`, biết rằng lời gọi sẽ chỉ xảy ra nếu thực sự có 1 giá trị được gọi
+    
+    ```jsx
+    function square(x, log) { // Đối số thứ hai là một hàm tùy chọn
+      log?.(x); // Gọi hàm nếu có
+      return x * x; // Trả về bình phương của đối số
+    } 
+    ```
+    
+- Tuy nhiên, lưu ý rằng `?.()` chỉ kiểm tra xem phía bên trái có phải là null hoặc undefined hay không. Nó không xác minh rằng giá trị thực sự là một hàm. Vì vậy, hàm `square()` trong ví dụ này vẫn sẽ ném ra ngoại lệ nếu bạn truyền 2 số cho nó chẳng hạn
+- Giống như các biểu thức truy cập thuộc tính có điều kiện (4.4.1), gọi hàm với `?.()` là ngắn mạch: nếu giá trị ở bên trái của `?.` là null hoặc undefined thì không có biểu thức đối số nào trong dấu ngoặc đơn được ước lượng
+    
+    ```jsx
+    let f = null, x = 0;
+    
+    try {
+      f(x++); // Ném ra TypeError vì f là null
+    } catch(e) {
+      x // => 1: x được tăng lên trước khi ngoại lệ bị ném ra
+    }
+    
+    f?.(x++) // => undefined: f là null, nhưng không có ngoại lệ nào bị ném ra
+    x // => 1: tăng bị bỏ qua do ngắn mạch 
+    ```
+    
+- Biểu thức có điều kiện với `?.()` hoạt động tốt với các method cũng như đối với các function. Nhưng vì gọi method cũng liên quan đến việc truy cập property nên đáng dành một chút thời gian để đảm bảo rằng bạn hiểu sự khác biệt giữa các biểu thức sau
+    
+    ```jsx
+    o.m() // Truy cập thuộc tính thông thường, gọi thông thường
+    o?.m() // Truy cập thuộc tính có điều kiện, gọi thông thường
+    o.m?.() // Truy cập thuộc tính thông thường, gọi có điều kiện 
+    ```
+    
+- Trong biểu thức đầu tiên, `o` phải là một object có property `m` và giá trị của property đó phải là một hàm. Trong biểu thức thứ 2, `o` nếu là null hoặc undefined, thì biểu thức sẽ được ước lượng thành undefined, nhưng nếu `o` có bất kỳ giá trị nào khác, thì nó phải có property `m` có giá trị là một hàm. Và trong biểu thức thứ 3, `o` không được là null hoặc undefined. Nếu nó không có property `m` hoặc giá trị property đó là null thì toàn bộ biểu thức được ước lượng thành undefined
+- Gọi có điều kiện với `?.()` là một trong những tính năng mới nhất của Js. Kể từ những tháng đầu năm 2020, cú pháp này mới được hỗ trợ trong các phiên bản hiện tại hoặc beta của hầu hết các trình duyệt chính
+
+## 4.6 **Object Creation Expressions**
+
+- Một biểu thức tạo đối tượng sẽ tạo ra đối tượng mới và gọi 1 hàm (gọi là constructor - hàm tạo) để khởi tạo các thuộc tính của object đó
+- Biểu thức tạo object giống như biểu thức gọi hàm, ngoại trừ việc chúng thêm từ khoá `new` vào trước
+    
+    ```jsx
+    new Object()
+    new Point(2,3) 
+    ```
+    
+- Nếu không có tham số được truyền vào trong hàm tạo trong biểu thức tạo object , cặp ngoặc đơn rỗng có thể được bỏ qua
+    
+    ```jsx
+    new Object
+    new Date 
+    ```
+    
+- Giá trị của một biểu thức tạo object mà 1 object mới được tạo ra
+- constructor được giải thích trong chương 9
+
+## 4.7 **Operator Overview**
+
+- Toán tử được sử dụng cho các biểu thức số học, so sánh, logic. gán và nhiều hơn nữa trong Js
+- Lưu ý rẳng hầu hết các toán tử được biểu diễn bằng ký tự dấu câu như `+` và `=` . Tuy nhiên, một số toán tử được biểu diễn bằng từ khoá như `delete` hoặc `instanceof` . Các toán tử từ khoá là các toán tử thông thường, giống như các toán tử được biểu diễn bằng dấu chấm câu; chúng chỉ đơn giản là có cú pháp dài hơn
+- Bảng bên dưới được sắp xếp theo thứ tự ưu tiên của toán tử. Các toán tử được liệt kê trước có độ ưu tiên cao hơn các toán tử được liệt kê sau. Các toán tử được phân tách bằng một đường gạch ngang có các mức độ ưu tiên khác nhau. Cột có label `A` cho biết tính kết hợp của toán tử, có thể là `L` (trái sang phải) hoặc `R` (phải sang trái), và cột `N` chỉ định số lượng toán hạng. Cột có label `Types` liệt kê các loại toán hạng dự kiến và (sau ký hiệu `->`) loại kết quả cho toán tử. Các tiểu mục sau bảng giải thích các khái niệm về độ ưu tiên, tính kết hợp và loại toán hạng. Các toán tử được ghi lại riêng lẻ sau phần thảo luận đó
+    
+    ```jsx
+    Bảng 4-1. Toán tử JavaScript
+    
+    Toán tử	Thao tác	A	N	Loại
+    ++	Tăng trước hoặc tăng sau	R	1	lval→num
+    --	Giảm trước hoặc giảm sau	R	1	lval→num
+    -	Phủ định số	R	1	num→num
+    +	Chuyển đổi sang số	R	1	any→num
+    ~	Đảo bit	R	1	int→int
+    !	Đảo giá trị boolean	R	1	bool→bool
+    delete	Xóa một thuộc tính	R	1	lval→bool
+    typeof	Xác định loại toán hạng	R	1	any→str
+    void	Trả về giá trị undefined	R	1	any→undef
+    **	Lũy thừa	R	2	num,num→num
+    *, /, %	Nhân, chia, chia lấy dư	L	2	num,num→num
+    +, -	Cộng, trừ	L	2	num,num→num
+    +	Nối chuỗi	L	2	str,str→str
+    <<	Dịch trái	L	2	int,int→int
+    >>	Dịch phải với mở rộng dấu	L	2	int,int→int
+    >>>	Dịch phải với mở rộng không	L	2	int,int→int
+    <, <=, >, >=	So sánh theo thứ tự số	L	2	num,num→bool
+    <, <=, >, >=	So sánh theo thứ tự bảng chữ cái	L	2	str,str→bool
+    instanceof	Kiểm tra lớp đối tượng	L	2	obj,func→bool
+    in	Kiểm tra xem thuộc tính có tồn tại không	L	2	any,obj→bool
+    ==	Kiểm tra bằng không nghiêm ngặt	L	2	any,any→bool
+    !=	Kiểm tra không bằng không nghiêm ngặt	L	2	any,any→bool
+    ===	Kiểm tra bằng nghiêm ngặt	L	2	any,any→bool
+    !==	Kiểm tra không bằng nghiêm ngặt	L	2	any,any→bool
+    &	Tính toán bitwise AND	L	2	int,int→int
+    ^	Tính toán bitwise XOR	L	2	int,int→int
+    `	`	Tính toán bitwise OR	L	2
+    &&	Tính toán logical AND	L	2	any,any→any
+    `		`	Tính toán logical OR	L
+    ??	Chọn toán hạng được xác định đầu tiên	L	2	any,any→any
+    ?:	Chọn toán hạng thứ 2 hoặc thứ 3	R	3	bool,any,any→any
+    =	Gán cho một biến hoặc thuộc tính	R	2	lval,any→any
+    **=, *=, /=, %=, +=, -=, &=, ^=, `	=,<<=,>>=,>>>=`	Thực hiện phép toán và gán	R	2
+    ,	Loại bỏ toán hạng thứ 1, trả về toán hạng thứ 2	L	2
+    ```
+    
+
+### 4.7.1 **Number of Operands**
+
+- Toán tử có thể được phân loại dựa trên số lượng toán hạng mà chúng mong đợi (arity của chúng). Hầu hết các toán tử Js, như toán tử `*` là các toán tử nhị phân kết hợp hai biểu thức thành một biểu thức phức tạp hơn
+- Js cũng hỗ trợ một số toán tử đơn nhất, chuyển đổi một biểu thức thành một biểu thức phức tạp hơn. Toán tử `-` trong biểu thức `-x` là toán tử đơn nhất thực hiện phép toán phủ định trên toán hạng `x`. Cuối cùng, Js hỗ trợ một toán tử 3 ngôi, toán tử điều kiện `?:`, kết hợp 3 biểu thức thành một biểu thức
+
+### 4.7.2 **Operand and Result Type**
+
+- Một số toán tử hoạt động trên các giá trị của bất kỳ loại nào, nhưng hầu hết mong đợi toán hạng của chúng thuộc một loại cụ thể và hầu hết các toán tử trả về (hoặc đánh giá thành) một giá trị thuộc một loại cụ thể. Cột `Types` trong bảng trên chỉ định loại toán hạng (trước mũi tên) và kết quả (sau mũi tên) cho các toán tử
+- Các toán tử Js thường chuyển đổi loại (3.9) của toán hạng khi cần thiết. Toán tử `*` mong đợi toán tử hạng số, nhưng biểu thức `"3" * "5"` là hợp lệ vì Js có thể chuyển đổi toán hạng thành số. Giá trị của biểu thức này là 15, tất nhiên không phải là chuỗi “15”. Cũng nên nhớ rằng mọi giá trị Js đều là truethy hoặc “falsy”, vì vậy các toán tử mong đợi toán hạng boolean sẽ hoạt động với toán hạng của bất kỳ loại nào
+- Một số toán tử hoạt động khác nhau phụ thuộc vào loại toán hạng được sử dụng với chúng. Đáng chú ý nhất, toán tử `+` cộng các toán hạng số nhưng nối các toán hạng chuỗi. Tương tự, các toán tử so sánh như `<` thực hiện so sánh theo thứ tự số hoặc bảng chữ cái tuỳ thuộc vào loại toán hạng. Mô tả của toán tử riêng lẻ giải thích sự phụ thuộc vào loại của chúng và chỉ định loại chuyển đổi nào mà chúng thực hiện
+- Lưu ý rằng các toán tử gán và một số toán tử khác được liệt kê trong bảng 4.1 trên mong đợi 1 toán hạng thuộc loại `Ival`. `Ivalue` là một thuật ngữ lịch sử có nghĩa là “một biểu thức có thể hợp pháp xuất hiện ở phía bên trái của biểu thức gán”. Trong Js, các biến, property của object và các phần tử của mảng là `Ivalues`
+
+### 4.7.3 **Operator Side Effects**
+
+- Việc đánh giá một toán tử đơn giản như `2 * 3` không bao giờ ảnh hưởng đến trạng thái của chương trình của bạn và bất kỳ phép tính nào trong tương lai mà chương trình của bạn thực hiện sẽ không bị ảnh hưởng bởi phép đánh giá đó. Tuy nhiên, một số biểu thức có tác dụng phụ và việc đánh giá chúng có thể ảnh hưởng đến kết quả của các phép đánh giá trong tương lai. Các toán tử gán là ví dụ rõ ràng nhất: Nếu bạn đang gán 1 giá trị cho một biến hoặc thuộc tính, điều đó sẽ thay đổi giá trị của bất kỳ biểu thức nào sử dụng biến hoặc thuộc tính đó. Các toán tử tăng `++` và `--` cũng tương tự vì chúng thực hiện 1 phép gán ngầm. Toán tử `delete` cũng có tác dụng phụ: xoá một thuộc tính giống như (nhưng không giống như) gán `undefined` cho thuộc tính đó
+- Không có toán tử Js nào khác có tác dụng phụ, nhưng việc gọi hàm và biểu thức tạo object sẽ có tác dụng phụ nếu bất kỳ toán tử nào được sử dụng trong phần thân hàm hoặc hàm tạo có tác dụng phụ
