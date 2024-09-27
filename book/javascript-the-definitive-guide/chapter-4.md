@@ -328,3 +328,70 @@
 
 - Việc đánh giá một toán tử đơn giản như `2 * 3` không bao giờ ảnh hưởng đến trạng thái của chương trình của bạn và bất kỳ phép tính nào trong tương lai mà chương trình của bạn thực hiện sẽ không bị ảnh hưởng bởi phép đánh giá đó. Tuy nhiên, một số biểu thức có tác dụng phụ và việc đánh giá chúng có thể ảnh hưởng đến kết quả của các phép đánh giá trong tương lai. Các toán tử gán là ví dụ rõ ràng nhất: Nếu bạn đang gán 1 giá trị cho một biến hoặc thuộc tính, điều đó sẽ thay đổi giá trị của bất kỳ biểu thức nào sử dụng biến hoặc thuộc tính đó. Các toán tử tăng `++` và `--` cũng tương tự vì chúng thực hiện 1 phép gán ngầm. Toán tử `delete` cũng có tác dụng phụ: xoá một thuộc tính giống như (nhưng không giống như) gán `undefined` cho thuộc tính đó
 - Không có toán tử Js nào khác có tác dụng phụ, nhưng việc gọi hàm và biểu thức tạo object sẽ có tác dụng phụ nếu bất kỳ toán tử nào được sử dụng trong phần thân hàm hoặc hàm tạo có tác dụng phụ
+
+### 4.7.4 **Operator Precedence**
+
+- Các toán tử được liệt kê trong 4-1 được sắp xếp theo thứ tự từ độ ưu tiên cao đến độ ưu tiên thấp, với các đường ngang phân cách các nhóm toán tử ở cùng một mức độ ưu tiên. Độ ưu tiên của toán tử kiểm soát thứ tự thực hiện các phép toán. Các toán tử có độ ưu tiên cao hơn (gần đầu bảng hơn) được thực hiện trước các toán tử có độ ưu tiên thấp hơn (gần cuối bảng hơn)
+    
+    ```jsx
+    w = x + y*z; 
+    ```
+    
+- Toán tử `*` có độ ưu tiên cao hơn toán tử `+`, vì vậy phép nhân được thực hiện trước phép cộng. Hơn nữa, toán tử gán `=` có độ ưu tiên thấp nhất, vì vậy phép gán được thực hiện sau khi tất cả các phép toán ở phía bên phải được hoàn thành
+- Độ ưu tiên của toán tử có thể được ghi đè bằng cách sử dụng rõ ràng dấu ngoặc đơn. Để buộc phép cộng trong ví dụ trước được thực hiện, hãy viết
+    
+    ```jsx
+    w = (x + y)*z; 
+    ```
+    
+- Lưu ý rằng biểu thức truy cập thuộc tính và gọi hàm có độ ưu tiên cao hơn bất kỳ toán tử nào được liệt kê trên bảng 4-1
+    
+    ```jsx
+    // my là một đối tượng có thuộc tính có tên là functions có giá trị là một
+    // mảng các hàm. Chúng ta gọi hàm số x, truyền cho nó đối số
+    // y, và sau đó chúng ta hỏi về loại giá trị được trả về.
+    typeof my.functions[x](y) 
+    ```
+    
+- Mặc dù typeof là một trong những toán tử có độ ưu tiên cao nhất, nhưng thao tác typeof được thực hiện dựa trên kết quả của việc truy cập thuộc tính, index và gọi hàm, tất cả đều có độ ưu tiên cao hơn các toán tử
+- Trong thực tế, nếu bạn hoàn toàn không chắc chắn về độ ưu tiên toán tử của mình, điều đơn giản nhất là sử dụng dấu ngoặc đơn để làm cho thứ tự đánh giá rõ ràng. Các quy tắc quan trọng cần biết là: phép nhân và phép chia được thực hiện trước phép cộng và phép trừ và phép gán có độ ưu tiên thấp nhất, hầu như luôn thực hiện cuối cùng
+- Khi các toán tử được thêm vào Js, chúng không phải lúc nào cũng phù hợp một cách tự nhiên với sơ đồ ưu tiên này. Toán tử `??` (4.13.2) được hiển thị trong bảng có độ ưu tiên thấp hơn `||` và `&&` , nhưng trên thực tế, độ ưu tiên của nó so với các toán tử đó không được xác định và ES2020 yêu cầu bạn phải sử dụng rõ ràng dấu ngoặc đơn nếu bạn trộn `??` với `||` hoặc `&&` . Tương tự, toán tử luỹ thừa `**` mới không có độ ưu tiên được xác định so với các toán tử phủ định đơn nhất, bạn phải sử dụng dấu ngoặc đơn khi kết hợp phủ định với luỹ thừa
+
+### 4.7.5 **Operator Associativity**
+
+- Trong bảng 4-1, cột có lable A chỉ định tính kết hợp của toán tử. Giá trị L chỉ định kết hợp từ trái sang phải và giá trị R chỉ định kết hợp từ phải sang trái. Tính kết hợp của toán tử chỉ định thứ tự thực hiện các phép toán có cùng độ ưu tiên. Tính kết hợp từ trái sang phải có nghĩa là các phép toán được thực hiện từ trái sang phải. Ví dụ toán tử trừ có tính kết hợp từ trái qua phải vì vậy
+    
+    ```jsx
+    w = x - y - z; 
+    ```
+    
+- Giống với
+    
+    ```jsx
+    w = ((x - y) - z); 
+    ```
+    
+- Mặt khác, các biểu thức sau
+    
+    ```jsx
+    y = a ** b ** c;
+    x = ~-y;
+    w = x = y = z;
+    q = a?b:c?d:e?f:g; 
+    ```
+    
+- Tương đương với
+    
+    ```jsx
+    y = (a ** (b ** c));
+    x = ~(-y);
+    w = (x = (y = z));
+    q = a?b:(c?d:(e?f:g)); 
+    ```
+    
+- Vì các toán tử luỹ thừa, đơn nhất, gán và điều kiện 3 ngôi có tính kết hợp từ trái qua phải
+
+### **4.7.6 Order of Evaluation**
+
+- Độ ưu tiên và tính kết hợp của toán tử chỉ định thứ tự thực hiện các phép toán trong một biểu thức phức tạp, nhưng chúng không chỉ định thứ tự đánh giá các biểu thức con. Js luôn đánh giá thứ tự các biểu thức từ trái qua phải. Ví dụ trong biểu thức `w = x + y * z` , biểu thức con `w` được đánh giá trước, tiếp theo là x y z. Sau đó giá trị của y và z được nhân, cộng với giá trị của x và gán cho biến hoặc thuộc tính được chỉ định bởi biểu thức w. Việc thêm dấu ngoặc đơn vào các biểu thức có thể thay đổi thứ tự tương đối của phép nhân, phép cộng và phép gán nhưng không thay đổi thứ tự đánh giá từ trái sang phải
+- Thứ tự đánh giá chỉ tạo ra sự khác biệt nếu bất kỳ biểu thức nào đang được đánh giá có tác dụng phụ ảnh hưởng đến giá trị của một biểu thức khác. Nếu biểu thức x tăng một biến được sử dụng bởi biểu thức z, thì thực tế là x được đánh giá trước z là quan trọng
