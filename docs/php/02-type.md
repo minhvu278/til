@@ -319,3 +319,132 @@
 ### **From other types**
 
 - Thận trọng: Hành vi chuyển đổi thành int là không xác định đối với các kiểu khác. Không dựa vào bất kỳ hành vi quan sát nào, vì nó có thể thay đổi mà không cần thông báo
+
+## **Floating point numbers**
+
+- Số dấu chấm động còn được gọi là “floats, double, hoặc số thực” có thể được chỉ định bằng bất kỳ cú pháp nào sau đây
+    
+    ```jsx
+    $a = 1.234; 
+    $b = 1.2e3; 
+    $c = 7E-10;
+    $d = 1_234.567; // kể từ PHP 7.4.0
+    ?>
+    ```
+    
+- Chính thức từ PHP 7.4.0 (trước đó `_` không được cho phép)
+    
+    ```jsx
+    LNUM          [0-9]+(_[0-9]+)*
+    DNUM          ({LNUM}?"."{LNUM}) | ({LNUM}"."{LNUM}?)
+    EXPONENT_DNUM (({LNUM} | {DNUM}) [eE][+-]? {LNUM})
+    ```
+    
+- Kích thước của một dấu chấm động phụ thuộc vào nền tảng, mặc dù giá trị tối đa xấp xỉ 1.8e308 với độ chính xác khoảng 14 chữ số thập phân là một giá trị phổ biến (định dạng IEEE 64 bit).
+
+### Warning
+
+- Độ chính xác của dấu chấm động. Float có độ chính xác hạn chế. Mặc dù nó phụ thuộc vào hệ thống, PHP thường sử dụng định dạng độ chính xác kép IEEE 754, định dạng này sẽ cho sai số tương đối đa do làm tròn theo thứ tự 1.11e-16. Các phép toán số học không cơ bản có thể cho sai số lớn hơn và tất nhiên, việc lan truyền sai số phải được xem xét khi một số phép toán được kết hợp
+- Ngoài ra các số hữu tỉ có thể biển diễn chính xác dưới dạng số dấu chấm động cơ số 10, như 0.1 hoặc 0.7, không có biểu diễn chính xác dưới dạng số chấm động ở cơ số 2, được sử dụng nội bộ, bất kể kích thước của phần định trị. Do đó, chúng không được chuyển đổi thành các đối tác nhị phân nội bộ của chúng mà không mất chút độ chính xác . Điều này có thể dẫn đến kết quả khó hiểu. Ví dụ floor((0.1 + 0.7) * 10) thường sẽ trả về 7 thay vì 8 như mong đợi, vì biểu diễn nội bộ sẽ giống như 7.9999999999999991118.…
+- Vì vậy đừng bao giờ tin tưởng vào kết quả float đến chữ số cuối cùng và không so sánh trực tiếp các số float về độ bằng nhau. Nếu cần độ chính xác cao hơn, các hàm toán học độ chính xác tuỳ ý và các hàm gmp có sẵn
+
+### **Converting to float**
+
+### From string
+
+- Nếu chuỗi là số hoặc bắt đầu bằng số thì nó sẽ được phân giải thành giá trị số float tương ứng, nếu không nó sẽ chuyển đổi thành 0
+
+### **From other types**
+
+- Đối với các giá trị của các kiểu khác, việc chuyển đổi được thực hiện bằng cách chuyển đổi giá trị thành số nguyên trước rồi sau đó thành float.
+- Lưu ý: Vì một số kiểu nhất định có hành vi không xác định khi chuyển đổi thành số nguyên, nên đây cũng là trường hợp khi chuyển đổi thành float
+
+### **Comparing floats**
+
+- Như đã lưu ý trong cảnh báo ở trên, việc kiểm tra các giá trị float bằng nhau là có vấn đề, do cách chúng biểu diễn nội bộ. Tuy nhiên, có những cách để thực hiện so sánh các giá trị float giúp giải quyết những hạn chế này
+- Để kiểm tra giá trị float về sự bằng nhau, một giới hạn trên của sai số tương đối do làm tròn được sử dụng. Giá trị này được gọi là epsilon máy, hoặc là đơn vị làm tròn, và là chênh lệch chấp nhận được nhỏ nhất trong các phép tính
+- $a và $b bằng nhau do độ chính xác 5 chữ số
+    
+    ```jsx
+    $a = 1.23456789;
+    $b = 1.23456780;
+    $epsilon = 0.00001;
+    
+    if(abs($a-$b) < $epsilon) {
+        echo "true";
+    }
+    ?>
+    ```
+    
+
+### NaN
+
+- Một số phép toán số học có thể dẫn đến một giá trị được biểu thị bằng hằng số NaN. Kết quả này đại diện cho một giá trị không xác định hoặc không thể biểu diễn trong các phép tính float. Bất kỳ so sánh lỏng lẻo hoặc nghiêm ngặt nào của giá trị này với bất kỳ giá trị nào khác, bao gồm cả chính nó, nhưng ngoại từ true, sẽ có kết quả là false
+- Vì NaN đại diện cho bất kỳ số lượng giá trị khác nhau nào, NaN không nên được so sánh với các giá trị khác, bao gồm cả chính nó và thay vào đó nên được kiểm tra bằng cách sử dụng `is_nan()`
+
+## String
+
+- String là một chuỗi các ký tự, trong đó 1 ký tự giống như 1 byte. Điều này có nghĩa là PHP hỗ trợ bộ nhớ ký tự 256 ký tự và do đó không hỗ trợ cung cấp Unicode gốc.
+- Lưu ý trên bản dựng 32-bit, mội chuỗi có thể lớn hơn 2GB (tối đa 2147483647 byte)
+
+### Syntax
+
+- 1 string có thể được định nghĩa theo 4 cách khác nhau
+    - Dấu nháy đơn
+    - Dấu nháy kép
+    - Cú pháp heredoc
+    - Cú pháp nowdoc
+
+### **Single quoted**
+
+- Cách đơn giản nhất để chỉ định 1 string là đặt nó trong dấu nháy đơn (’)
+- Để chỉ định một dấu ngoặc đơn theo nghĩa đen, hãy thoát nó bằng dấu gạch chéo ngược (\). Để chỉ định một dấu gạch chéo ngược theo nghĩa đen, hãy nhân đôi nó (\\). Tất cả các trường hợp khác của dấu gạch chéo ngược sẽ được coi là dấu gạch chéo ngược theo nghĩa đen: Điều này có nghĩa là các chuỗi thoát khác mà có thể bạn đã quen, chẳng bạn như \r hoặc \n, sẽ được xuất ra theo nghĩa đen như đã chỉ định thay vì có bất kỳ ý nghĩa đặc biệt nào khác
+- Lưu ý: không giống như cú pháp dấu nháy kép và heredoc, các biến và chuỗi thoát cho các ký tự đặc biệt sẽ không được mở rộng khi chúng xuất hiện trong chuỗi dấu nháy đơn
+    
+    ```jsx
+    echo 'this is a simple string';
+    
+    echo 'You can also have embedded newlines in
+    strings this way as it is
+    okay to do';
+    
+    // Xuất ra: Arnold once said: "I'll be back"
+    echo 'Arnold once said: "I\'ll be back"';
+    
+    // Xuất ra: You deleted C:\*.*?
+    echo 'You deleted C:\\*.*?';
+    
+    // Xuất ra: You deleted C:\*.*?
+    echo 'You deleted C:\*.*?';
+    
+    // Xuất ra: This will not expand: \n a newline
+    echo 'This will not expand: \n a newline';
+    
+    // Xuất ra: Variables do not $expand $either
+    echo 'Variables do not $expand $either';
+    ?>
+    ```
+    
+
+### **Double quoted**
+
+- Nếu chuỗi được đặt trong dấu nháy kép (”), PHP sẽ diễn giải các chuỗi thoát theo các ký tự đặc biệt
+    
+    ```jsx
+    Chuỗi	Ý nghĩa
+    \n	Dòng mới (LF hoặc 0x0A (10) trong ASCII)
+    \r	Trở về đầu dòng (CR hoặc 0x0D (13) trong ASCII)
+    \t	Tab ngang (HT hoặc 0x09 (9) trong ASCII)
+    \v	Tab dọc (VT hoặc 0x0B (11) trong ASCII)
+    \e	Thoát (ESC hoặc 0x1B (27) trong ASCII)
+    \f	Form feed (FF hoặc 0x0C (12) trong ASCII)
+    \	Dấu gạch chéo ngược
+    $	Dấu đô la
+    "	Dấu nháy kép
+    [0-7]{1,3}	Bát phân: chuỗi các ký tự khớp với biểu thức chính quy [0-7]{1,3} là một ký tự ở dạng bát phân (ví dụ: "\101" === "A"), sẽ tự động tràn để vừa với một byte (ví dụ: "\400" === "\000")
+    \x[0-9A-Fa-f]{1,2}	Thập lục phân: chuỗi các ký tự khớp với biểu thức chính quy [0-9A-Fa-f]{1,2} là một ký tự ở dạng thập lục phân (ví dụ: "\x41" === "A")
+    \u{[0-9A-Fa-f]+}	Unicode: chuỗi các ký tự khớp với biểu thức chính quy [0-9A-Fa-f]+ là một điểm mã Unicode, sẽ được xuất ra chuỗi dưới dạng biểu diễn UTF-8 của điểm mã đó. Dấu ngoặc nhọn là bắt buộc trong chuỗi. Ví dụ: "\u{41}" === "A"
+    ```
+    
+- Cũng như trong chuỗi nháy đơn, việc thoát bất kỳ ký tự nào khác sẽ dẫn đến việc dấu gạch chéo ngược cũng được in ra
+- Tính năng quan trọng của chuỗi nháy kép là thực tế là biến sẽ được sử dụng. Xem phân tích cú pháp để biết chi tiết
