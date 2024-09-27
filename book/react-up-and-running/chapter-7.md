@@ -178,4 +178,75 @@
      /* etc. */
     }
     ```
+## Local Storage
 
+- Để giới hạn cuộc thảo luận ở React càng nhiều càng tốt, chúng ta hãy giữ tất cả dữ liệu trong trình duyệt và không lo lắng về các phần phía máy chủ
+- Nhưng thay vì mã hoá cứng dữ liệu trong ứng dụng, hãy sử dụng localStorage. Nếu bộ nhớ trống, một mặc định sẽ đủ để gợi ý cho người dùng về mục đích cùa ứng dụng. Việc truy xuất dữ liệu có thể xảy ra trong `App.js` cấp cao nhất
+    
+    ```jsx
+    const headers = localStorage.getItem('headers');
+    const data = localStorage.getItem('data');
+    
+    if (!headers) {
+     headers = ['Tiêu đề', 'Năm', 'Xếp hạng', 'Nhận xét'];
+     data = [['Rượu vang đỏ', '2021', '3', 'bình thường']];
+    }
+    ```
+    
+- Chúng ta sẽ xoá nút “search” khỏi Excel; nó nên trở thành một phần của component của riêng nó, được tách biệt tốt hơn khỏi component Excel. Và với điều đó, bạn đang trên đường đến một ứng dụng tuyệt vời
+
+## The Components
+
+- Bây giờ bạn đã biết thiết lập đang được hoạt động, đã đến lúc build tất cả các component tạo nên ứng dụng
+- Tái sử dụng component Excel là một cách để bắt đầu; tuy nhiên, component này đang làm quá nhiều việc. Tốt hơn là “chia để trị” bằng cách chia nó thành các component nhỏ, có thể tái sử dụng
+- Ví dụ các button nên là các component của riêng chúng để chúng có thể được tái sử dụng bên ngoài ngữ cảnh của bảng Excel. Ngoài ra, ứng dụng cần một số component chuyên biệt khác chẳng hạn như widget xếp hạng hiển thị biểu tượng cảm xúc thay vì chỉ là một số, component modal,…
+- Mục tiêu của nó là cho phép bạn phát triển và kiểm tra component một cách độc lập. Thường thì sử dụng một component trong một ứng dụng sẽ khiến bạn “gắn kết” component đó với ứng dụng và giảm khả năng tái sử dụng của nó. Việc có component này một cách riêng biệt buộc bạn phải đưa ra quyết định tốt hơn về việc tách biệt rời nó khỏi môi trường; cho các thành viên khác trong nhóm khám phá và tái sử dụng các component hiện có. Khi ứng dụng của bạn phát triển, nhóm cũng vậy
+- Để giảm thiểu rủi ro hai người làm việc trên các component giống nhau một cách đáng kinh ngạc và để thúc đẩy việc tái sử dụng component (điều này dẫn đến việc phát triển ứng dụng nhanh hơn), bạn nên đặt tất cả các component vào một nơi cùng với các ví dụ về cách chúng được sử dụng
+- Có các công cụ có sẵn cho phép khám phá và thử nghiệm component, nhưng chúng ta đừng giới thiệu một phụ thuộc khác. Thay vào đó, hãy sử dụng phương pháp “tự làm” nhẹ nhàng
+
+## **Discovery (Khám phá)**
+
+- Một công cụ khám phá có thể được triển khai như một component mới cùng tồn tại với ứng dụng. Nhiệm vụ này có thể đơn giản như tạo 1 component mới (src/components/Discovery.js) trong đó, bạn liệt kê các component của mình. Bạn thậm chí có thể hiển thị  cùng một component với các thuộc tính khác nhau để minh hoạ các cách sử dụng khác nhau của một component
+    
+    ```jsx
+    import Excel from './Excel';
+    // thêm các nhập khẩu khác ở đây ...
+    
+    function Discovery() {
+     return (
+     <div>
+     <h2>Excel</h2>
+     <Excel
+     headers={['Tên', 'Năm']}
+     initialData={[
+     ['Charles', '1859'],
+     ['Antoine', '1943'],
+     ]}
+     />
+     {/* thêm các component khác ở đây */}
+     </div>
+     );
+    }
+    
+    export default Discovery;
+    ```
+    
+- Bây giờ bạn có thể tải component Discovery thay vì ứng dụng thực, bằng cách sử dụng URL làm điều kiện trong `App.js` của bạn
+    
+    ```jsx
+    const isDiscovery = window.location.pathname.replace(/\//g, '') === 'discovery';
+    
+    function App() {
+     if (isDiscovery) {
+     return <Discovery />;
+     }
+     return (
+     <div>
+     <Excel headers={headers} initialData={data} />
+     </div>
+     );
+    }
+    ```
+    
+- Bây giờ nếu bạn tải http://localhost:3000/discovery thay vì http://localhost:3000/, bạn có thể thấy tất cả các component mà bạn đã thêm vào Discovery
+- Tại thời điểm này, chỉ có một component duy nhất, nhưng trang này sẽ sớm được phát triển. Hãy bắt tay vào làm việc và xây dựng chúng - từng cái một
