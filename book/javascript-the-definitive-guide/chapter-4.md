@@ -395,3 +395,94 @@
 
 - Độ ưu tiên và tính kết hợp của toán tử chỉ định thứ tự thực hiện các phép toán trong một biểu thức phức tạp, nhưng chúng không chỉ định thứ tự đánh giá các biểu thức con. Js luôn đánh giá thứ tự các biểu thức từ trái qua phải. Ví dụ trong biểu thức `w = x + y * z` , biểu thức con `w` được đánh giá trước, tiếp theo là x y z. Sau đó giá trị của y và z được nhân, cộng với giá trị của x và gán cho biến hoặc thuộc tính được chỉ định bởi biểu thức w. Việc thêm dấu ngoặc đơn vào các biểu thức có thể thay đổi thứ tự tương đối của phép nhân, phép cộng và phép gán nhưng không thay đổi thứ tự đánh giá từ trái sang phải
 - Thứ tự đánh giá chỉ tạo ra sự khác biệt nếu bất kỳ biểu thức nào đang được đánh giá có tác dụng phụ ảnh hưởng đến giá trị của một biểu thức khác. Nếu biểu thức x tăng một biến được sử dụng bởi biểu thức z, thì thực tế là x được đánh giá trước z là quan trọng
+
+## 4.8 Arithmetic Expressions
+
+- Phần này bao gồm các toán tử thực hiện các phép toán số học hoặc các thao tác số khác trên các toán hạng của chúng. Các toán tử luỹ thừa, nhân chia và trừ khá đơn giản và đã đề cập trước. Toán tử cộng có một tiểu mục riêng vì nó có thể thực hiện nối chuỗi mà có một số quy tắc chuyển đổi kiểu bất thường. Các toán tử đơn nhất và toán tử bitwise cũng được đề cập trong các tiểu mục của riêng chúng
+- Hầu hết các toán tử số học này (ngoại trừ những toán tử  được ghi chú như sau)  có thể được sử dụng với các toán hạng `BigInt` (3.2.5) hoặc với các số thông thường miễn là bạn không trộn lẫn 2 loại này
+- Các toán tử số học cơ bản là `**` (luỹ thừa), *, /, %, +, -. Như đã lưu ý, chúng ta sẽ thảo luận toán tử + ở 1 phần riêng. Năm toán tử còn lại chỉ đơn giản là đánh giá các toán hạng của chúng , chuyển đổi các giá trị thành số nếu cần và sau đó tính toán luỹ thừa , tích, thương, phần dư hoặc hiệu số. Các toán hạng không phải là số có thể được chuyển đổi thành số sẽ được chuyển đổi thành giá trị `NaN` . Nếu một trong 2 toán hạng là (hoặc được chuyển đổi thành) NaN, kết quả của phép toán (hầu như luôn luôn) là NaN
+- Toán tử ** có độ ưu tiên cao hơn *, / và % (lần lượt có độ ưu tiên cao hơn + và -). Không giống như các toán tử khác, ** hoạt động từ phải sang trái, vì vậy `2**2**3` giống với `2**8`, không phải `4**3`
+- Có một sự mơ hồ tự nhiên đối với các biểu thức như  `-3**2`. Tuỳ thuộc vào độ ưu tiên tương đối của dấu trừ đơn nhất và luỹ thừa, biểu thức đó có thể có nghĩa là `(-3)**2` hoặc `-(3**2)`. Các ngôn ngữ khác nhau xử lý điều này khác nhau và thay vì chọn bên, Js chỉ đơn giản là biến nó thành lỗi cú pháp nếu bỏ qua dấu ngoặc đơn trong trường hợp này, buộc bạn phải viết 1 biểu thức rõ ràng. `**` là toán tử số học mới nhất của Js: nó  đã được thêm vào ES2016. Tuy nhiên, hàm `Math.pow()` đã có sẵn từ phiên bản Js sớm nhất và nó thực hiện chính xác cùng một phép toán như toán tử `**`
+- Toán tử chia toán hạng thứ 1 cho toán hạng thứ 2. Nếu bạn đã quen với các ngôn ngữ lập trình phân biệt giữa số nguyên và dấu phẩy động, bạn có thể mong đợi  nhận được kết quả là số nguyên khi bạn chia một số nguyên cho một số nguyên khác. Tuy nhiên, trong Js, tất cả các số đều là số dấu phẩy động, vì vậy tất cả các phép chia đều có kết quả lầ dấu phẩy động: `5/2` được đánh giá là `2.5`, không phải 2. Chia cho 0 sẽ tạo ra dương vô cực, trong khi `0/0` được đánh giá là NaN: Không có trường hợp nào trong số này gây ra lỗi
+- Toán tử `%` tính toán toán hạng thứ 1 modulo toán tử thứ 2. Nói cách khác, nó trả về phần dư sau khi chia số nguyên toán hạng thứ nhất cho toán hạng thứ 2. Dấu của kết quả giống với dấu của toán hạng thứ 1. Ví dụ `5 % 2` được đánh giá là 1 và `-5 % 2` được đánh giá là -1
+- Mặc dù toán tử modulo thường được sử dụng với các toán hạng số nguyên, nhưng nó cũng hoạt động cho các giá trị dấu phẩy động. Ví dụ `6.5 % 2.1` được đánh giá là 0.2
+
+### 4.8.1 The + Operator
+
+- Toán tử nhị phân `+` cộng các toán hạng số hoặc các toán hạng chuỗi
+    
+    ```jsx
+    1 + 2 // => 3
+    "hello" + " " + "there" // => "hello there"
+    "1" + "2" // => "12" 
+    ```
+    
+- Khi giá trị của cả 2 toán hạng là số hoặc đều là chuỗi, thì rõ ràng toán tử `+` làm gì. Tuy nhiên, trong bất kỳ trường hợp nào khác, cần phải chuyển đổi kiểu và thao tác được thực hiện phụ thuộc vào việc chuyển đổi được thực hiện. Các quy tắc chuyển đổi cho `+` ưu tiên nối chuỗi: Nếu một trong 2 toán hạng là chuỗi hoặc 1 object được chuyển đổi thành chuỗi, toán hạng kia sẽ được chuyển đổi thành chuỗi và phép nối được thực hiện. Phép cộng chỉ được thực hiện khi không có toán hạng nào giống chuỗi
+- Về mặt kỹ thuật, toán tử `+` hoạt động như thế này
+    - Nếu một trong các giá trị toán hạng của nó là một object, nó sẽ chuyển đổi nó thành một kiểu nguyên thuỷ bằng cách chuyển object thành nguyên thuỷ được mô tả trong 3.9.3. Các object `Date` được chuyển đổi bằng phương thức `toString()`  của chúng và tất các các object khác được chuyển đổi thông qua `valueOf()`, nếu method đó trả về 1 dữ liệu nguyên thuỷ. Tuy nhiên, hầu hết các object không có method valueOf() hữu ích, vì vậy chúng được chuyển đổi thông qua `toString()`
+    - Sau khi chuyển đổi object thành nguyên thuỷ, nếu một trong 2 toán hạng là chuỗi, toán hạng kia sẽ được chuyển đổi thành chuỗi và phép nối được thực hiện
+    - Nếu không, cả 2 toán hạng sẽ được chuyển đổi thành số (hoặc thành NaN) và phép cộng được thực hiện
+- Đây là một số ví dụ
+    
+    ```jsx
+    1 + 2 // => 3: cộng
+    "1" + "2" // => "12": nối chuỗi
+    "1" + 2 // => "12": nối chuỗi sau khi chuyển đổi số thành chuỗi
+    1 + {} // => "1[object Object]": nối chuỗi sau khi chuyển đổi đối tượng thành chuỗi
+    true + true // => 2: cộng sau khi chuyển đổi boolean thành số
+    2 + null // => 2: cộng sau khi null được chuyển đổi thành 0
+    2 + undefined // => NaN: cộng sau khi undefined được chuyển đổi thành NaN 
+    ```
+    
+- Cuối cùng, điều cần lưu ý là khi toán tử `+` được sử dụng với chuỗi và số, nó có thể không có tính kết hợp. Tức là, kết quả còn phụ thuộc vào thứ tự thực hiện của các phép toán
+    
+    ```jsx
+    1 + 2 + " blind mice" // => "3 blind mice"
+    1 + (2 + " blind mice") // => "12 blind mice" 
+    ```
+    
+- Dòng đầu tiên không có dấu ngoặc đơn và toán tử + có tính kết hợp từ trái sang phải, vì vậy 2 số được cộng trước và tổng của chúng được nối với chuỗi. Trong dòng thứ 2, dấu ngoặc đơn thay đổi thứ tự của các phép toán này: số 2 được nối với chuỗi để tạo ra một chuỗi mới. Sau đó, số 1 được nối với chuỗi mới để tạo ra kết quả cuối cùng
+
+### 4.8.2 **Unary Arithmetic Operators**
+
+- Toán tử đơn nhất sửa đổi giá trị của một toán hạng duy nhất để tạo ra một giá trị mới. Trong Js, tất cả các giá trị đơn nhất đều có độ ưu tiên cao và đều có tính kết hợp phải. Tất cả các toán tử đơn nhất được mô tả trong phần này (+, -, ++, —) đều chuyển đổi toán hạng duy nhất của chúng thành số, nếu cần. Lưu ý rằng các ký tự dấu câu + và - được sử dụng làm cả toán tử đơn nhất và toán tử nhị phân
+- Các toán tử số học đơn nhất như sau:
+- **Cộng đơn nhất (+)**
+    - Toán tử cộng đơn nhất chuyển đổi toán hạng của nó thành số (hoặc thành NaN) và trả về giá trị đã chuyển đổi đó. Khi được sử dụng với một toán hạng là số, nó không làm gì cả. Toán tử này có thể không được sử dụng với các giá trị `BigInt`, vì chúng không được chuyển đổi thành số thông thường
+- **Trừ đơn nhất (-)**
+    - Khi - được sử dụng làm toán tử đơn nhất, nó sẽ chuyển toán hạng của chúng thành số, nếu cần và sau đó thay đổi dấu của kết quả
+- **Tăng (++)**
+    - Toán tử tăng ++ (tức là cộng 1 vào) toán hạng duy nhất của nó, phải là một Ivalue (một biến, một phần tử của mảng hoặc một property của object). Toán tử chuyển đổi toán hạng của chúng thành số, cộng 1 vào số đó và gán giá trị đã tăng trở lại vào biến, element hoặc property
+    - Giá trị của toán tử `++` phụ thuộc vào vị trí của nó so với toán hạng. Khi được sử dụng trước toán hạng, được gọi là toán tử tăng trước, nó sẽ tăng toán hạng và đánh giá thành giá trị tăng của toán hạng đó. Khi được sử dụng sau toán hạng, được gọi là toán tử tăng sau, nó sẽ tăng toán hạng của nó nhưng đánh giá thành giá trị chưa tăng của toán hạng đó. Hãy xem sự khác biệt giữa 2 dòng này
+        
+        ```jsx
+        let i = 1, j = ++i; // i và j đều là 2
+        let n = 1, m = n++; // n là 2, m là 1 
+        ```
+        
+    - Lưu ý rằng biểu thức `x++` không phải lúc nào cũng bằng `x = x + 1` . Toán tử ++ không bao giờ thực hiện nối chuỗi: nó luôn chuyển đổi toán hạng của nó thành số và tăng nó. Nếu x là “1”, `++x` là số 2, nhưng x + 1 là chuỗi “11”
+    - Cũng lưu ý rằng do tính năng tự động chèn dấu ; của Js, bạn không thể chèn xuống dòng giữa toán tử tăng và toán hạng đứng trước nó. Nếu bạn làm như vậy, Js sẽ coi toán hạng là một câu lệnh hoàn chỉnh và chèn dấu chấm phẩy trước nó
+    - Toán tử này, ở cả dạng ++ và — , thường được sử dụng nhất để tăng bộ đếm điều khiển vòng lặp for (5.4.3)
+- **Giảm (—)**
+    - Toán tử `--` mong đợi một toán hạng Ivalue. Nó chuyển đổi giá trị toán hạng thành số, trừ đi 1 và gán giá trị đã giảm trở lại cho toán hạng. Giống như ++, giá trị trả về của — phụ thuộc vào vị trí của nó so với toán hạng. Khi được sử dụng trươc toán hạng, nó sẽ giảm và trả về giá trị đã giảm. Khi sử dụng sau toán hạng, nó sẽ giảm toán hạng nhưng trả về giá trị chưa giảm. Khi được sử dụng sau toán hạng của nó, không được phép xuống dòng giữa các toán hạng
+
+### 4.8.3 **Bitwise Operators**
+
+- Các toán tử bitwise thực hiện các thao tác cấp thấp trên các bit trong biểu diễn nhị phân của các số. Mặc dù chúng không thực hiện các phép toán số học truyền thống, nhưng chúng được phân loại là toán tử số học ở đây vì chúng hoạt động trên các toán hạng số và trả về một giá trị số. Bốn trong số các toán tử này thực hiện đại số boolean trên các bit riêng lẻ của các toán hạng, hoạt động như thể mỗi bit trên các toán hạng là một giá trị boolean (1 = true, 0 = false). Ba toán tử bitwise còn lại được sử dụng để dịch chuyển các bit sang trái và sang phải. Các toán tử này không được sử dụng phổ biến trong lập trình JS và nếu bạn không quen thuộc với biểu diễn nhị phân của số nguyên, bao gồm cả biểu diễn bù 2 của số nguyên âm, bạn có thể bỏ qua phần này
+- Các toán tử bitwise mong đợi các toán hạng số nguyên và hoạt động như thể các giá trị đó được biểu diễn dưới dạng số nguyên 32bit thay vì các giá trị float 64 bit. Các toán tử này chuyển đổi các toán hạng của chúng thành số, nếu cần và sau đó ép buộc các giá trị số thành số nguyên 32bit bằng cách bỏ bất kỳ phân số nào và bất kỳ bit nào vượt quá bit thứ 32. Các toán tử dịch chuyển yêu cầu các toán hạng bên phải nằm trong khoảng từ 0 đến 31. Sau khi chuyển đổi toán hạng này thành số nguyên 32bit không dấu, chúng ta sẽ bỏ bất kỳ bit nào vượt quá bit thứ 5, tạo ra một số trong phạm vi thích hợp
+- Đáng ngạc nhiên là NaN, Infinity và -Infinity đều được chuyển đổi thành 0 khi được sử dụng làm toán hạng của các toán tử bitwise này
+- Tất cả các toán tử bitwise này ngoại trừ `>>>` có thể được sử dụng với các toán hạng số thông thường hoặc với các toán hạng `BigInt` (3.2.5)
+- **Bitwise AND (&)**
+    - Toán tử & thực hiện phép toán Boolean AND trên mỗi bit của các đối số nguyên của nó. Mỗi bit được đặt trong kết quả chỉ khi bit tương ứng được đặt trong cả 2 toán hạng. Ví dụ: 0x1234 & 0x00FF được đánh giá là 0x0034.
+- Bitwise OR (|)
+    - Toán tử | thực hiện phép toán Boolean OR trên mỗi bit của các đối số nguyên của nó. Một bit được đặt trong kết quả nếu bit tương ứng được đặt trong một hoặc 2 toán hạng. Ví dụ: 0x1234 | 0x00FF được đánh giá là 0x12FF.
+- **Bitwise XOR (^)**
+    - Toán tử ^ thực hiện phép toán Boolean XOR (exclusive OR) trên mỗi bit của các đối số nguyên của nó. XOR có nghĩa là toán hạng 1  là đúng hoặc toán hạng 2 là đúng, nhưng không phải cả 2. Một bit được đặt trong kết quả của phép toán này nếu một bit tương ứng được đặt trong một (nhưng không phải cả hai) trong hai toán hạng. Ví dụ: 0xFF00 ^ 0xF0F0 được đánh giá là 0x0FF0
+- **Bitwise NOT (~)**
+    - Toán tử ~ là một toán tử đơn nhất xuất hiện trước toán hạng số nguyên duy nhất của nó. Nó hoạt động bằng cách đảo ngược tất cả các bit trong toán hạng. Do cách số nguyên có dấu được biểu diễn trong **JavaScript**, việc áp dụng toán tử ~ cho một giá trị tương đương với việc thay đổi dấu của nó và trừ đi 1. Ví dụ: ~0x0F được đánh giá là 0xFFFFFFF0 hoặc -16.
+- **Dịch trái (<<)**
+    - Toán tử << di chuyển tất cả các bit trong toán hạng thứ nhất của nó sang trái một số vị trí được chỉ định trong toán hạng thứ hai, phải là một số nguyên từ 0 đến 31. Ví dụ: trong phép toán a << 1, bit đầu tiên (bit đơn vị) của a trở thành bit thứ hai (bit hàng chục), bit thứ hai của a trở thành bit thứ ba, v.v. Số không được sử dụng cho bit đầu tiên mới và giá trị của bit thứ 32 bị mất. Dịch chuyển một giá trị sang trái một vị trí tương đương với nhân với 2, dịch chuyển hai vị trí tương đương với nhân với 4, v.v. Ví dụ: 7 << 2 được đánh giá là 28.
+- **Dịch phải với dấu (>>)**
+    - Toán tử >> di chuyển tất cả các bit trong toán hạng thứ nhất của nó sang phải một số vị trí được chỉ định trong toán hạng thứ hai (một số nguyên từ 0 đến 31). Các bit bị dịch chuyển ra khỏi bên phải sẽ bị mất. Các bit được điền vào bên trái phụ thuộc vào bit dấu của toán hạng ban đầu, để bảo toàn dấu của kết quả. Nếu toán hạng thứ nhất là dương, kết quả sẽ có các số 0 được đặt ở các bit cao; nếu toán hạng thứ nhất là âm, kết quả sẽ có các số 1 được đặt ở các bit cao. Dịch chuyển một giá trị dương sang phải một vị trí tương đương với chia cho 2 (bỏ phần dư), dịch chuyển sang phải hai vị trí tương đương với chia số nguyên cho 4, v.v. Ví dụ: 7 >> 1 được đánh giá là 3, nhưng lưu ý rằng -7 >> 1 được đánh giá là -4.
+- **Dịch phải với điền số không (>>>)**
+    - Toán tử >>> giống như toán tử >>, ngoại trừ việc các bit được dịch chuyển vào bên trái luôn là số không, bất kể dấu của toán hạng thứ nhất. Điều này hữu ích khi bạn muốn coi các giá trị 32 bit có dấu như thể chúng là số nguyên không dấu. Ví dụ: -1 >> 4 được đánh giá là -1, nhưng -1 >>> 4 được đánh giá là 0x0FFFFFFF. Đây là toán tử bitwise duy nhất của **JavaScript** không thể được sử dụng với các giá trị **BigInt**. **BigInt** không biểu diễn số âm bằng cách đặt bit cao theo cách mà số nguyên 32 bit làm và toán tử này chỉ có ý nghĩa đối với biểu diễn bù 2 cụ thể đó.
