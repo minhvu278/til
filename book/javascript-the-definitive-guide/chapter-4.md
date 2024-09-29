@@ -486,3 +486,115 @@
     - Toán tử >> di chuyển tất cả các bit trong toán hạng thứ nhất của nó sang phải một số vị trí được chỉ định trong toán hạng thứ hai (một số nguyên từ 0 đến 31). Các bit bị dịch chuyển ra khỏi bên phải sẽ bị mất. Các bit được điền vào bên trái phụ thuộc vào bit dấu của toán hạng ban đầu, để bảo toàn dấu của kết quả. Nếu toán hạng thứ nhất là dương, kết quả sẽ có các số 0 được đặt ở các bit cao; nếu toán hạng thứ nhất là âm, kết quả sẽ có các số 1 được đặt ở các bit cao. Dịch chuyển một giá trị dương sang phải một vị trí tương đương với chia cho 2 (bỏ phần dư), dịch chuyển sang phải hai vị trí tương đương với chia số nguyên cho 4, v.v. Ví dụ: 7 >> 1 được đánh giá là 3, nhưng lưu ý rằng -7 >> 1 được đánh giá là -4.
 - **Dịch phải với điền số không (>>>)**
     - Toán tử >>> giống như toán tử >>, ngoại trừ việc các bit được dịch chuyển vào bên trái luôn là số không, bất kể dấu của toán hạng thứ nhất. Điều này hữu ích khi bạn muốn coi các giá trị 32 bit có dấu như thể chúng là số nguyên không dấu. Ví dụ: -1 >> 4 được đánh giá là -1, nhưng -1 >>> 4 được đánh giá là 0x0FFFFFFF. Đây là toán tử bitwise duy nhất của **JavaScript** không thể được sử dụng với các giá trị **BigInt**. **BigInt** không biểu diễn số âm bằng cách đặt bit cao theo cách mà số nguyên 32 bit làm và toán tử này chỉ có ý nghĩa đối với biểu diễn bù 2 cụ thể đó.
+
+## 4.9 **Relational Expressions**
+
+- Phần này mô tả các toán tử quan hệ của JS. Toán tử này kiểm tra mối quan hệ (chẳng hạn như “bằng”, “nhỏ hơn” hoặc “thuộc tính của”) giữa 2 giá trị và trả về true hoặc false tuỳ thuộc vào mối quan hệ đó có tồn tại hay không. Các biểu thức quan hệ luôn được đánh giá thành một giá trị boolean và giá trị đó thường được sử dụng để kiểm soát luồng thực thi chương trình trong các câu lệnh if, while và for (xem chương 5). Các tiểu mục sau đây ghi lại các toán tử bằng và không bằng , các toán tử so sánh và hai toán tử quan hệ khác của Js, in và insanceof
+
+### 4.9.1 **Equality and Inequality Operators**
+
+- Các toán tử == và === kiểm tra xem 2 giá trị có giống nhau hay không, sử dụng 2 định nghĩa khác nhau về sự giống nhau. Cả 2 toán tử đều chấp nhận các toán hạng thuộc bất kỳ loại nào và cả 2 đều trả về true nếu các toán hạng của chúng giống nhau và false nếu chúng khác nhau. Toán từ `===` được gọi là toán tử nghiêm ngặt (hoặc đôi khi là toán tử nhận dạng) và nó kiểm tra xem 2 toán hạng có “giống hệt nhau” hay không bằng cách sử dụng một định nghĩa nghiêm ngặt về sự giống nhau. Toán tử == được gọi là toán tử bằng; nó kiểm tra xem hai toán hạng của nó có “bằng nhau” hay không bằng nhau bằng cách sử dụng một cách định nghĩa lỏng lẻo hơn về sự giống nhau cho phép chuyển đổi kiểu
+- Các toán từ `!=` và `!==` kiểm tra điều ngược lại chính xác của các toán tử == và ===. Toán tử `!=` trả về false nếu 2 giá trị bằng nhau theo `==` và trả về true trong trường hợp ngược lại. Toán tử `!==` sẽ trả về false nếu 2 giá trị bằng nhau nghiêm ngặt và trả về true trong trường hợp ngược lại. Như bạn sẽ thấy trong 4.10, toán tử ! tính toán phép toán boolean NOT. Điều này giúp dễ dàng ghi nhớ rằng `!=` và `!==` là viết tắt của “không bằng” và “không bằng nghiêm ngặt”
+
+### Các toán tử =, ==, ===
+
+- Js hỗ trợ các toán tử =, ==, ===. Hãy chắc chắn rằng bạn hiểu sự khác biệt giữa các toán tử gán, bằng và bằng nghiêm ngặt này và hãy cẩn thận sử dụng toán tử đúng khi viết code
+- Mặc dù rất hấp dẫn khi đọc cả 3 toán tử là bằng, nhưng có thể giúp giảm bớt sự nhầm lẫn nếu bạn đọc “nhận” hoặc “được gán” cho `=`, “bằng” cho `==` và “bằng nghiêm ngặt” cho `===`
+- Toán tử `==` là một tính năng kế thừa của Js và được coi là một nguồn gây ra lỗi. Bạn hầu như nên sử dụng `===` thay vì `==` và `!==` thay vì `!=`
+- Như đã đề cập trong 3.8, các object Js được so sánh bằng tham chiếu, không phải bằng giá trị. Một object bằng chính nó, nhưng không bằng bất kỳ object nào khác. Nếu 2 object riêng biệt có cùng số lượng property với cùng tên và giá trị, thì chúng vẫn không bằng nhau. Tương tự, 2 mảng có cùng các phần tử theo cùng thứ tự không bằng nhau
+
+### STRICT EQUALITY
+
+- Toán tử bằng nghiêm ngặt === đánh giá các toán hạng của nó, sau đó so sánh 2 giá trị như sau, không thực hiện chuyển đổi kiểu
+    - Nếu 2 giá trị có kiểu khác nhau, thì chúng không bằng nhau
+    - Nếu cả 2 giá trị đều là null hoặc đều là undefined, thì chúng bằng nhau
+    - Nếu cả 2 giá trị đều là giá trị boolean true hoặc false thì chúng bằng nhau
+    - Nếu 1 hoặc cả 2 giá trị là NaN, thì chúng không bằng nhau (Điều này đáng ngạc nhiên, nhưng giá trị NaN không bao giờ bằng bất kỳ giá trị nào khác, bao gồm cả chính nó! Để kiểm tra giá trị x có phải là NaN không, hãy sử dụng `x !== x` hoặc `isNaN()`
+    - Nếu cả hai giá trị đều là số và có cùng giá trị thì chúng bằng nhau. Nếu một giá trị là 0 và giá trị kia là -0 thì chúng cũng bằng nhau
+    - Nếu cả 2 giá trị đều là chuỗi và chứa chính xác các giá trị 16bit giống nhau (3.3) ở cùng 1 vị trí thì chúng bằng nhau. Nếu các chuỗi khác nhau về độ dài hoặc nội dung, thì chúng không bằng nhau. Hai chuỗi có thể có cùng ý nghĩa và cùng hình thức trực quan nhưng vẫn được mã hoá bằng các chuỗi giá trị 16bit khác nhau. Js không thực hiện chuẩn hoá Unicode và một cặp chuỗi như thế này không được coi là bằng nhau với các toán tử === hoặc ==
+    - Nếu cả 2 giá trị đều tham chiếu đến cùng một object, array hoặc function thì chúng bằng nhau. Nếu chúng tham chiếu đến các object khác nhau, thì chúng không bằng nhau ngay cả nếu cả 2 object có các thuộc tính giống hệt nhau
+
+### EQUALITY WITH TYPE CONVERSION
+
+- Toán tử == giống như toán tử bằng nghiêm ngặt, nhưng nó ít nghiêm ngặt hơn. Nếu giá trị của 2 toán hạng không cùng loại, nó sẽ thử một số chuyển đổi kiểu và thử so sánh lại
+- Nếu 2 giá trị có cùng kiểu, hãy kiểm tra chúng xem có bằng nhau nghiêm ngặt hay không như được mô tả trước đó. Nếu chúng bằng nhau nghiêm ngặt, thì chúng bằng nhau và ngược lại
+- Nếu 2 giá trị không cùng kiểu, toán tử == vẫn có thể coi chúng là bằng nhau. Nó sử dụng quy tắc và chuyển đổi kiểu sau để kiểm tra xem có bằng nhau không
+    - Nếu một giá trị là null và giá trị kia là undefined thì chúng bằng nhau
+    - Nếu một giá trị là chuỗi và 1 giá trị là số, hãy chuyển đổi chuỗi thành số và thử so sánh lại, sử dụng giá trị đã chuyển đổi
+    - Nếu 1 trong 2 giá trị là true, hãy chuyển đổi nó thành 1 và thử so sánh lại, và với 0 đối với false
+    - Nếu 1 giá trị là object, giá trị kia là chuỗi hoặc số, hãy chuyển đổi object thành 1 kiểu nguyên thuỷ bằng cách sử dụng thuật toán được mô tả trong 3.9.3 và thử so sánh lại. Một object được chuyển thành 1 giá trị nguyên thuỷ bằng phương thức `toString()` hoặc `valueOf()` của nó. Các class tích hợp sẵn của lõi Js cố gắng chuyển đổi `valueOf()` trước khi chuyển qua `toString()`, ngoại trừ class Date, class này thực hiện chuyển đổi `toString()`
+    - Bất kỳ sự kết hợp nào khác của giá trị đều không bằng nhau
+- Ví dụ để kiểm tra có bằng nhau không, hãy xem phép so sánh
+    
+    ```jsx
+    "1" == true // => true 
+    ```
+    
+- Biểu thức này được đánh giá là true, cho biết các giá trị trông rất khác nhau này thực sự bằng nhau. Giá trị true trước tiên được chuyển đổi thành số 1 và phép so sánh được thực hiện lại. Tiếp theo, chuỗi “1” được chuyển đổi thành số 1. Vì cả 2 giá trị hiện nay đều giống nhau, nên phép so sánh trả về true
+
+### 4.9.2 **Comparison Operators**
+
+- Các toán tử so sánh kiểm tra thứ tự tương đối (số hoặc chữ cái) của 2 toán hạng của chúng
+- **Nhỏ hơn (<)**
+    - Toán tử < được đánh giá là true nếu toán hạng thứ nhất của nó nhỏ hơn toán hạng thứ hai của nó; ngược lại, nó được đánh giá là false.
+- **Lớn hơn (>)**
+    - Toán tử > được đánh giá là true nếu toán hạng thứ nhất của nó lớn hơn toán hạng thứ hai của nó; ngược lại, nó được đánh giá là false.
+- **Nhỏ hơn hoặc bằng (<=)**
+    - Toán tử <= được đánh giá là true nếu toán hạng thứ nhất của nó nhỏ hơn hoặc bằng toán hạng thứ hai của nó; ngược lại, nó được đánh giá là false.
+- **Lớn hơn hoặc bằng (>=)**
+    - Toán tử >= được đánh giá là true nếu toán hạng thứ nhất của nó lớn hơn hoặc bằng toán hạng thứ hai của nó; ngược lại, nó được đánh giá là false.
+- Các toán hạng của toán tử so sánh này có thể thuộc bất kỳ loại nào. Tuy nhiên chỉ có thể thực hiện so sánh trên số và chuỗi, vì vậy các toán hạng không phải là chuỗi hay số sẽ không được chuyển đổi
+- Việc so sánh và chuyển đổi sẽ xảy ra như sau
+    - Nếu 1 trong 2 toán hạng được đánh giá là object, thì object đó sẽ được chuyển đổi thành một giá trị nguyên thuỷ, được mô tả trong cuối 3.9.3. Nếu method `valueOf()` của nó trả về một giá trị nguyên thuỷ, thì giá trị đó sẽ được sử dụng. Nếu không, giá trị trả về method `toString()` của nó sẽ được sử dụng
+    - Nếu sau bất kỳ chuyển đổi object thành nguyên thuỷ nào được yêu cầu, cả 2 toán hạng đều là chuỗi, thì 2 chuỗi sẽ được so sánh, sử dụng thứ tự bảng chữ cái, trong đó thứ tự “bảng chữ cái” được xác định bởi thứ tự số của giá trị Unicode 16bit tạo nên các chuỗi
+    - Nếu sau khi chuyển đổi object thành nguyên thuỷ, ít nhất một toán hạng không phải là chuỗi, thì cả 2 toán hạng sẽ được chuyển đổi thành số và được so sánh bằng số. 0 và -0 được coi là bằng nhau
+    - Infinity lớn hơn bất kỳ số nào khác ngoài nó và -Infinity nhỏ hơn bất kỳ số nào ngoài chính nó. Nếu 1 trong 2 toán hạng là (hoặc chuyển đổi thành) NaN, thì toán tử so sánh luôn trả về false. Mặc dù các toán tử số học không cho phép các giá trị BigInt được trộn lẫn với các số thông thường, nhưng các toán tử so sánh cho phép so sánh giữa các số và BigInt
+- Hãy nhớ rằng các chuỗi Js là các chuỗi có giá trị số nguyên 16bit và việc so sánh chuỗi chỉ là phép so sánh bằng số các giá trị trong chuỗi. Thứ tự mã hoá được xác định bởi Unicode có thể không khớp với thứ tự đối chiếu truyền thống được sử dụng trong bất kỳ ngôn ngữ hoặc địa phương cụ thể nào. Cụ thể, lưu ý rằng việc so sánh chuỗi phân biệt chữ hoa thường và tất cả các chữ cái ASCII viết hoa đều “nhỏ hơn” tất cả các chữ cái ASCII viết thường. Quy tắc này có thể gây ra kết quả khó hiểu nếu bạn không mong đợi nó. Ví dụ theo toán tử `<` , chuỗi “Zoo” đứng trước chuỗi “aardvark”
+- Để có thuật toán so sánh chuỗi mạnh hơn, hãy thử method `String.localeCompare()`, method này cũng tính đến các định nghĩa cụ thể về địa phương của thứ tự bảng chữ cái. Đối với các phép toán so sánh không phân biệt chữ hoa thường, bạn có thể chuyển đổi tất cả về chữ thường hoặc chữ hoa bằng cách sử dụng `String.toLowerCase()` hoặc `String.toUppercase()`. Và để có một số công cụ so sánh chuỗi được bản địa hoá tốt hơn và tổng quát hơn, hãy sử dụng class `Int.Collator` được mô tả trong 11.7.3
+- Cả toán tử + và các toán tử so sánh đều hoạt động khác nhau đối với các toán hạng số và chuỗi. `+` ưu tiên chuỗi: nó thực hiện phép nối nếu một trong 2 toán hạng là chuỗi. Các toán tử so sánh ưu tiên và chỉ thực hiện so sánh chuỗi nếu cả 2 toán hạng đều là chuỗi
+    
+    ```jsx
+    1 + 2 // => 3: cộng.
+    "1" + "2" // => "12": nối chuỗi.
+    "1" + 2 // => "12": 2 được chuyển đổi thành "2".
+    11 < 3 // => false: so sánh số.
+    "11" < "3" // => true: so sánh chuỗi.
+    "11" < 3 // => false: so sánh số, "11" được chuyển đổi thành 11.
+    "one" < 3 // => false: so sánh số, "one" được chuyển đổi thành NaN. 
+    ```
+    
+- Cuối cùng, lưu ý rằng toán từ `<=` và `>=` không dựa vào các toán tử == hoặc === để xác định xem 2 giá trị có bằng nhau hay không. Thay vào đó được định nghĩa đơn giản là không lớn hơn hoặc không nhỏ hơn. Ngoại lệ duy nhất xảy ra khi 1 trong 2 toán hạng là NaN, trong trường hợp đó, cả 4 toán tử đều trả về false
+
+### 4.9.3 The in Operator
+
+- Toán tử `in` mong đợi một toán hạng bên trái là một chuỗi, ký hiệu hoặc giá trị có thể chuyển đổi thành chuỗi. Nó mong đợi một toán hạng bên phải là một object. Nó được đánh giá là true nếu giá trị bên trái là tên của một thuộc tính của đối tượng bên phải
+    
+    ```jsx
+    let point = {x: 1, y: 1}; // Định nghĩa một đối tượng
+    "x" in point // => true: đối tượng có thuộc tính có tên là "x"
+    "z" in point // => false: đối tượng không có thuộc tính "z".
+    "toString" in point // => true: đối tượng kế thừa phương thức toString
+    let data = [7,8,9]; // Một mảng có các phần tử (chỉ mục) 0, 1 và 2
+    "0" in data // => true: mảng có một phần tử "0"
+    1 in data // => true: các số được chuyển đổi thành chuỗi
+    3 in data // => false: không có phần tử 3 
+    ```
+    
+
+### 4.9.4 The instanceof Operator
+
+- Toán tử `instanceof` mong đợi một toán hạng bên trái là 1 object và một toán hạng bên phải xác định một class object. Toán tử được đánh giá là true nếu object bên trái là một thể hiện của class bên phải và được đánh giá là false nếu không. Chương 9 giải thích rằng, trong Js, các class object được xác định bởi constructor. Do đó, toán hạng bên phải của instanceof phải là 1 function. Đây là 1 ví dụ
+    
+    ```jsx
+    let d = new Date(); // Tạo một đối tượng mới với hàm tạo Date()
+    d instanceof Date // => true: d được tạo bằng Date()
+    d instanceof Object // => true: tất cả các đối tượng đều là thể hiện của Object
+    d instanceof Number // => false: d không phải là một đối tượng Number
+    let a = [1, 2, 3]; // Tạo một mảng với cú pháp literal của mảng
+    a instanceof Array // => true: a là một mảng
+    a instanceof Object // => true: tất cả các mảng đều là đối tượng
+    a instanceof RegExp // => false: các mảng không phải là biểu thức chính quy 
+    ```
+    
+- Lưu ý rằng, tất cả các object đều là thể hiện của `Object`. `instanceof` xem xét các “superclass” khi quyết định xem object có phải là thể hiện của 1 class hay không. Nếu toán hạng bên trái của instanceof không phải là một object, instanceof sẽ trả về false. Nếu bên phải không phải là một object, nó sẽ trả về `TypeError`
+- Để hiểu rõ cách hoạt động của toán tử instanceof, bạn phải hiểu “chuỗi nguyên mẫu (prototype chain)”. Đây là cơ chế kế thừa của Js và nó được mô tả trong 6.3.2. Để đánh giá biểu thức `o instanceof f` , Js đánh giá `f.prototype` và sau đó tìm kiếm giá trị đó trong chuỗi nguyên mẫu của o. Nếu nó tìm thấy nó, thì o là 1 thể hiện của f (hoặc của 1 class con của f) và toán tử trả về true. Nếu `f.prototype` không phải là một trong các giá trị trong chuỗi nguyên mẫu của o, thì o không phải là một thể hiện của f và instanceof trả về false
