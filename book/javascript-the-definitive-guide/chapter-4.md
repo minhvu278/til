@@ -598,3 +598,78 @@
     
 - Lưu ý rằng, tất cả các object đều là thể hiện của `Object`. `instanceof` xem xét các “superclass” khi quyết định xem object có phải là thể hiện của 1 class hay không. Nếu toán hạng bên trái của instanceof không phải là một object, instanceof sẽ trả về false. Nếu bên phải không phải là một object, nó sẽ trả về `TypeError`
 - Để hiểu rõ cách hoạt động của toán tử instanceof, bạn phải hiểu “chuỗi nguyên mẫu (prototype chain)”. Đây là cơ chế kế thừa của Js và nó được mô tả trong 6.3.2. Để đánh giá biểu thức `o instanceof f` , Js đánh giá `f.prototype` và sau đó tìm kiếm giá trị đó trong chuỗi nguyên mẫu của o. Nếu nó tìm thấy nó, thì o là 1 thể hiện của f (hoặc của 1 class con của f) và toán tử trả về true. Nếu `f.prototype` không phải là một trong các giá trị trong chuỗi nguyên mẫu của o, thì o không phải là một thể hiện của f và instanceof trả về false
+
+## 4.10 **Logical Expressions**
+
+- Toán tử logic `&&, || và !` thực hiện đại số Boolean và thường được sử dụng cùng với các toán tử quan hệ để kết hợp 2 biểu thức quan hệ thành một biểu thức phức tạp hơn. Các toán tử này được mô tả trong các tiểu mục sau đây. Để hiểu đầy đủ về chúng, bạn có thể muốn xem lại khái niệm về các giá trị “truthy” và “falsy” được giới thiệu trong 3.4
+
+### 4.10.1 Logical AND (&&)
+
+- Toán tử && có thể được hiểu ở 3 cấp độ khác nhau. Ở cấp độ đơn giản nhất, khi được sử dụng với toán hạng boolean, `&&` thực hiện phép toán Boolean AND trên 2 giá trị: nó trả về true nếu và chỉ khi cả toán hạng thứ 1 và thứ 2 của nó đều là true. Nếu 1 hoặc cả 2 toán hạng này là false, nó sẽ trả về false
+- && thường được sử dụng như một liên từ để nối 2 biểu thức quan hệ
+    
+    ```jsx
+    x === 0 && y === 0 // true nếu và chỉ khi x và y đều bằng 0 
+    ```
+    
+- Các biểu thức quan hệ luôn được đánh giá là true hoặc false, vì vậy khi được sử dụng như thế này, bản thân toán tử && sẽ trả về true hoặc false
+- Các toán tử quan hệ có độ ưu tiên cao hơn && (và ||), vì vậy các biểu thức như thế này có thể được viết một cách an toàn mà không cần dấu ngoặc đơn
+- Nhưng && không yêu cầu các toán hạng của nó phải là giá trị boolean. Nhớ lại tất cả các giá trị Js đề là “truthy” hoặc “falsy”. (Xem 3.4 để biết chi tiết. Các giá trị sai là false, null, undefined, 0, -0, NaN và “”. Tất cả các giá trị khác, bao gồm tất cả các object, đều là truthy). Mức thứ 2 mà && có thể được hiểu là một toán tử Boolean AND cho các giá trị truthy và falsy. Nếu cả 2 toán hạng đều là truthy, toán tử sẽ trả về một giá trị truthy. Nếu không, một hoặc cả 2 toán hạng phải là sai và toán tử trả về 1 giá trị falsy. Trong Js, bất kỳ biểu thức hoặc câu lệnh nào mong đợi một giá trị boolean sẽ hoạt động với một giá trị truthy hoặc falsy, vì vậy thực tế là && không phải lúc nào cũng trả về true hoặc false không gây ra vấn đề thực tế
+- Lưu ý rằng mô tả này nói rằng toán tử trả về “một giá trị truthy” hoặc”một giá trị falsy” nhưng không chỉ định giá trị đó là gì. Đối với điều đó, chúng ta cần mô tả && ở cấp độ thứ 3 và cuối cùng. Toán tử này bắt đầu bằng cách đánh giá toán hạng thứ 1 của nó, biểu thức ở bên trái của nó. Nếu giá trị ở bên trái sai, thì giá trị của toàn bộ biểu thức cũng phải là sai, vì vậy && chỉ đơn giản là trả về giá trị ở bên trái và thậm chí không đánh giá biểu thức ở bên phải
+- Mặt khác, nếu giá trị ở bên trái là truthy, thì giá trị tổng thể của biểu thức phụ thuộc vào giá trị ở bên phải. Nếu giá trị ở bên phải là truthy, thì giá trị tổng thể phải là truthy và nếu giá trị bên phải là sai, thì giá trị tổng thể phải là sai. Vì vậy, khi giá trị ở bên trái là truthy, toán tử && đánh giá và trả về giá trị ở bên phải
+    
+    ```jsx
+    let o = {x: 1};
+    let p = null;
+    o && o.x // => 1: o là chân lý, vì vậy trả về giá trị của o.x
+    p && p.x // => null: p là sai, vì vậy trả về nó và không đánh giá p.x 
+    ```
+    
+- Điều quan trọng là phải hiểu rằng && có thể hoặc không thể đánh giá toán hạng bên phải của nó. Trong ví dụ code này, biến `p` được đặt thành null và biểu thức `p.x` , nếu được đánh giá, sẽ gây ra TypeError. Nhưng code sử dụng && theo cách thành ngữ để `p.x` chỉ được đánh giá nếu p là truthy - không phải null hoặc undefined
+- Hành vi của && đôi khi được gọi là đoản mạch và đôi khi bạn có thể thấy code cố ý khai thác hành vi này để thực thi code có điều kiện. Ví dụ: hai dòng code Js sau có tác dụng tương đương
+    
+    ```jsx
+    if (a === b) stop(); // Gọi stop() chỉ khi a === b
+    (a === b) && stop(); // Điều này làm điều tương tự 
+    ```
+    
+- Nói chung, bạn phải cần thận bất cứ khi nào bạn viết một biểu thức có tác dụng phụ (phép gán, tăng, giảm hoặc gọi hàm) ở bên phải của &&. Việc những tác dụng phụ đó có xảy ra hay không phụ thuộc vào giá trị của bên trái
+- Mặc dù cách toán tử này thực sự hoạt động có phần phức tạp, nhưng nó thường được sử dụng nhất như một toán tử đại số Boolean đơn giản hoạt động trên các giá trị truthy và falsy
+
+### 4.10.2 Logical OR (||)
+
+- Toán tử || thực hiện phép toán Boolean OR trên 2 toán hạng của nó. Nếu một hoặc cả 2 toán hạng là truthy, nó sẽ trả về một giá trị truthy. Nếu cả 2 toán hạng đều là falsy, nó sẽ trả về một giá trị falsy
+- Mặc dù toán tử || thường được sử dụng đơn giản như 1 toán tử Boolean OR, nhưng nó giống như toán tử &&, có hành vi phức tạp hơn. Nó bắt đầu bằng cách đánh giá toán hạng thứ 1 của nó, biểu thức ở bên trái của nó. Nếu giá trị của toán hạng thứ 1 là truthy, nó sẽ đoản mạch và trả về giá trị truthy đó mà không bao giờ đánh giá biểu thức thức ở bên phải. Mặt khác, nếu giá trị của toán hạng thứ 1 là sai, thì || đánh giá toán hạng thứ 2 của nó và trả về giá trị của biểu thức đó
+- Cũng như toán tử &&, bạn nên tránh các toán hạng bên phải bao gồm tác dụng phụ, trừ khi bạn cố ý muốn sử dụng thực tế là biểu thức bên phải có thể không được đánh giá
+- Cách sử dụng thành ngữ của toán tử này là chọn giá trị truthy đầu tiên trong một tập hợp các lựa chọn thay thế
+    
+    ```jsx
+    // Nếu maxWidth là chân lý, hãy sử dụng nó. Nếu không, hãy tìm kiếm một giá trị trong
+    // đối tượng preferences. Nếu điều đó không đúng, hãy sử dụng một hằng số được mã hóa cứng.
+    let max = maxWidth || preferences.maxWidth || 500; 
+    ```
+    
+- Lưu ý rằng, nếu 0 là giá trị hợp pháp cho `maxWith`, thì code này sẽ không hoạt động chính xác, vì 0 là giá trị falsy. Xem toán tử `??` (4.13.2) để biết cách thay thế
+- Trước ES6, thành ngữ này thường được sử dụng trong các hàm để cung cấp các giá trị mặc định cho các tham số
+    
+    ```jsx
+    // Sao chép các thuộc tính của o sang p và trả về p
+    function copy(o, p) {
+        p = p || {}; // Nếu không có đối tượng nào được truyền cho p, hãy sử dụng một đối tượng mới được tạo.
+        // phần thân hàm nằm ở đây
+    } 
+    ```
+    
+- Tuy nhiên trong ES6 trở lên, thủ thuật này không còn cần thiết nữa vì giá trị tham số mặc định có thể được viết đơn giản trong chính định nghĩa hàm: `function copy(o, p={}) {...}`
+
+### 4.10.3 Logical NOT (!)
+
+- Toán tử ! là một toán tử đơn nhất; nó được đặt trước một toán hạng duy nhất. Mục đích của nó là đảo ngược giá trị boolean của toán hạng của nó. Ví dụ nếu x là truthy, !x được đánh giá là false. Nếu x là false thì !x là true
+- Không giống như các toán tử && và ||, toán tử ! chuyển đổi các toán hạng của nó thành giá trị boolean (sử dụng các quy tắc được mô tả trong chương 3) trước khi đảo ngược giá trị đã chuyển đổi. Điều này có nghĩa là ! luôn trả về true hoặc false và bạn có thể chuyển đổi bất kỳ giá trị x nào thành giá trị boolean tương ứng của nó bằng cách áp dụng toán tử này 2 lần `!!x` (xem 3.9.2)
+- Là một toán tử đơn nhất, ! có độ ưu tiên cao và liên kết chặt chẽ. Nếu bạn muốn đảo ngược giá trị của một biểu thức như `p && q`, bạn cần sử dụng dấu ngoặc đơn: `!(p && q)`. Điều đáng chú ý là hai định luật của đại số Boolean ở đây mà chúng ta có thể biểu thị bằng cú pháp Js
+```js
+// Định luật DeMorgan
+!(p && q) === (!p || !q) // => true: cho tất cả các giá trị của p và q
+!(p || q) === (!p && !q) // => true: cho tất cả các giá trị của p và q 
+```
+
