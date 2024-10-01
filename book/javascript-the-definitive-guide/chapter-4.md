@@ -672,4 +672,78 @@
 !(p && q) === (!p || !q) // => true: cho tất cả các giá trị của p và q
 !(p || q) === (!p && !q) // => true: cho tất cả các giá trị của p và q 
 ```
+## 4.11 **Assignment Expressions**
 
+- Js sử dụng toán tử = để gán một giá trị cho một biến hoặc thuộc tính
+    
+    ```jsx
+    i = 0; // Đặt biến i thành 0.
+    o.x = 1; // Đặt thuộc tính x của đối tượng o thành 1. 
+    ```
+    
+- Toán tử = mong đợi toán hạng bên trái của nó là một Ivalue: một biến hoặc một property của object (hoặc element mảng). Nó mong đợi toán hạng bên phải của nó là một giá trị tuỳ ý thuộc bất kỳ loại nào. Giá trị của một biểu thức gán là giá trị của toán hạng bên phải. Là một tác dụng phụ, toán tử = gán giá trị ở bên phải cho biến hoặc property ở bên trái để các tham chiếu trong tương lai đến biến hoặc property đó được đánh giá thành giá trị đó
+- Mặc dù các biểu thức gán thường khá đơn giản, nhưng đôi khi bạn có thể thấy giá trị của một biểu thức gán được sử dụng như một phần của một biểu thức lớn hơn. Ví dụ: bạn có thể gán và kiểm tra một giá trị trong cùng một biểu thức bằng code sau
+    
+    ```jsx
+    (a = b) === 0 
+    ```
+    
+- Nếu bạn làm điều này, hãy chắc chắn rằng bạn hiểu rõ sự khác biệt giữa các toán tử = và ===! Lưu ý rằng = có độ ưu tiên rất thấp và dấu ngoặc đơn thường cần thiết khi giá trị của một phép gán được sử dụng trong một biểu thức lớn hơn
+- Toán tử gán có tính kết hợp từ phải sang trái, có nghĩa là khi nhiều toán tử gán xuất hiện trong một biểu thức, chúng sẽ được đánh giá từ phải sang trái. Do đó, bạn có thể viết code như sau để gán một giá trị duy nhất cho nhiều biến
+    
+    ```jsx
+    i = j = k = 0; // Khởi tạo 3 biến thành 0 
+    ```
+    
+
+### 4.11.1 **Assignment with Operation**
+
+- Bên cạnh toán tử gán = thông thường, Js hỗ trợ một số toán tử gán khác cung cấp các phím tắt bằng cách kết hợp phép gán với một số phép toán khác. Ví dụ: toán tử `+=` thực hiện phép cộng và phép gán. Biểu thức sau
+    
+    ```jsx
+    total += salesTax; 
+    ```
+    
+- Tương đương với biểu thức này
+    
+    ```jsx
+    total = total + salesTax; 
+    ```
+    
+- Như bạn có thể mong đợi, toán tử `+=` hoạt động cho số hoặc chuỗi. Đối với các toán hạng số, nó thực hiện phép cộng và phép gán; đối với các toán hạng chuỗi, nó thực hiện phép nối và phép gán
+- Các toán tử tương tự bao gồm `-=`, `*=`, `&=`,…
+    
+    ```jsx
+    Toán tử	Ví dụ	Tương đương
+    +=	a += b	a = a + b
+    -=	a -= b	a = a - b
+    *=	a *= b	a = a * b
+    /=	a /= b	a = a / b
+    %=	a %= b	a = a % b
+    **=	a **= b	a = a ** b
+    <<=	a <<= b	a = a << b
+    >>=	a >>= b	a = a >> b
+    >>>=	a >>>= b	a = a >>> b
+    &=	a &= b	a = a & b
+    `	=`	`a
+    ^=	a ^= b	a = a ^ b
+    ```
+    
+- Trong hầu hết các trường hợp, biểu thức
+    
+    ```jsx
+    a op= b 
+    ```
+    
+- Trong đó `op` là một toán tử tương đương với biểu thức
+    
+    ```jsx
+    a = a op b 
+    ```
+    
+- Ở dòng đầu tiên, biểu thức a được đánh giá 1 lần. Ở dòng thứ 2, nó được đánh giá 2 lần. Hai trường hợp sẽ khác nhau chỉ khi `a` bao gồm các tác dụng phụ như được gọi hàm hoặc toán tử tăng. Ví dụ 2 phép gán sau đây không giống nhau
+    
+    ```jsx
+    data[i++] *= 2;
+    data[i++] = data[i++] * 2; 
+    ```
