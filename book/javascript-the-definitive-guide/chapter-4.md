@@ -747,3 +747,68 @@
     data[i++] *= 2;
     data[i++] = data[i++] * 2; 
     ```
+
+## 4.12 **Evaluation Expressions**
+
+- Giống như nhiều ngôn ngữ thông dịch, Js có khả năng thông dịch các chuỗi mã nguồn Js, đánh giá chúng để tạo ra một giá trị. Js thực hiện việc này với hàm `eval()` toàn cục
+    
+    ```jsx
+    eval("3+2") // => 5 
+    ```
+    
+- Việc đánh giá động các chuỗi mã nguồn là một tính năng ngôn ngữ mạnh mẽ mà hầu như không bao giờ cần thiết trong thực tế. Nếu bạn thấy mình đang sử dụng `eval()`, bạn nên cân nhắc kỹ xem liệu bạn có thực sự cần sử dụng nó hay không. Đặc biệt `eval()` có thể là một lỗ hổng bảo mật và bạn không bao giờ nên chuyển bất kỳ chuỗi nào có nguồn gốc từ đầu vào của người dùng tới `eval()`. Với một ngôn ngữ phức tạp như Js, không có cách nào để vệ sinh đầu vào của người dùng để làm cho nó an toàn khi sử dụng với `eval()`. Do những vấn đề bảo mật này, một số máy chủ web sử dụng tiêu đề HTTP “Content-Security-Policy” để tắt eval() cho toàn bộ trang web
+- Các tiểu mục sau đây giải thích cách sử dụng cơ bản của `eval()` và giải thích 2 phiên bản bị hạn chế của nó ít ảnh hưởng đến trình tối ưu hoá hơn
+
+### **EVAL() LÀ MỘT HÀM HAY MỘT TOÁN TỬ?**
+
+- `eval()` là một hàm, nhưng nó được bao gồm trong chương này về các biểu thức vì nó thực sự nên là một toán tử. Các phiên bản đầu tiên của ngôn ngữ đã định nghĩa một hàm `eval()` và kể từ đó, các nhà thiết kế ngôn ngữ và người viết trình thông dịch đã đặt ra các hạn chế đối với nó khiến nó ngày càng trở nên giống toán tử hơn. Các trình thông dịch Js hiện đại thực hiện rất nhiều phân tích và tối ưu hoá code. Nói chung nếu một hàm gọi `eval()`, trình thông dịch không thể tối ưu hoá hàm đó. Vấn đề với việc định nghĩa `eval()` như một hàm là nó có thể được đặt tên khác
+    
+    ```jsx
+    let f = eval;
+    let g = f; 
+    ```
+    
+- Nếu điều này được phép, thì trình thông dịch không thể biết chắc hàm nào gọi `eval()`, vì vậy nó không thể tối ưu hoá một các quyết liệt. Vấn đề này có thể đã được tránh nếu eval() là một toán tử (và một từ dành riêng). Chúng ta sẽ tìm hiểu (trong 4.12.2 và 4.12.3) về các hạn chế được đặt ra với eval() để làm cho nó giống toán tử hơn
+
+### **4.12.1 eval()**
+
+- `eval()` mong đợi 1 đối số. Nếu bạn truyền bất kỳ giá trị nào khác ngoài chuỗi, nó sẽ chỉ trả về giá trị đó. Nếu bạn truyền 1 chuỗi, nó sẽ cố gắng phân tích cú pháp chuỗi dưới dạng code Js, ném ra SyntaxError nếu không thành công. Nếu nó phân tích cú pháp chuỗi thành công, thì nó sẽ đánh giá mã và trả về giá trị của biểu thức hoặc câu lệnh cuối cùng trong chuỗi hoặc undefined nếu biểu thức hoặc câu lệnh cuối cùng không có giá trị. Nếu chuỗi được đánh giá ném ra 1 ngoại lệ, thì ngoại lệ đó sẽ lan truyền lệnh gọi tới `eval()`
+- Điều quan trọng về `eval()` (khi được gọi thế này) là nó sử dụng môi trường biến của mã gọi nó. Tức là nó tra cứu các giá trị của các biến và định nghĩa các biến và hàm mới giống như cách mà code cục bộ làm. Nếu một hàm định nghĩa một biến cục bộ x và sau đó gọi eval(”x”), nó sẽ nhận được giá trị của biến cục bộ. Nếu nó gọi eval(”x=1”), nó sẽ thay đổi giá trị của biến cục bộ. Và nếu hàm gọi eval(”var y = 3”), nó sẽ khai bá biến cục bộ y mới. Mặt khác, nếu chuỗi được đánh giá sử dụng let hoặc const, thì biến hoặc hằng số được khai báo sẽ là cục bộ đối với việc đánh giá và sẽ không được định nghĩa trong môi trường gọi
+- Tương tự, một hàm có thể khai báo một hàm cục bộ với code như sau
+    
+    ```jsx
+    eval("function f() { return x+1; }"); 
+    ```
+    
+- Tất nhiên, nếu bạn gọi eval() từ code cấp cao nhất, nó sẽ hoạt động trên các biến toàn cục và các hàm toàn cục
+- Lưu ý rằng chuỗi code bạn chuyển tới eval() phải có ý nghĩa về mặt cú pháp: bạn không thể sử dụng no để dán các đoạn code vào một hàm. Ví dụ: không có ý nghĩa gì hết khi viết eval(”return;”), vì return chỉ hợp lệ trong các hàm và thực tế là chuỗi được đánh giá sử dụng cùng một môi trường như hàm gọi không làm cho nó trở thành một phần của hàm đó. Nếu chuỗi của bạn có ý nghĩa như một tập lệnh độc lập (thậm chí là một tập lệnh rất ngắn như x = 0), thì việc chuyển đến eval() là hợp pháp. Nếu không, eval() sẽ ném ra SyntaxError
+
+### **4.12.2 Global eval()**
+
+- Chính khả năng thay đổi các biến cục bộ của eval() là vấn đề đối với các trình tôi ưu hoá Js. Tuy nhiên, như một giải pháp thay thế, các trình thông dịch chỉ đơn giản là thực hiện ít tối ưu hoá hơn trên bất kỳ hàm nào gọi eval(). Tuy nhiên, trình thông dịch Js nên làm gì nếu một tập lệnh định nghĩa một bí danh cho eval() và sau đó gọi hàm đó bằng một tên khác? Đặc tả Js tuyên bố rằng khi eval() được gọi bằng bất kỳ tên nào khác ngoài “eval”, nó sẽ đánh giá chuỗi như thể nó là mã toàn cục cấp cao nhất. Mã được đánh giá có thể định nghĩa các biến toàn cục hoặc hàm toàn cục mới và nó có thể đặt các biến toàn cục, nhưng nó sẽ không sử dụng hoặc sửa đổi bất kỳ biến cục bộ nào đổi với hàm gọi và do đó sẽ không can thiệp vào việc tối ưu hoá cục bộ
+- “Direct eval” là một lệnh gọi tới hàm eval() với một biểu thức sử dụng chính xác tên không đủ tiêu chuẩn “eval” (bắt đầu giống như một từ dành riêng). Các lệnh gọi trực tiếp tới eval() sử dụng môi trường biến của ngữ cảnh gọi. Bất kỳ lệnh gọi nào khác - một lệnh gọi gián tiếp - đều sử dụng object toàn cục làm môi trường biến của nó và không thể đọc, ghi hoặc định nghĩa các biến hoặc hàm cục bộ. (Cả lệnh gọi trực tiếp và gián tiếp đều chỉ có thể định nghĩa các biến mới bằng var. Việc sử dụng let và const bên trong một chuỗi được đánh giá tạo ra các biến và hằng số là cục bộ đôi với việc đánh giá và không làm thay đổi môi trường gọi hoặc toàn cục)
+    
+    ```jsx
+    const geval = eval; // Sử dụng một tên khác thực hiện một global eval
+    let x = "global", y = "global"; // Hai biến toàn cục
+    function f() { // Hàm này thực hiện một local eval
+        let x = "local"; // Định nghĩa một biến cục bộ
+        eval("x += 'changed';"); // Direct eval đặt biến cục bộ
+        return x; // Trả về biến cục bộ đã thay đổi
+    }
+    function g() { // Hàm này thực hiện một global eval
+        let y = "local"; // Một biến cục bộ
+        geval("y += 'changed';"); // Indirect eval đặt biến toàn cục
+        return y; // Trả về biến cục bộ không thay đổi
+    }
+    console.log(f(), x); // Biến cục bộ đã thay đổi: in "localchanged global":
+    console.log(g(), y); // Biến toàn cục đã thay đổi: in "local globalchanged": 
+    ```
+    
+- Lưu ý rằng khả năng thực hiện global eval không chỉ là một sự điều chỉnh cho nhu cầu của trình tối ưu hoá; nó thực sự là một tính năng cực kỳ hữu ích cho phép bạn thực thi các chuỗi code như thể chung là các tập lệnh độc lập, cấp cao nhất. Như đã lưu ý ở đầu phần này, hiếm khi thực sự cần đánh giá một chuỗi code. Nhưng nếu bạn thấy cần thiết, bạn có nhều khả năng muốn thực hiện global eval hơn là local eval
+
+### **4.12.3 Strict eval()**
+
+- Chế độ nghiêm ngặt (xem 5.6.3) áp đặt các hạn chế bổ sung đối với hành vi của hàm eval() và thậm chí đối với việc sử dụng định danh “eval”
+- Khi eval() được gọi từ code ở chế độ nghiêm ngặt hoặc khi chính chuỗi code được đánh giá bắt đầu bằng chỉnh lệnh “use strict”, thì eval() sẽ thực hiện local eval với một môi trường biến riêng tư. Điều này có nghĩa là ở chế độ nghiêm ngặt, code được đánh giá có thể truy vấn và đặt các biến cục bộ, nhưng nó không thể định nghĩa các biến hoặc hàm mới trong phạm vi cục bộ
+- Hơn nữa, chế độ nghiêm ngặt làm cho eval() thậm chí giống toán tử hơn bằng cách biến “eval” thành một từ dành riêng một cách hiệu quả. Bạn không được phép ghi đè hàm eval() bằng một giá trị mới. Và bạn không được phép khai báo một biến, hàm, tham số khối `catch` với tên “eval”
