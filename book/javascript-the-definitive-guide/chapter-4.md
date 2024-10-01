@@ -812,3 +812,195 @@
 - Chế độ nghiêm ngặt (xem 5.6.3) áp đặt các hạn chế bổ sung đối với hành vi của hàm eval() và thậm chí đối với việc sử dụng định danh “eval”
 - Khi eval() được gọi từ code ở chế độ nghiêm ngặt hoặc khi chính chuỗi code được đánh giá bắt đầu bằng chỉnh lệnh “use strict”, thì eval() sẽ thực hiện local eval với một môi trường biến riêng tư. Điều này có nghĩa là ở chế độ nghiêm ngặt, code được đánh giá có thể truy vấn và đặt các biến cục bộ, nhưng nó không thể định nghĩa các biến hoặc hàm mới trong phạm vi cục bộ
 - Hơn nữa, chế độ nghiêm ngặt làm cho eval() thậm chí giống toán tử hơn bằng cách biến “eval” thành một từ dành riêng một cách hiệu quả. Bạn không được phép ghi đè hàm eval() bằng một giá trị mới. Và bạn không được phép khai báo một biến, hàm, tham số khối `catch` với tên “eval”
+
+## 4.13 **Miscellaneous Operators**
+
+- Js hỗ trợ một số toán tử linh tinh khác, được mô tả trong các phần sau
+
+### 4.13.1 The Conditional Operator (?:)
+
+- Toán tử điều kiện là toán tử ba ngôi duy nhất (ba toán hạng) trong Js và đôi khi thực sự được gọi là toán tử ba ngôi . Toán tử này đôi khi được viết là `?:`, mặc dù nó không hoàn toàn xuất hiện như vậy trong code. Vì toán tử này có 3 toán hạng, toán hạng đầu tiên nằm trước `?`, toán hạng thứ 2 nằm giữa `?` và `:`, và toán hạng thứ 3 nằm sau `:`. Nó được sử dụng như thế này
+    
+    ```jsx
+    x > 0 ? x : -x // Giá trị tuyệt đối của x 
+    ```
+    
+- Các toán hạng của toán tử điều kiện có thể thuộc bất kỳ loại nào. Toán hạng đầu tiên được đánh giá và hiểu là một boolean. Nếu giá trị của toán hạng đầu tiên là truthy, thì toán hạng thứ 2 được đánh giá và giá trị của nó được trả về. Nếu không, nếu toán hạng đầu tiên là sai, thì toán hạng thứ 3 được đánh giá và giá trị của nó được trả về. Chỉ một trong 2 toán hạng thứ 2 và thứ 3 được đánh giá; không bao giờ cả hai
+- Mặc dù bạn có thể đạt được kết quả tương tự bằng cách sử dụng câu lệnh if (5.3.1), nhưng toán tử `?:` thường cung cấp một lôi tắt tiện dụng. Dưới đây là cách sử dụng điển hình, kiểm tra để đảm bảo rằng một biến được định nghĩa (và có một giá trị truthy, có ý nghĩa) và sử dụng nó nếu có hoặc cung cấp một giá trị mặc định nếu không
+    
+    ```jsx
+    greeting = "hello " + (username ? username : "there"); 
+    ```
+    
+- Điều này tương tự với câu lệnh if sau
+    
+    ```jsx
+    greeting = "hello ";
+    if (username) {
+        greeting += username;
+    } else {
+        greeting += "there";
+    } 
+    ```
+    
+
+### 4.13.2 First-Defined (??)
+
+- Toán tử giá trị đầu tiên được xác định `??` được đánh giá thành toán hạng được xác định đầu tiên của nó: nếu toán hạng bên trái của nó không phải null và không phải undefined, nó sẽ trả về giá trị đó. Nếu không, nó sẽ trả về giá trị của tón hạng bên phải. Giống như các toán tử && và ||, ?? là đoản mạch: nó chỉ đánh giá toán hạng thứ 2 của nó nếu toán hạng đầu tiên được đánh giá là null hoặc undefined. Nếu biểu thức a không có tác dụng phụ, thì biểu thức `a ?? b` tương đương với
+    
+    ```jsx
+    (a !== null && a !== undefined) ? a : b 
+    ```
+    
+- `??` là một lựa chọn thay thế hữu ích cho || (4.10.2) khi bạn muốn chọn toán hạng được xác định đầu tiên thay vì toán hạng truthy đầu tiên. Mặc dù || trên danh nghĩa là toán tử OR logic, nhưng nó cũng được sử dụng theo cách thành ngữ để chọn toán hạng không sai đầu tiên với mã sau
+    
+    ```jsx
+    // Nếu maxWidth là chân lý, hãy sử dụng nó. Nếu không, hãy tìm kiếm một giá trị trong
+    // đối tượng preferences. Nếu điều đó không đúng, hãy sử dụng một hằng số được mã hóa cứng.
+    let max = maxWidth || preferences.maxWidth || 500; 
+    ```
+    
+- Vấn đề với cách sử dụng thành ngữ này là số 0, chuỗi rỗng và false đều là các giá trị sai có thể hoàn toàn hợp lệ trong một số trường hợp. Trong ví dụ code này, nếu `maxWith` bằng 0, giá trị đó sẽ bị bỏ qua. Nhưng nếu chúng ta thay đổi toán tử `||` thành `??`, chúng ta sẽ kết thúc với một biểu thức trong đó số 0 là một giá trị hợp lệ
+    
+    ```jsx
+    // Nếu maxWidth được xác định, hãy sử dụng nó. Nếu không, hãy tìm kiếm một giá trị trong
+    // đối tượng preferences. Nếu điều đó không được xác định, hãy sử dụng một hằng số được mã hóa cứng.
+    let max = maxWidth ?? preferences.maxWidth ?? 500; 
+    ```
+    
+- Dưới đây là thêm các ví dụ cho thấy `??` hoạt động như thế nào khi toán hạng đầu tiên là false. Nếu toán hạng đó là sai nhưng được xác định, thì `??` trả về nó. Chỉ khi toán hạng đầu tiên là “nullish” (tức là null hoặc undefined) thì toán tử này mới đánh giá và trả về toán hạng thứ 2
+    
+    ```jsx
+    let options = { timeout: 0, title: "", verbose: false, n: null };
+    options.timeout ?? 1000 // => 0: như được định nghĩa trong đối tượng
+    options.title ?? "Untitled" // => "": như được định nghĩa trong đối tượng
+    options.verbose ?? true // => false: như được định nghĩa trong đối tượng
+    options.quiet ?? false // => false: thuộc tính không được định nghĩa
+    options.n ?? 10 // => 10: thuộc tính là null 
+    ```
+    
+- Lưu ý rằng các biểu thức timeout, title và verbose ở đây sẽ có các giá trị khác nhau nếu chúng ta sử dụng `||` thay vì `??`
+- Toán tử `??` tương tự như các toán tử `&&` và `||` nhưng không có độ ưu tiên cao hơn hoặc thấp hơn chúng. Nếu bạn sử dụng nó trong một biểu thức với một trong 2 toán tử đó, bạn phải sử dụng dấu ngoặc đơn rõ ràng để chỉ định thao tác nào bạn muốn thực hiện trước
+    
+    ```jsx
+    (a ?? b) || c // ?? trước, sau đó ||
+    a ?? (b || c) // || trước, sau đó ??
+    a ?? b || c // SyntaxError: yêu cầu dấu ngoặc đơn 
+    ```
+    
+- Toán tử `??` được xác định bởi ES2020 và kể từ đầu năm 2020 mới được hỗ trợ bởi các phiên bản hiện tại hoặc phiên bản beta của tất cả các trình duyệt chính. Toán tử này được gọi chính thức là toán tử “hợp nhất nullish”, nhưng tôi tránh thuật ngữ đó vì toán tử này chọn một trong các toán hạng của nó nhưng không “hợp nhất” chúng theo bất kỳ cách nào mà tôi có thể thấy
+
+### 4.13.3 The typeof Operator
+
+- `typeof` là một toán tử đơn nhất được đặt trước toán hạng duy nhất của nó, có thể thuộc bất kỳ loại nào. Giá trị của nó là một chuỗi chỉ định kiểu của toán hạng. Bảng 4-3 chỉ định giá trị của toán tử `typeof` cho bất kỳ giá trị Js nào
+    
+    ```jsx
+    Bảng 4-3. Giá trị được trả về bởi toán tử typeof
+    
+    x	typeof x
+    undefined	"undefined"
+    null	"object"
+    true hoặc false	"boolean"
+    bất kỳ số hoặc NaN	"number"
+    bất kỳ BigInt	"bigint"
+    bất kỳ chuỗi	"string"
+    bất kỳ symbol	"symbol"
+    bất kỳ hàm	"function"
+    bất kỳ đối tượng không phải hàm	"object"
+    ```
+    
+- Bạn có thể sử dụng toán tử typeof trong một số biểu thức sau
+    
+    ```jsx
+    // Nếu giá trị là một chuỗi, hãy đặt nó trong dấu ngoặc kép, nếu không, hãy chuyển đổi
+    (typeof value === "string") ? "'" + value + "'" : value.toString() 
+    ```
+    
+- Lưu ý rằng, typeof trả về “object” nếu giá trị toán hạng là null. Nếu bạn muốn phân biệt null với các object, bạn phải kiểm tra rõ ràng giá trị trường hợp đặt biệt này
+- Mặc dù các function Js là một loại object, nhưng toán tử typeof coi các hàm đủ khác biệt để chúng có giá trị trả về riêng
+- Vì typeof được đánh giá là “object” cho tất cả các giá trị object và array khác với function, nên nó chỉ hữu ích để phân biệt object với các kiểu nguyên thuỷ khác. Để phân biệt một class object này với một class object khác, bạn phải sử dụng kỹ thuật khác, chẳng hạn như toán tử `instanceof` (4.9.4) hoặc thuộc tính hàm tạo (xem 9.2.2 và 14.3)
+
+### 4.13.4 The delete Operator
+
+- `delete` là một toán tử đơn nhất cố gắng xoá property object hoặc element array được chỉ định làm toán hạng của nó. Giống như các toán tử gán, tăng và giảm, `delete` thường được sử dụng cho tác dụng phụ xoá property của nó chứ không phải cho giá trị mà nó trả về
+    
+    ```jsx
+    let o = { x: 1, y: 2}; // Bắt đầu với một đối tượng
+    delete o.x; // Xóa một trong các thuộc tính của nó
+    "x" in o // => false: thuộc tính không còn tồn tại nữa
+    let a = [1,2,3]; // Bắt đầu với một mảng
+    delete a[2]; // Xóa phần tử cuối cùng của mảng
+    2 in a // => false: phần tử mảng 2 không còn tồn tại nữa
+    a.length // => 3: lưu ý rằng độ dài mảng không thay đổi, mặc dù 
+    ```
+    
+- Lưu ý rằng một property hoặc 1 element mảng đã xoá không chỉ đơn thuần được đặt thành giá trị undefined. Khi một property bị xoá, thuộc tính đó sẽ không còn tồn tại. Việc cố gắng đọc 1 property không tồn tại sẽ trả về undefined, nhưng bạn có thể kiểm tra sự tồn tại thực tế của một thuộc tính bằng toán tử `in` (4.9.3). Việc xoá một phần tử mảng sẽ để lại 1 “lỗ hổng” trong mảng và không thay đổi độ dài của mảng. Mảng kết quả là thưa thớt (7.3)
+- `delete` mong đợi toán hạng của nó là 1 Ivalue. Nếu nó không phải là Ivalue, toán tử sẽ không thực hiện hành động nào và trả về true. Nếu không, `delete` cố gắng xoá Ivalue đã chỉ định. `delete` trả về true nếu nó xoá thành công Ivalue đã chỉ định. Tuy nhiên, không phải tất cả các property đều có thể bị xoá: các property không thể định cấu hình (14.1) được miễn trừ khỏi việc xoá
+- Ở chế độ nghiêm ngặt, `delete` sẽ tạo ra SyntaxError nếu toán hạng của nó là một định danh không đủ tiêu chuẩn chẳng hạn như biến, hàm hoặc tham số hàm: nó chỉ hoạt động khi toán hạng là một biểu thức truy cập thuộc tính (4.4). Chế độ nghiêm ngặt cũng chỉ định rằng `delete` sẽ tạo ra TypeError nếu được yêu cầu xoá bất kỳ thuộc tính nào không thể định cấu hình (tức là không thể xoá). Bên ngoài chế độ nghiêm ngặt, không có ngoại lệ nào xảy ra trong những trường hợp này và `delete` chỉ đơn giản là trả về false cho biết rằng toán hạng không thể bị xoá
+    
+    ```jsx
+    let o = {x: 1, y: 2};
+    delete o.x; // Xóa một trong các thuộc tính đối tượng; trả về true.
+    typeof o.x; // Thuộc tính không tồn tại; trả về "undefined".
+    delete o.x; // Xóa một thuộc tính không tồn tại; trả về true.
+    delete 1; // Điều này vô nghĩa, nhưng nó chỉ trả về true.
+    // Không thể xóa một biến; trả về false hoặc SyntaxError ở chế độ nghiêm ngặt.
+    delete o; 
+    // Thuộc tính không thể xóa: trả về false hoặc TypeError ở chế độ nghiêm ngặt.
+    delete Object.prototype; 
+    ```
+    
+- Chúng ta sẽ thấy toán tử delete một lần nữa trong 6.4
+
+### 4.13.5 The await Operator
+
+- `await` được giới thiệu trong ES2017 như một cách để làm cho lập trình bất đồng bộ trở nên tự nhiên hơn trong Js. Bạn cần đọc chương 13 để hiểu toán tử này. Tuy nhiên, tóm tắt lại `await` mong đợi 1 object Promise (đại diện cho một phép tính bất đồng bộ) làm toán hạng duy nhất của nó và làm cho chương trình của bạn hoạt động như thể nó đang đợi phép tính bất đồng bộ hoàn thành (nhưng nó thực hiện điều này mà không thực sự chặn và nó không ngăn cả các hoạt động bất đồng bộ khác tiến hành cùng một lúc). Giá trị của toán tử `await` là giá trị hoàn thành của object Promise. Điều quan trọng, `await` chỉ hợp pháp trong các hàm đã được khai báo là bất đồng bộ với từ khoá `async`. Một lần nữa, hãy xem chương 13 để biết đầy đủ chi tiết
+
+### 4.13.6 The void Operator
+
+- `void` là một toán tử đơn nhất xuất hiện trước toán hạng duy nhất của nó, có thể thuộc bất kỳ loại nào. Toán tử này là bất thường và hiếm khi được sử dụng; nó đánh giá toán hạng của nó, sau đó loại bỏ giá trị và trả về undefined. Vì giá trị toán hạng bị loại bỏ, nên việc sử dụng toán tử `void` chỉ có ý nghĩa nếu toán hạng có tác dụng phụ
+- Toán tử `void` rất khó hiểu đến nỗi khó có thể đưa ra một ví dụ thực tế về cách sử dụng nó. Một trường hợp sẽ là khi bạn muốn định nghĩa một hàm không trả về gì nhưng cũng sử dụng cú pháp tắt của arrow function (8.1.3) trong đó phần thân của hàm là một biểu thức duy nhất được đánh giá và trả về. Nếu bạn đang đánh giá biểu thức chỉ để biết tác dụng phụ của nó và không muốn trả về giá trị của nó, thì điều đơn giản nhất là sử dụng dấu ngoặc nhọn xung quanh phần thân hàm. Nhưng, như một giải pháp thay thế, bạn cũng có thể sử dụng toán tử `void` trong trường hợp này
+    
+    ```jsx
+    let counter = 0;
+    const increment = () => void counter++;
+    increment() // => undefined
+    counter // => 1 
+    ```
+    
+
+### 4.13.7 The comma Operator (,)
+
+- Toán tử dấy phẩy là một toán tử nhị phân có các toán hạng có thể thuộc bất kỳ loại nào. Nó đánh giá toán hạng bên trái của nó, đánh giá toán hạng bên phải của nó và sau đó trả về giá trị của toán hạng bên phải. Do đó, dòng sau
+    
+    ```jsx
+    i=0, j=1, k=2; 
+    ```
+    
+- Được đánh giá là 2 về cơ bản tương đương với
+    
+    ```jsx
+    i = 0; j = 1; k = 2; 
+    ```
+    
+- Biểu thức bên trái luôn được đánh giá, nhưng giá trị của nó bị loại bỏ, có nghĩa là chỉ có ý nghĩa khi sử dụng toán tử dấu phẩy khi biểu thức bên trái có tác dụng phụ. Tình huống duy nhất mà toán tử dấu phẩy được sử dụng là với vòng lặp for (5.4.3) co nhiều biến vòng lặp
+    
+    ```jsx
+    // Dấu phẩy đầu tiên bên dưới là một phần của cú pháp của câu lệnh let
+    // Dấu phẩy thứ hai là toán tử dấu phẩy: nó cho phép chúng ta nén 2
+    // biểu thức (i++ và j--) thành một câu lệnh (vòng lặp for) mong đợi 1.
+    for(let i=0,j=10; i < j; i++,j--) {
+        console.log(i+j);
+    } 
+    ```
+
+## 4.14 Summary
+
+- Chương này bao gồm nhiều chủ đề khác nhau và có rất nhiều tài liệu tham khảo ở đây mà bạn có thể muốn đọc lại trong tương lai khi bạn tiếp tục học Js. Tuy nhiên, một số điểm chính cần nhớ là:
+    - Biểu thức là các cụm từ của một chương trình Js
+    - Bất kỳ biểu thức nào cũng có thể được đánh giá thành một giá trị Js
+    - Biểu thức cũng có thể có tác dụng phụ (chẳng hạn như gán biến) ngoài việc tạo ra một giá trị
+    - Các biểu thức đơn giản như chữ, tham chiếu biến và truy cập thuộc tính có thể được kết hợp với các toán tử để tạo ra các biểu thức lớn hơn
+    - Js định nghĩa các toán tử cho số học, so sánh, logic Boolean, phép gán và thao tác bit, cùng với một số toán tử linh tinh bao gồm cả toán tử điều kiện 3 ngôi
+    - Toán tử + của Js được sử dụng để vừa cộng số vừa nối chuỗi
+    - Các toán tử logic && và || có hành vi “đoản mạch” đặc biệt và đôi khi chỉ đánh giá một trong các đối số của chúng. Các thành ngữ Js phổ biến yêu cầu bạn phải tìm hiể hành vi đặc biệt của các toán tử này
