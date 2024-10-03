@@ -273,3 +273,253 @@
 - Câu lệnh switch đầu tiên ước lượng biểu thức theo sau từ khoá switch và sau đó ước lượng các biểu thức case, theo thứ tự chúng xuất hiện, cho đến khi nó tìm thấy một giá trị khớp. `case` phù hợp được xác định bằng cách sử dụng toán tử nhận dạng ===, không phải ==, vì vậy các biểu thức phải khớp mà không cần bất kỳ chuyển đổi kiểu nào
 - Vì không phải tất cả các biểu thức case đều được ước lượng mỗi khi câu lệnh switch được thực thi, bạn nên tránh sử dụng các biểu thức case có chứa các tác dụng phụ như gọi hàm hoặc gán. Cách an toàn nhất là chỉ giới hạn các biểu thức case của bạn thành các biểu thức hằng số
 - Như đã giải thích trước đó, nếu không có biểu thức case nào khớp với biểu thức switch, câu lệnh switch sẽ bắt đầu thực thi phần thân của nó tại câu lệnh được gán label là `default:` . Nếu không có lable `default:`, câu lệnh switch sẽ bỏ qua phần thân của nó hoàn toàn. Lưu ý rằng trong các ví dụ được hiển thị , label default xuất hiện ở cuối phần thân của switch, theo sau tất cả các lable case. Đây là một vị trí thích hợp và phổ biến cho nó, nhưng nó có thể xuất hiện ở bất cứ đâu trong phần thân của câu lệnh
+
+## 5.4 Loops
+
+- Để hiểu về các câu lệnh điều kiện, chúng ta đã tưởng tượng trình thông dịch Js đi theo một đường dẫn phân nhánh thông qua code của bạn. Các câu lệnh lặp là những câu lệnh bẻ cong đường dẫn đó trở lại chính nó để lặp lại phần code của bạn. JS có 5 câu lệnh lặp: `while, do/while, for, for/of (và biến thể for/await của nó) và for/in` . Các phần phụ sau đây giải thích lần lượt từng phần. Một cách sử dụng phổ biến cho các vòng lặp lại là các element của một mảng 7.6 thảo luận chi tiết về loại vòng lặp này và đề cập đến các phương thức lặp đặc biệt được định nghĩa bởi class Array
+
+### 5.4.1 while
+
+- Cũng giống như câu lệnh if là điều kiện cơ bản của Js, câu lệnh while là vòng lặp cơ bản của Js
+    
+    ```jsx
+    while (expression)
+    statement
+    ```
+    
+- Để thực thi câu lệnh while, trình thông dịch trước tiên ước lượng expression. Nếu giá trị biểu thức là falsy, thì trình thông dịch bỏ qua câu lệnh đóng vai trò là phần thân của vòng lặp và chuyển sang câu lệnh tiếp theo trong chương trình. Mặc khác, nếu là truthy, trình thông dịch sẽ thực thi câu lệnh và lặp lại, nhảy trở ngược lại đầu vòng lặp và ước lượng lại `expression`. Một cách khác để nói điều này là trình thông dịch thực thi `statement` lặp đi lặp lại khi `expression` là truthy. Lưu ý rằng, bạn có thể tạo ra 1 vòng lặp vô hạn với cú pháp while (true)
+- Thông thường, bạn không muốn Js thực hiện chính xác một vùng thao tác lặp đi lặp lại. Trong hầu hết mọi vòng lặp, một hoặc nhiều biến thay đổi với mỗi lần của vòng lặp. Vì các biến thay đổi, nên các hành động được thực hiện bằng cách thực thi statement có thể khác nhau mỗi khi lặp qua vòng lặp. Hơn nữa, nếu biến hoặc các biến đang thay đổi có liên quan đến expression, thì giá trị biểu thức có thể khác nhau mỗi khi lặp qua vòng lặp. Điều này rất quan trọng; nếu không, một biểu thức bắt đầu là truthy sẽ không bao giờ thay đổi và vòng lặp sẽ không bao giờ kết thúc! Dưới đây là ví dụ về vòng lặp while in ra các số từ 0 đến 9
+    
+    ```jsx
+    let count = 0;
+    while(count < 10) {
+    	console.log(count);
+    	count++;
+    }
+    ```
+    
+- Như bạn có thể thấy, biến count bắt đầu từ 0 và được tăng lên mỗi khi phần thân của vòng lặp chạy. Sau khi vòng lặp đã thực thi 10 lần, biểu thức trở thành false (tức là biến count không còn nhỏ hơn 10), câu lệnh while kết thúc và trình thông dịch có thể chuyển sang câu lệnh tiếp theo trong chương trình. Nhiều vòng lặp có một biến đếm như count. Các tên biến i, j và k thường được sử dụng làm bộ đếm vòng lặp, mặc dù bạn nên sử dụng các tên mô tả hơn nếu nó làm cho code của bạn dễ hiểu hơn
+
+### **5.4.2 do/while**
+
+- Vòng lặp do/while này giống như vòng lặp while, ngoại trừ việc biểu thức được kiểm tra ở cuối vòng lặp chứ không phải ở đầu. Điều này có nghĩa là phần thân của vòng lặp luôn được thực thi ít nhất 1 lần
+    
+    ```jsx
+    do
+    	statement
+    while (expression);
+    ```
+    
+- Vòng lặp do/while thường ít được sử dụng hơn vòng lặp while - trong thực tế, việc chắc chắn rằng bạn muốn vòng lặp thực thi ít nhất một lần là điều không phổ biến. Dưới đây là ví dụ về vòng lặp do while
+    
+    ```jsx
+    function printArray(a) {
+    	let len = a.length, i = 0;
+    	if (len === 0) {
+    		console.log("Mảng trống");
+    	} else {
+    		do {
+    			console.log(a[i]);
+    		} while(++i < len);
+    	}
+    }
+    ```
+    
+- Có một vài điểm khác biệt về cú pháp giữa vòng lặp do while và vòng lặp while thông thường. Đầu tiên, vòng lặp `do` yêu cầu cả từ khoá `do` (để đánh dầu phần đầu của thân vòng lặp) và từ khoá while (để đánh dấu phần cuối và giới thiệu điều kiện vòng lặp). Ngoài ra vòng lặp do phải luôn được kết thúc bằng dấu chấm phẩy. Vòng lặp while không cần dấu chấm phẩy nếu phần thân của vòng lặp được đặt trong dấu ngoặc nhọn
+
+### **5.4.3 for**
+
+- Câu lệnh for cung cấp một cấu trúc lặp thường thuận tiện hơn câu lệnh while. Câu lệnh for đơn giản hoá các vòng lặp theo một mẫu phổ biến. Hầu hết các vòng lặp đều có một biến đếm thuộc loại nào đó, biến này được khởi tạo trước khi vòng lặp bắt đầu và được kiểm tra trước mỗi lần lặp của vòng lặp. Cuối cùng biến đếm được tăng lên hoặc được cập nhật theo cách khác ở cuối phần thân của vòng lặp, ngay trước khi biến được kiểm tra lại. Trong loại vòng lặp này, khởi tạo, kiểm tra, cập nhật là ba thao tác quan trọng của một biến vòng lặp. Câu lệnh `for` mã hoá từng thao tác trong 3 thao tác này như một biểu thức và làm cho các biểu thức đó trở thành một phần rõ ràng của cú pháp vòng lặp
+    
+    ```jsx
+    for(initialize ; test ; increment)
+    statement
+    ```
+    
+- initialize, test và increment  là 3 (biểu thức được phân tách bởi dấu chấm phẩy) chịu trách nhiệm khởi tạo, kiểm tra và tăng biến vòng lặp. Đặt tất cả chúng vào dòng đầu tiên của vòng lặp giúp dễ dàng hiểu vòng lặp for đang làm gì và ngăn ngừa các lỗi như quên khởi tạo hoặc tăng biến vòng lặp
+- Cách đơn giản nhất để giải thích cách hoạt động của vòng lặp for là hiển thị vòng lặp while tương đương
+    
+    ```jsx
+    initialize;
+    while(test) {
+    	statement
+    	increment;
+    }
+    ```
+    
+- Nói cách khác, biểu thức initialize được ước lượng một lần trước khi vòng lặp bắt đầu. Để hữu ích, biểu thức này phải có tác dụng phụ (thường là phép gán). Js cũng cho phép initialize là một câu lệnh khai báo biến để bạn có thể bạn có thể khai báo và khởi tạo bộ đếm vòng lặp cùng một lúc. Biểu thức test được ước lượng trước mỗi lần lặp và kiểm soát xem phần thân của vòng lặp có được thực thi hay không. Nếu test được ước lượng thành giá trị truthy, thì câu lệnh là phần thân của vòng lặp sẽ được thực thi. Cuối cùng, biểu thức increment được ước lượng. Một lần nữa, đây là một biểu thức có tác dụng phụ để hữu ích. Nói chung, nó là một biểu thức gán hoặc nó sử dụng toán tử ++ hoặc —
+- Chúng ta có thể in các số từ 0 đến 9 trong vòng lặp for như sau. So sánh với vòng lặp while được hiển thị trong phần trước
+    
+    ```jsx
+    for(let count = 0; count < 10; count++) {
+    	console.log(count);
+    }
+    ```
+    
+- Tất nhiên các vòng lặp có thể trở nên phức tạp hơn nhiều so với ví dụ đơn giản này và đôi khi nhiều biến thay đổi với mỗi lần của vòng lặp. Tình huống này là nơi duy nhất mà toán tử phẩy được dùng trong Js; nó cung cấp một cách để kết hợp nhiều biểu thức khởi tạo và tăng thành một biểu thức duy nhất thích hợp để sử dụng trong vòng lặp for
+    
+    ```jsx
+    let i, j, sum = 0;
+    for(i = 0, j = 10 ; i < 10 ; i++, j--) {
+    	sum += i * j;
+    }
+    ```
+    
+- Trong tất cả các ví dụ vòng lặp của chúng ta cho đến nay, biến vòng lặp là số. Điều này khá phổ biến nhưng không cần thiết. Code sau sử dụng vòng lặp for để duyệt qua cấu trúc dữ liệu danh sách liên kết và trả về đối tượng cuối cùng trong danh sách (tức là đối tượng đầu tiên không có thuộc tính next)
+    
+    ```jsx
+    function tail(o) { // Trả về phần đuôi của danh sách liên kết o
+    	for(; o.next; o = o.next) /* empty */ ; // Duyệt qua trong khi o.next là truthy
+    	return o; 
+    }
+    ```
+    
+- Lưu ý rằng code này không có biểu thức initialize. Bất kỳ biểu thức nào trong 3 biểu thức này đều có thể bị bỏ qua khỏi vòng lặp for, nhưng hai dấu chấm phẩy là bắt buộc. Nếu bạn bỏ qua biểu thức test, vòng lặp sẽ lặp mãi mãi và `for( ; ; )` là một cách khác để viết vòng lặp vô hạn giống như while(true)
+
+### **5.4.4 for/of**
+
+- ES6 định nghĩa một câu lệnh lặp mới: `for/of`. Loại vòng lặp mới này sử dụng từ khoá for nhưng là một loại vòng lặp hoàn toàn khác với vòng lặp for thông thường. (Nó cũng hoàn toàn khác với for in cũ hơn mà chúng ta sẽ mô tả trong 5.4.5)
+- Vòng lặp for of hoạt động với các object có thể lặp lại (iterable objects). Chúng ta sẽ giải thích chính xác ý nghĩa của việc một object có thể lặp lại trong chương 12. Nhưng đối với chương này, bạn chỉ cần biết rằng mảng, chuỗi, tập hợp và map là có thể lặp lại: chúng đại diện cho một chuỗi hoặc tập hợp các phần tử mà bạn có thể lặp hoặc lặp lại thông qua việc sử dụng vòng lặp for of
+- Ví dụ đây là cách chúng ta có thể sử dụng for of để lặp qua các phần tử của một mảng số và tính tổng của chúng
+    
+    ```jsx
+    let data = [1, 2, 3, 4, 5, 6, 7, 8, 9], sum = 0;
+    for(let element of data) {
+    	sum += element;
+    }
+    sum // => 45
+    ```
+    
+- Bề ngoài, cú pháp trông như vòng lặp for thông thường: từ khoá for được theo sau bởi dấu ngoặc đơn chứa chi tiết về những gì vòng lặp nên làm. Trong trường hợp này, dấu ngoặc đơn chứa một khai báo biến (hoặc đối với các biến được khai báo, chỉ đơn giản là tên của biến) theo sau bởi từ khoá `of` và một biểu thức ước lượng thành một object có thể lặp lại, như mảng data trong trường hợp này. Như với tất cả các vòng lặp, phần thân của vòng lặp for/of theo sau dấu ngoặc đơn thường nằm trong dấu ngoặc nhọn
+- Trong đoạn code vừa hiển thị, phần thân vòng lặp chạy một lần cho mỗi phần tử của mảng data. Trước mỗi lần thực thi phần thân của vòng lặp, phần tử tiếp theo được gán cho biến element. Các phần tử mảng lặp theo thứ tự từ đầu đến cuối
+- Mảng được lặp lại “trực tiếp” - những thay đổi được thực hiện trong quá trình lặp có thể ảnh hưởng đến kết quả của lần lặp. Nếu chúng ta sửa đổi code trước đó bằng cách thêm dòng `data.push(sum)` bên trong phần thân của vòng lặp, thì chúng ta tạo ra một vòng lặp vô hạn vì lần lặp sẽ không bao giờ có thể đến phần tử cuối cùng của mảng
+
+### FOR/OF WITH OBJECTS
+
+- Các object (theo mặc định) không thể lặp lại. Việc cố gắng sử dụng for/of trên một object thông thường sẽ đưa ra TypeError trong thời gian chạy
+    
+    ```jsx
+    let o = { x: 1, y: 2, z: 3 };
+    for(let element of o) { // Đưa ra TypeError vì o không thể lặp lại
+    	console.log(element); 
+    }
+    ```
+    
+- Nếu bạn muốn lặp qua các property của một object, bạn có thể sử dụng vòng lặp for/in (được giới thiệu trong 5.4.5) hoặc sử dụng for of với method `Object.keys()`
+- Điều này hoạt động vì `Object.keys()` trả về một mảng các tên thuộc tính cho một đối tượng và mảng có thể lặp lại với for of. Cũng lưu ý rằng, lần lặp này của các key của một object không phải là trực tiếp như là mảng ở ví dụ trên - những thay đổi đối với object `o` được thực hiện trong phần thân của vòng lặp sẽ không ảnh hưởng đến lần lặp. Nếu bạn không quan tâm đến các khoá của một object, bạn cũng có thể lặp qua các giá trị tương ứng của chúng như sau
+    
+    ```jsx
+    let sum = 0;
+    for(let v of Object.values(o)) {
+    sum += v;
+    }
+    sum // => 6
+    ```
+    
+- Và nếu bạn quan tâm đến cả key và value của các property của object, bạn có thể sử dụng for of với `Object.entries()` và destructuring assignment
+    
+    ```jsx
+    let pairs = "";
+    for(let [k, v] of Object.entries(o)) {
+    pairs += k + v;
+    }
+    pairs // => "x1y2z3"
+    ```
+    
+- `Object.entries()` trả về một mảng các mảng, trong đó mỗi mảng bên trong đại diện cho một cặp key và value cho một property của object. Chúng tôi sử dụng cú pháp gán destructuring trong ví dụ code này để giải nén các mảng bên trong đó thành 2 mảng riêng lẻ
+
+### FOR/OF WITH STRINGS
+
+- Chuỗi có thể lặp lại theo từng ký tự trong ES6
+    
+    ```jsx
+    let frequency = {};
+    for(let letter of "mississippi") {
+    	if (frequency[letter]) {
+    		frequency[letter]++;
+    	} else {
+    		frequency[letter] = 1;
+    	}
+    }
+    frequency // => {m: 1, i: 4, s: 4, p: 2}
+    ```
+    
+- Lưu ý rằng chuỗi được lặp lại bởi điểm mã Unicode, không phải ký tự UTF-16. Chuỗi I ❤ 🐈“ có độ dài .length là 5 (vì mỗi 2 ký tự biểu tượng cảm xúc yêu cầu 2 ký tự UTF-16 để biểu diễn). Nhưng nếu bạn lặp lại chuỗi đó bằng for of, phần thân vòng lặp sẽ chạy 3 lần, một lần cho mỗi 3 điểm code “I”, “❤️”, và “🐈”
+
+### FOR/OF WITH SET AND MAP
+
+- Các class `Set` và `Map` tích hợp sẵn của ES6 có thể lặp lại. Khi bạn lặp lại một `Set` bằng `for/of`, phần thân của vòng lặp sẽ chạy một lần cho mỗi phần tử của tập hợp. Bạn có thể sử dụng code như thế này để in các từ duy nhất trong một chuỗi văn bản
+    
+    ```jsx
+    let text = "Na na na na na na na na Batman!";
+    let wordSet = new Set(text.split(" "));
+    let unique = [];
+    for(let word of wordSet) {
+    	unique.push(word);
+    }
+    unique // => ["Na", "na", "Batman!"]
+    ```
+    
+- `Map` là một trường hợp thú vị vì trình vòng lặp cho một object `Map` không lặp lại các key Map hoặc các value Map, mà là các cặp key/value. Mỗi lần lặp lại, trình vòng lặp trả về một mảng có phần tử đầu tiên là key và phần tử thứ 2 là value tương ứng. Cho một Map m, bạn có thể lặp lại và destructuring các cặp key value của nó như sau
+    
+    ```jsx
+    let m = new Map([[1, "one"]]);
+    for(let [key, value] of m) {
+    	key // => 1
+    	value // => "one"
+    }
+    ```
+    
+
+### ASYNCHRONOUS ITERATION WITH FOR/AWAIT
+
+- ES2018 giới thiệu một loại trình vòng lặp mới, được gọi là trình vòng lặp bất đồng bộ (asynchronous iterator) và một biến thể trên vòng lặp for of , được gọi là vòng lặp for/await, nhưng đây là cách nó trông giống code
+    
+    ```jsx
+    // Đọc các khối từ một luồng có thể lặp lại bất đồng bộ và in chúng ra
+    async function printStream(stream) {
+    	for await (let chunk of stream) {
+    		console.log(chunk);
+    	}
+    }
+    ```
+    
+
+### 5.4.5 for/in
+
+- Vòng lặp for in trông rất giống vòng lặp for of, với từ khoá `of` thay bằng `in`. Trong khi vòng lặp for/of yêu cầu một object có thể lặp lại sau of thì vòng lặp for/in hoạt động với bất kỳ object nào sau `in`. Vòng lặp for of là mới trong ES6 nhưng for in đã là một phần của JS ngay từ đầu (đó là lý do tại sao nó có cú pháp nghe tự nhiên hơn)
+- Câu lệnh for in lặp qua tên thuộc tính của một object được chỉ định
+    
+    ```jsx
+    for (variable in object)
+    statement
+    ```
+    
+- `variable` thường đặt tên cho một biến, nhưng nó có thể là một khai báo biến hoặc bất kỳ thứ gì phù hợp làm vế trái của một biểu thức gán. `object` là một biểu thức ước lượng thành một đối tượng. Như thường lệ, statement là câu lệnh hoặc khối câu lệnh đóng vai trò là phần thân của vòng lặp
+- Và bạn có thể sử dụng vòng lặp for/in như thế này
+    
+    ```jsx
+    for(let p in o) { // Gán tên thuộc tính của o cho biến p
+    	console.log(o[p]); // In giá trị của mỗi thuộc tính
+    }
+    ```
+    
+- Để thực thi câu lệnh for/in, trình thông dịch Js trước tiên ước lượng biểu thức `object`. Nếu nó ước lượng thành null hoặc undefined, trình thông dịch sẽ bỏ qua vòng lặp và chuyển sang câu lệnh tiếp theo. Trình thông dịch bây giờ thực thi phần thân của vòng lặp một lần cho mỗi property có thể liệt kê (enumerable property) của object. Tuy nhiên, trước mỗi lần lặp, trình thông dịch ước lượng biểu thức `varibale` và gán tên thuộc tính (một giá trị chuỗi) cho nó
+- Lưu ý rằng biến trong vòng lặp for/in có thể là một biểu thức tuỳ ý, miễn là nó ước lượng thành một cái gì đó phù hợp với vế trái của phép gán. Biểu thức này ước lượng mỗi lần lặp qua vòng lặp, có nghĩa là nó có thể ước lượng khác nhau mỗi lần. Ví dụ: bạn có thể sử dụng code như sau để sao chép tên của tất cả các thuộc tính object vào một mảng
+    
+    ```jsx
+    let o = { x: 1, y: 2, z: 3 };
+    let a = [], i = 0;
+    for(a[i++] in o) /* empty */; 
+    ```
+    
+- Mảng Js chỉ đơn giản là một loại object đặc biệt và index mảng là các object property có thể được liệt kê bằng vòng lặp for in. Ví dụ: theo sau code trước đó với dòng này liệt kê các index mảng 0, 1 và 2
+    
+    ```jsx
+    for(let i in a) console.log(i);
+    ```
+    
+- Tôi thấy rằng một nguồn lỗi phổ biến trong code của riêng tôi là việc vô tình sử dụng for in với mảng khi tôi định sử dụng for of. Khi làm việc với mảng, bạn hầu như luôn muốn sử dụng for of thay vì for in
+- Vòng lặp for in không thực sự liên kết tất cả các property của một object. Nó không liệt kê các property có ký hiệu (symbols). Và trong số các property có tên là chuỗi, nó chỉ lặp qua các thuộc tính có thể liệt kê (xem 14.1). Các phương thức tích hợp sẵn khác nhau được chỉ định bởi Js cốt lõi không thể liệt kê. Ví dụ, tất cả các object đều có method `toString()`, nhưng vòng lặp for in không liệt kê thuộc tính toString này. Ngoài các method tích hợp sẵn, nhiều property của các object được tích hợp sẵn không thể liệt kê. Tất cả các object và method được định nghĩa bởi code của bạn đều có thể liệt kê theo mặc định (Bạn có thể làm cho chúng không thể liệt kê được bằng cách sử dụng các kỹ thuật được giải thích trong 14.1)
+- Các property được kế thừa có thể liệt kê (xem 6.3.2) cũng được liệt kê bởi vòng lặp for in. Điều này có nghĩa là nếu bạn sử dụng vòng lặp for in và cũng sử dụng code định nghĩa các property được kế thừa bởi tất cả các object, thì vòng lặp của bạn có thể không hoạt động theo cách mà bạn mong đợi. Vì lý do này nhiều lập trình viên thích sử dụng vòng lặp for of với `Object.keys()` hơn là với vòng lặp for in
+- Nếu phần thân của vòng lặp for/in xóa một thuộc tính chưa được liệt kê, thì thuộc tính đó sẽ không được liệt kê. Nếu phần thân của vòng lặp định nghĩa các thuộc tính mới trên đối tượng, thì các thuộc tính đó có thể được liệt kê hoặc không. Xem §6.6.1 để biết thêm thông tin về thứ tự mà for/in liệt kê các thuộc tính của một đối tượng.
