@@ -523,3 +523,80 @@
 - Vòng lặp for in không thực sự liên kết tất cả các property của một object. Nó không liệt kê các property có ký hiệu (symbols). Và trong số các property có tên là chuỗi, nó chỉ lặp qua các thuộc tính có thể liệt kê (xem 14.1). Các phương thức tích hợp sẵn khác nhau được chỉ định bởi Js cốt lõi không thể liệt kê. Ví dụ, tất cả các object đều có method `toString()`, nhưng vòng lặp for in không liệt kê thuộc tính toString này. Ngoài các method tích hợp sẵn, nhiều property của các object được tích hợp sẵn không thể liệt kê. Tất cả các object và method được định nghĩa bởi code của bạn đều có thể liệt kê theo mặc định (Bạn có thể làm cho chúng không thể liệt kê được bằng cách sử dụng các kỹ thuật được giải thích trong 14.1)
 - Các property được kế thừa có thể liệt kê (xem 6.3.2) cũng được liệt kê bởi vòng lặp for in. Điều này có nghĩa là nếu bạn sử dụng vòng lặp for in và cũng sử dụng code định nghĩa các property được kế thừa bởi tất cả các object, thì vòng lặp của bạn có thể không hoạt động theo cách mà bạn mong đợi. Vì lý do này nhiều lập trình viên thích sử dụng vòng lặp for of với `Object.keys()` hơn là với vòng lặp for in
 - Nếu phần thân của vòng lặp for/in xóa một thuộc tính chưa được liệt kê, thì thuộc tính đó sẽ không được liệt kê. Nếu phần thân của vòng lặp định nghĩa các thuộc tính mới trên đối tượng, thì các thuộc tính đó có thể được liệt kê hoặc không. Xem §6.6.1 để biết thêm thông tin về thứ tự mà for/in liệt kê các thuộc tính của một đối tượng.
+
+## **5.5 Jumps**
+
+- Một loại câu lệnh Js khác là jump. Đúng như tên gọi chúng khiến trình thông dịch Js nhảy đến một vị trí mới trong mã nguồn. Câu lệnh break làm cho câu lệnh nhảy đến cuối vòng lặp hoặc câu lệnh khác. `continue` làm cho trình thông dịch bỏ qua phần còn lại của phần thân vòng lặp và nhảy trở lại đầu vòng lặp để bắt đầu một lần lặp mới. Js cho phép các câu lệnh được đặt tên hoặc gán label, và `break` và `continue` có thể xác định vòng lặp đích hoặc label câu lệnh khác
+- Câu lệnh return làm cho trình thông dịch nhảy từ một lệnh gọi hàm trở lại code đã gọi nó và cung cấp giá trị cho lệnh gọi. Câu lệnh `throw` là một loại trả về tạm thời từ hàm tạo (generator function). Câu lệnh `throw` đưa ra hoặc ném ra 1 ngoại lệ (exception) và được thiết kế để hoạt động với câu lệnh `try/catch/finally`, thiết lập 1 block code để xử lý ngoại lệ. Đây là một câu lệnh nhảy phức tạp: Khi một ngoại lệ được ném ra, trình thông dịch nhảy đến trình xử lý ngoại lệ gần nhất, có thể nằm trong cùng một hàm hoặc lên ngăn xếp cuộc gọi trong một hàm gọi
+- Chi tiết về từng câu lệnh Jumps có trong các phần sau
+
+### **5.5.1 Labeled Statements**
+
+- Bất kỳ câu lệnh nào cũng có thể được gán label bằng cách đặt trước nó một mã định danh (identifier) và dấu hai chấm
+    
+    ```jsx
+    identifier: statement
+    ```
+    
+- Bằng cách gán label cho một câu lệnh, bạn đặt cho nó một cái tên mà bạn có thể sử dụng để tham chiếu đến nó ở một nơi khác trong chương trình của mình. Bạn có thể gán label cho bất kỳ câu lệnh nào, mặc dù hữu ích khi gắn nhãn cho các câu lệnh có phần thân chẳng hạn như vòng lặp và điều kiện. Bằng cách đặt tên cho một vòng lặp, bạn có thể sử dụng các câu lệnh break và continue là các câu lệnh duy nhất sử dụng label câu lệnh; chúng được đề cập trong các phần phụ sau. Dưới đây là ví dụ về vòng lặp while có label và câu lệnh continue sử dụng label
+    
+    ```jsx
+    mainloop: while(token !== null) {
+    // Mã bị bỏ qua...
+    continue mainloop; // Nhảy đến lần lặp tiếp theo của vòng lặp được đặt tên
+    // Mã bị bỏ qua thêm...
+    }
+    ```
+    
+- Mã định danh bạn sử dụng để gán label cho một câu lệnh có thể là bất kỳ mã định danh Js hợp pháp nào không phải là từ dành riêng. Không gian tên cho label khác với không gian tên cho biến và hàm, vì vậy bạn có thể sử dụng cùng một mã định danh làm label câu lệnh và làm tên biến hoặc hàm. Label câu lệnh chỉ được định nghĩa trong câu lệnh mà chúng áp dụng (và tất nhiên là trong các câu lệnh con của nó). Một câu lệnh có thể không cùng label với câu lệnh chứa nó, nhưng 2 câu lệnh có thể có cùng label miễn là không có câu lệnh nào được lồng vào câu lệnh kia. Các câu lệnh có label có thể tự được gán label. Trên thực tế, điều này có nghĩa là bất kỳ câu lệnh nào cũng có thể có nhiều label
+
+### 5.5.2 break
+
+- Câu lệnh break, được sử dụng một mình, làm cho vòng lặp hoặc câu lệnh switch gần nhất thoát ngay lập tức. Cú pháp của nó rất đơn giản
+    
+    ```jsx
+    break;
+    ```
+    
+- Vì nó làm cho câu lệnh switch thoát ra, nên dạng câu lệnh break này chỉ hợp pháp nếu nó xuất hiện bên trong một trong các câu lệnh này
+- Bạn đã thấy các ví dụ về break trong switch. Trong vòng lặp, nó thường sử dụng để thoát ra sớm khi, vì bất kỳ lý do gì, không còn cần phải hoàn thành vòng lặp nữa. Khi một vòng lặp có các điều kiện kết thúc phức tạp thường dễ dàng hơn để triển khai một số điều kiện này bằng các câu lệnh break hơn là cố gắng biểu thị tất cả chúng trong một biểu thức vòng lặp duy nhất. Code sau tìm kiếm các phần tử của một mảng cho một giá trị cụ thể. Vòng lặp kết thúc theo các thông thường khi nó đến cuối mảng; nó kết thúc bằng câu lệnh break nếu nó tìm thấy những gì nó đang tìm kiếm trong mảng
+    
+    ```jsx
+    for(let i = 0; i < a.length; i++) {
+    	if (a[i] === target) break;
+    }
+    ```
+    
+- Js cũng cho phép từ khoá break được theo sau bởi một label câu lệnh (chỉ là mã định danh, không có dấu hai chấm)
+    
+    ```jsx
+    break labelname;
+    ```
+    
+- Khi break được sử dụng với một label, nó sẽ nhảy đến cuối hoặc kết thúc câu lệnh bao quanh có label được chỉ định. Đó là lỗi cú pháp khi sử dụng break ở dạng này nếu không có câu lệnh bao quanh nào có label được chỉ định. Với dạng câu lệnh break này, câu lệnh được đặt tên không nhất thiết phải là vòng lặp hay `switch`: `break` có thể thoát ra khỏi bất kỳ câu lệnh bao quanh nào. Câu lệnh này thậm chí có thể là một khối câu lệnh được nhóm trong dấu ngoặc nhọn chỉ với mục đích đặt tên cho khối bằng 1 label
+- Không được phép xuống dòng giữa từ khoá break và labelname. Đây là kết quả của việc Js tự động chèn dấu chấm phẩy bị bỏ qua: nếu bạn đặt dấu kết thúc dòng giữa từ khoá break và label theo sau, Js sẽ giả định rằng bạn muốn sử dụng kiểu đơn giản, không có label của câu lệnh và coi dấu kết thúc dòng là ; (xem 2.6)
+- Bạn cần dạng có label của câu lệnh break khi bạn muốn thoát khỏi một câu lệnh không phải là vòng lặp gần nhất hoặc switch
+    
+    ```jsx
+    let matrix = getData(); // Lấy một mảng số 2D từ đâu đó
+    // Bây giờ hãy tính tổng tất cả các số trong ma trận.
+    let sum = 0, success = false;
+    // Bắt đầu với một câu lệnh có nhãn mà chúng ta có thể thoát ra nếu xảy ra lỗi
+    computeSum: if (matrix) {
+    	for(let x = 0; x < matrix.length; x++) {
+    		let row = matrix[x];
+    		if (!row) break computeSum;
+    		for(let y = 0; y < row.length; y++) {
+    			let cell = row[y];
+    			if (isNaN(cell)) break computeSum;
+    			sum += cell;
+    		}
+    	}
+    	success = true;
+    }
+    // Các câu lệnh break nhảy đến đây. Nếu chúng ta đến đây với success == false
+    // thì có điều gì đó không ổn với ma trận mà chúng ta đã được cung cấp.
+    // Nếu không, sum chứa tổng của tất cả các ô của ma trận.
+    ```
+    
+- Cuối cùng, lưu ý rằng câu lệnh break, có hoặc không có label, không thể chuyển quyền điều khiển qua ranh giới hàm. Ví dụ, bạn không thể gán label cho một câu lệnh định nghĩa hàm và sau đó sử dụng label đó bên trong hàm
