@@ -600,3 +600,183 @@
     ```
     
 - Cuối cùng, lưu ý rằng câu lệnh break, có hoặc không có label, không thể chuyển quyền điều khiển qua ranh giới hàm. Ví dụ, bạn không thể gán label cho một câu lệnh định nghĩa hàm và sau đó sử dụng label đó bên trong hàm
+
+### **5.5.3 continue**
+
+- Câu lệnh `continue` tương tự như câu lệnh break. Tuy nhiên khi thoát khỏi vòng lặp, continue khởi động lại vòng lặp ở lần lặp tiếp theo. Cú pháp câu lệnh continue cũng đơn giản như cú pháp break
+    
+    ```jsx
+    continue;
+    ```
+    
+- Câu lệnh continue cũng có thể được sử dụng với 1 label
+    
+    ```jsx
+    continue labelname;
+    ```
+    
+- Câu lệnh continue, ở cả dạng có nhãn và không nhãn, chỉ có thể được sử dụng ở phần thân của vòng lặp. Sử dụng nó ở bất kỳ nơi nào khác sẽ gây ra lỗi cú pháp
+- Khi continue được thực thi, lần lặp hiện tại của vòng lặp bao quanh bị chấm dứt và lần lặp tiếp theo bắt đầu. Điều này có nghĩa là những điều khác nhau cho các loại vòng lặp khác nhau
+    - Trong vòng lặp while, biểu thức được chỉ định ở đầu vòng lặp được kiểm tra lại và nếu nó đúng, phần thân vòng lặp sẽ được thực thi bắt đầu từ đầu
+    - Trong vòng lặp do while, việc thực thi sẽ bỏ qua phần cuối cùng của vòng lặp, nơi điều kiện vòng lặp được kiểm tra lại trước khi khởi động lại vòng lặp ở đầu
+    - Trong vòng lặp for, biểu thức tăng được ước lượng và biểu thức kiểm tra được kiểm tra lại để xác định xem có nên thức hiện lần lặp khác không
+    - Trong vòng lặp for of hoặc for in, vòng lặp bắt đầu lại với giá trị lặp tiếp theo hoặc tên thuộc tính tiếp theo được gán cho biến được chỉ định
+- Lưu ý sự khác biệt về hành vi của câu lệnh continue trong vòng lặp while và for: vòng lặp while trả về trực tiếp điều kiện của nó, nhưng vòng lặp for trước tiên ước lượng biểu thức tăng của nó và sau đó trả về điều kiện của nó. Trước đó, chúng tôi đã xem xét hành vi của vòng lặp for theo thuật ngữ của một vòng lặp while “tương đương”. Tuy nhiên vì câu lệnh continue hoạt động khác nhau đối với 2 vòng lặp này, nên thực sự không thể mô phỏng hoàn hảo vòng lặp for chỉ bằng vòng lặp while
+- Ví dụ sau đây cho thấy một câu lệnh continue không có label được sử dụng để bỏ qua phần còn lại của lần lặp hiện tại của vòng lặp khi xảy ra lỗi
+    
+    ```jsx
+    for(let i = 0; i < data.length; i++) {
+    	if (!data[i]) continue; // Không thể tiếp tục với data không xác định
+    	total += data[i];
+    }
+    ```
+    
+- Giống như câu lệnh break, continue có thể được sử dụng ở dạng label trong các vòng lặp lồng nhau khi vòng lặp cần khởi động lại không phải là vòng lặp bao quanh ngay lập tức. Ngoài ra cũng như break, không được phép xuống dòng giữa câu lệnh continue và label name của nó
+
+### **5.5.4 return**
+
+- Hãy nhớ lại các lệnh gọi hàm là biểu thức và tất cả các biểu thức đó đều có giá trị. Câu lệnh return trong 1 hàm chỉ định giá trị của các lệnh gọi của hàm đó. Dưới đây là cú pháp
+    
+    ```jsx
+    return expression;
+    ```
+    
+- Câu lệnh return chỉ có thể xuất hiện trong phần thân của hàm. Nó là một lỗi cú pháp nếu nó xuất hiện ở bất cứ nơi nào khác. Khi lệnh return được thực thi, hàm chứa nó sẽ trả về giá trị expression cho hàm gọi nó
+    
+    ```jsx
+    function square(x) { return x*x; } // Một hàm có câu lệnh return
+    square(2) // => 4
+    ```
+    
+- Không có câu lệnh return, một lệnh gọi hàm chỉ đơn giản thực thi từng câu lệnh trong phần thân hàm lần lượt cho đến khi nó đến cuối hàm và sau đó trả về cho hàm gọi nó. Trong trường hợp này, biểu thức gọi được ước lượng thành undefined. Câu lệnh return thường xuất hiện dưới dạng câu lệnh cuối cùng trong hàm, nhưng nó không nhất thiết phải là câu lệnh cuối cùng: hàm trả về cho hàm gọi nó khi câu lệnh return được thực thi, ngay cả khi có các câu lệnh khác còn lại trong phần thân hàm
+- Câu lệnh return cũng có thể được sử dụng mà không có biểu thức để hàm trả về undefined cho hàm gọi nó
+    
+    ```jsx
+    function displayObject(o) {
+    	// Trả về ngay lập tức nếu đối số là null hoặc không xác định.
+    	if (!o) return;
+    	// Phần còn lại của hàm nằm ở đây...
+    }
+    ```
+    
+- Do Js tự động chèn dấu ;, bạn không thể xuống dòng giữa từ khoá return và biểu thức theo sau nó
+
+### **5.5.5 yield**
+
+- Câu lệnh yield rất giống câu lệnh return nhưng chỉ được sử dụng trong các hàm tạo ES6 (xem 12.3) để tạo ra các giá trị tiếp theo trong chuỗi giá trị được tạo mà không thực sự trả về
+    
+    ```jsx
+    // Một hàm tạo tạo ra một phạm vi số nguyên
+    function* range(from, to) {
+    	for(let i = from; i <= to; i++) {
+    		yield i;
+    	}
+    }
+    ```
+    
+- Để hiểu yield, bạn phải hiểu trình vòng lặp (iterators) và hàm tạo (generators), những thứ sẽ không được đề cập cho đến chương 12. Tuy nhiên, yield được bao gồm ở đây để đầy đủ. (Về mặt kỹ thuật, yield là một toán tử hơn là một câu lệnh, như được giải thích trong 12.4.2)
+
+### **5.5.6 throw**
+
+- Ngoại lệ (exception) là tín hiệu cho biết rằng một số loại điều kiện hoặc lỗi ngoại lệ đã xảy ra. Ném ra một ngoại lệ là báo hiệu một lỗi hoặc điều kiện ngoại lệ như vậy. Bắt một ngoại lệ xử lý nó - thực hiện bất kỳ hành động nào cần thiết hoặc phù hợp để khôi phục sau ngoại lệ. Trong Js, ngoại lệ được ném ra bất cứ khi nào xảy ra lỗi thời gian chạy và bất cứ khi nào chương trình ném ra một ngoại lệ một cách rõ ràng bằng cách sử dụng câu lệnh throw. Ngoại lệ được bắt bằng câu lệnh `try/catch/finally` được mô tả trong phần tiếp theo
+    
+    ```jsx
+    throw expression;
+    ```
+    
+- `expression` có thể ước lượng thành một giá trị thuộc bất kỳ kiểu nào. Bạn có thể ném ra một số đại diện cho mã lỗi hoặc một chuỗi chứa thông báo lỗi mà con người có thể đọc được. Class Error và các class con của nó được sử dụng khi chính trình thông dịch Js ném ra lỗi và bạn có thể sử dụng chúng. Một object Error có property name chỉ định loại lỗi và property `message` chứa chuỗi được truyền vào cho hàm tạo. Dưới đây là ví dụ về một hàm ném ra một object Error khi được gọi với một đối số không hợp lệ
+    
+    ```jsx
+    function factorial(x) {
+    	// Nếu đối số đầu vào không hợp lệ, hãy ném ra một ngoại lệ!
+    	if (x < 0) throw new Error("x không được âm");
+    	// Nếu không, hãy tính toán một giá trị và trả về bình thường
+    	let f;
+    	for(f = 1; x > 1; f *= x, x--) /* empty */ ;
+    	return f;
+    }
+    factorial(4) // => 24
+    ```
+    
+- Khi một ngoại lệ được ném ra, trình thông dịch Js sẽ ngay lập tức dừng thực thi chương trình bình thường và nhảy đến trình xử lý ngoại lệ gần nhất. Trình xử lý ngoại lệ được viết bằng cách sử dụng mệnh đề `catch` của câu lệnh `try/catch/finally`, được mô tả trong phần tiếp theo. Nếu block code mà ngoại lệ ném ra không có mệnh đề catch được liên kết, trình thông dịch sẽ kiểm tra block code bao quanh cao hơn tiếp theo để xem liệu nó có xử lý ngoại lệ nào được liên kết với nó hay không. Điều này tiếp tục cho đến khi tìm thấy một trình xử lý. Nếu một ngoại lệ được ném ra trong một hàm không chứa câu lệnh `try/catch/finally` để xử lý nó, thì ngoại lệ sẽ lan truyền lên code đã gọi hàm. Theo cách này, ngoại lệ được lan truyền lên thông qua cấu trúc từ vựng của các method Js và lên ngăn xếp cuộc gọi. Nếu không tìm thấy trình xử lý ngoại lệ nào, ngoại lệ sẽ được coi là lỗi và được báo cho người dùng
+
+### **5.5.7 try/catch/finally**
+
+- Câu lệnh `try/catch/finally` là cơ chế xử lý ngoại lệ của Js. Mệnh đề try của câu lệnh này chỉ đơn giản là định nghĩa block code mà ngoại lệ sẽ được xử lý. Khối try được theo sau bởi mệnh đề catch, là một khối lệnh được gọi khi ngoại lệ xảy ra ở bất kỳ đâu trong khối try. Mệnh đề `catch` được theo sau bởi khối finally chứa code dọn dẹp được đảm bảo sẽ thực thi, bất kỳ điều gì xảy ra trong khối try. Cả khối catch và finally đều là tuỳ chọn, nhưng khối try phải đi kèm với ít nhất một trong các khối này. Tất cả các khối try, catch và finally đều bắt đầu và kết thúc bằng dấu ngoặc nhọn. Các dấu ngoặc nhọn này là một phần bắt buộc của cú pháp và không thể bỏ qua, ngay cả khi một mệnh đề chỉ chứa một câu lệnh duy nhất
+    
+    ```jsx
+    try {
+    	// Thông thường, mã này chạy từ đầu khối đến cuối
+    	// mà không gặp vấn đề gì. Nhưng đôi khi nó có thể ném ra một ngoại lệ,
+    	// trực tiếp, với câu lệnh throw, hoặc gián tiếp, bằng cách gọi
+    	// một phương thức ném ra ngoại lệ.
+    	
+    	
+    }
+    catch(e) {
+    	// Các câu lệnh trong khối này được thực thi nếu, và chỉ nếu, khối try
+    	// ném ra ngoại lệ. Các câu lệnh này có thể sử dụng biến cục bộ
+    	// e để tham chiếu đến đối tượng Error hoặc giá trị khác đã bị ném ra
+    	// Khối này có thể xử lý ngoại lệ bằng cách nào đó, có thể bỏ qua
+    	// ngoại lệ bằng cách không làm gì hoặc có thể ném lại ngoại lệ bằng throw.
+    }
+    finally {
+    	// Khối này chứa các câu lệnh luôn được thực thi, bất kể
+    	// điều gì xảy ra trong khối try. Chúng được thực thi cho dù khối try
+    	// kết thúc:
+    	// 1) bình thường, sau khi đến cuối khối
+    	// 2) do câu lệnh break, continue hoặc return
+    	// 3) với một ngoại lệ được xử lý bởi mệnh đề catch ở trên
+    	// 4) với một ngoại lệ chưa được bắt vẫn đang lan truyền
+    }
+    ```
+    
+- Lưu ý rằng từ khoá catch thường được theo sau bởi một mã định danh trong dấu ngoặc đơn. Mã định danh này giống như một tham số hàm. Khi một ngoại lệ bị bắt, giá trị được liên kết với ngoại lệ (Ví dụ object Error) được gán cho tham số này. Mã định danh được liên kết với mệnh đề catch có phạm vi khối - nó chỉ được định nghĩa trong khối catch
+- Dưới đây là một ví dụ thực tế về try catch. Nó sử dụng method `fatorial()` được định nghĩa trong phần trước và các method Js phía client `prompt()` và `alert()` để nhập và xuất
+    
+    ```jsx
+    try {
+    	// Yêu cầu người dùng nhập một số
+    	let n = Number(prompt("Vui lòng nhập một số nguyên dương", ""));
+    	// Tính giai thừa của số, giả sử đầu vào hợp lệ
+    	let f = factorial(n);
+    	// Hiển thị kết quả
+    	alert(n + "! = " + f);
+    }
+    catch(ex) { // Nếu đầu vào của người dùng không hợp lệ, chúng ta sẽ đến đây
+    	alert(ex); // Cho người dùng biết lỗi là gì
+    }
+    ```
+    
+- Ví dụ này là một câu lệnh try/catch không có mệnh đề finally. Mặc dù finally không được sử dụng thường xuyên như mệnh đề catch, nhưng nó có thể hữu ích. Tuy nhiên, hành vi của nó yêu cầu giải thích thêm. Mệnh đề finally được đảm bảo sẽ được thực thi nếu bất kỳ phần nào của khối try được thực thi, bất kể code trong khối try hoàn thành như thế nào. Nó thường được sử dụng để dọn dẹp sau code trong mệnh đề try
+- Trong trường hợp bình thường, trình thông dịch Js đến cuối khối try và sau đó tiến hành đến khối finally, khối này thực hiện bất kỳ thao tác dọn dẹp cần thiết nào. Nếu trình thông dịch rời khỏi khối try do câu lệnh return, continue hoặc break, thì khối finally sẽ được thực thi trước khi trình thông dịch nhảy đến đích mới của nó
+- Nếu một ngoại lệ xảy ra trong khối try và có một khối catch được liên kết để xử lý ngoại lệ, thì trình thông dịch trước tiên sẽ thực thi khối catch sau đó đến finally. Nếu không có khối catch cục bộ nào để xử lý ngoại lệ, trình thông dịch trước tiên sẽ thực thi khối finally và sau đó nhảy đến mệnh đề chứa catch gần nhất
+- Nếu bản thân khối finally gây ra một bước nhảy với câu lệnh return, continue, break hoặc throw bằng cách gọi 1 method ném ra ngoại lệ, trình thông dịch sẽ từ bỏ bất kỳ bước nhảy nào đang chờ xử lý và thực hiện bước nhảy mới. Ví dụ nếu mệnh đề finally ném ra một ngoại lệ, thì ngoại lệ đó sẽ thay thế bất kỳ ngoại lệ nào đang trong quá trình ném ra. Nếu mệnh đề finally đưa ra câu lệnh return, thì phương thức sẽ trả về bình thường, ngay cả khi ngoại lệ đã được ném ra và chưa được xử lý
+- try và finally có thể được sử dụng cùng nhau mà không có mệnh đề catch. Trong trường hợp này, finally chỉ đơn giản là code dọn dẹp đảm bảo được thực thi, bất kể điều gì xảy ra trong khối try, bất kỳ điều gì xảy ra trong khối try. Hãy nhớ rằng chúng ta không thể hoàn toàn mô phỏng vòng lặp for bằng vòng lặp while vì câu lệnh continue hoạt động khác nhau đối với 2 vòng lặp. Nếu chúng ta thêm câu lệnh try/finally, chúng ta có thể viết vòng lặp while hoạt động như vòng lặp for và xử lý continue một cách chính xác
+    
+    ```jsx
+    // Mô phỏng for(initialize ; test ;increment ) body;
+    initialize ;
+    while( test ) {
+    try { body ; }
+    finally { increment ; }
+    }
+    ```
+    
+- Tuy nhiên lưu ý rằng phần thân có chứa câu lệnh break hoạt động hơi khác một chút (gây ra một lần tăng thêm trước khi thoát) trong vòng lặp while so với vòng lặp for, vì vậy ngay cả với mệnh đề finally, không thể mô phỏng hoàn toàn vòng lặp for bằng while
+
+### BARE CATCH CLAUSES
+
+- Đôi khi bạn thấy mình đang sử dụng mệnh đề catch chỉ để phát hiện và dừng sự lan truyền của ngoại lệ, ngay cả khi bạn không quan tâm đến loại hoặc giá trị của ngoại lệ. Trong ES2019 trở lên, bạn có thể bỏ qua dấu ngoặc đơn và mã định danh và sử dụng từ khoá catch trống trong trường hợp này
+    
+    ```jsx
+    // Giống như JSON.parse(), nhưng trả về undefined thay vì đưa ra lỗi
+    function parseJSON(s) {
+    	try {
+    		return JSON.parse(s);
+    	} catch {
+    		// Có gì đó không ổn nhưng chúng tôi không quan tâm đó là gì
+    		return undefined;
+    	}
+    }
+    ```
