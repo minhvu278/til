@@ -780,3 +780,80 @@
     	}
     }
     ```
+
+## **5.6 Miscellaneous Statements**
+
+- Phần này mô tả 3 câu lệnh Js còn lại - with, debugger và “use strict”
+
+### **5.6.1 with**
+
+- Câu lệnh with chạy một block code như thể các property của một object được chỉ định là các biến trong phạm vi code đó
+    
+    ```jsx
+    with (object)
+      statement 
+    ```
+    
+- Câu lệnh này tạo ra một phạm vi tạm thời với các thuộc tính của object như các biến và sau đó thực thi statement  trong phạm vi đó
+- Câu lệnh with bị cấm trong chế độ strict (5.6.3) và nên được coi là không khuyến khích trong chế độ non-strict: tránh sử dụng nó bất cứ khi nào có thể. Code sử dụng with rất khó để tối ưu hoá và có khả năng chạy chậm hơn đáng kể so với code tương đương được viết mà không có câu lệnh with
+- Việc sử dụng phổ biến của câu lệnh with là để làm cho việc làm việc với các hệ thống phân cấp đối tượng lồng nhau sâu dễ dàng hơn. Ví dụ, trong Js phía máy khách, bạn có thể phải nhập các biểu thức như thế này để truy cập các phần tử của form HTML
+    
+    ```jsx
+    document.forms[0].address.value
+    ```
+    
+- Nếu bạn cần viết các biểu thức như thế này nhiều lần, bạn có thể sử dụng câu lệnh with để coi các property của object form như các biến
+    
+    ```jsx
+    with(document.forms[0]) {
+      // Truy cập trực tiếp các phần tử biểu mẫu ở đây. Ví dụ:
+      name.value = "";
+      address.value = "";
+      email.value = "";
+    }
+    ```
+    
+- Điều này làm giảm lượng gõ bạn phải làm: bạn không còn cần phải thêm tiền tố cho mỗi tên thuộc tính form bằng `document.forms[0]`. Tất nhiên, cũng đơn giản là tránh câu lệnh with và viết code trước đó như thế này
+    
+    ```jsx
+    let f = document.forms[0];
+    f.name.value = "";
+    f.address.value = "";
+    f.email.value = "";
+    ```
+    
+- Lưu ý rằng nếu bạn sử dụng const hoặc let hoặc var để khai báo một biến hoặc hằng số trong phần thân của câu lệnh with, nó sẽ tạo ra một biến thông thường và không định nghĩa một thuộc tính mới trong object được chỉ định
+
+### **5.6.2 debugger**
+
+- Câu lệnh debugger thường không làm gì cả. Tuy nhiên, nếu có sẵn một chương trình debugger và đang chạy, thì việc triển khai có thể (nhưng không bắt buộc) thực hiện một số hành động gỡ lỗi. Trong thực tế, câu lệnh này hoạt động giống như một điểm dừng: việc thực thi code Js dừng lại và bạn có thể dùng trình gỡ lỗi để in ra giá trị của các biến, kiểm tra ngăn xếp cuộc gọi,… Ví dụ giả sử bạn đang gặp ngoại lệ trong hàm `f()` của mình vì nó đang được gọi với một đối số không xác định và bạn không thể tìm ra nơi cuộc gọi này đến từ đâu. Để giúp bạn gỡ lỗi sự cố này, bạn có thể thay đổi `f()` để nó bắt đầu như thế này
+    
+    ```jsx
+    function f(o) {
+      if (o === undefined) debugger; // Dòng tạm thời cho mục đích gỡ lỗi
+      ... // Phần còn lại của hàm nằm ở đây.
+    }
+    ```
+    
+- Bây giờ khi `f()` được gọi mà không có đối số, việc thực thi sẽ dừng lại và bạn có thể sử dụng trình gỡ lỗi để kiểm tra ngăn xếp cuộc gọi và tìm ra nơi cuộc gọi không chính xác này đến từ đâu
+- Lưu ý rằng việc có sẵn trình gỡ lỗi là chưa đủ: câu lệnh debugger sẽ không khởi động trình gỡ lỗi của bạn. Tuy nhiên nếu bạn đang sử dụng trình duyệt web và đã mở devtool, câu lệnh này sẽ gây ra điểm dừng
+
+### **5.6.3 "use strict"**
+
+- “use strict” là một chỉ thị được giới thiệu trong ES5. Các chỉ thị không phải là câu lệnh (nhưng đủ để “use strict” được ghi lại ở đây). Có 2 điểm khác biệt quan trọng giữa chỉ thị “use strict” và các câu lệnh thông thường
+    - Nó không bao gồm bất kỳ từ khoá ngôn ngữ nào: chỉ thị là một câu lệnh biểu thức bao gồm một chuỗi ký tự đặc biệt (trong dấu ngoặc đơn hoặc ngoặc kép)
+    - Nó chỉ có thể xuất hiện ở đầu tệp hoặc ở đầu phần thân hàm, trước khi bấ kỳ câu lệnh thực nào xuất hiện
+- Mục đích của chỉ thị “use strict” là để chỉ ra rằng code sau (trong tập lệnh hoặc hàm) là code strict. Mã cấp cao nhất (phi hàm) của tập lệnh là mã strict nếu tập lệnh có chỉ thị “use strict”. Phần thân hàm là mã strict nếu nó được định nghĩa trong mã strict hoặc nếu nó có chỉ thị “use strict”. Mã được chuyển đến method eval() là mã strict nếu eval() được gọi từ mã strict hoặc bao gồm chuỗi trên. Ngoài mã được khai báo rõ ràng là strict, bất kỳ mã nào trong phần thân class (chương 9) hoặc module ES6 (10.3) sẽ tự động là mã strict. Điều này có nghĩa là tất cả các code của bạn được viết dưới dạng module, thì tất cả chúng sẽ tự động là strict và bạn sẽ không bao giờ cần sử dụng chỉ thị “use strict” rõ ràng
+- Strict code được thực thi trong chế độ strict. Chế độ strict là một tập hợp con bị hạn chế của ngôn ngữ, khắc phục những thiết sót quan trọng của ngôn ngữ và cung cấp khả năng kiểm tra lỗi mạnh mẽ hơn và tăng cường bảo mật. Vì chế độ strict không phải là mặc định, code Js cũ vẫn sử dụng được các tính năng kế thừa thiếu sót của ngôn ngữ sẽ tiếp tục chạy chính xác. Sự khác biệt giữa chế độ strict và chế độ non-strict như sau (ba điểm đầu tiên đặc biệt quan trọng)
+    - Câu lệnh with không được phép trong chế độ strict
+    - Trong chế độ strict, tất cả các biến phải được khai báo: ReferenceError được ném ra nếu bạn gán một giá trị cho một định danh không phải là biến, hàm, tham số hàm, tham số mệnh đề catch hoặc thuộc tính của đối tượng toàn cục đã khai báo. (Trong chế độ non-strict, điều này ngầm định khai báo một biến toàn cục bằng cách thêm một property mới vào đối tượng toàn cục)
+    - Trong chế độ strict, các hàm được gọi như hàm (chứ không phải như method) có giá trị this là undefined. (Trong chế độ non-strict, các hàm được gọi như hàm luôn được chuyển đổi thành global object làm giá trị `this` của chúng). Ngoài ra, trong chế độ strict, khi một hàm được gọi bằng `call()` hoặc `apply()` (8.7.4), giá trị this chính xác là giá trị được chuyển làm đối số đầu tiên cho call() hoặc apply(). (Trong chế độ non-strict, các giá trị null và undefined được thay thế bằng global object và các giá trị không phải là object được chuyển thành object)
+    - Trong chế độ strict, các phép gán cho các thuộc tính không thể ghi và các nỗ lực tạo thuộc tính mới trên các object không thể mở rộng sẽ ném ra TypeError. (Trong chế độ non-strict, những nỗ lực này sẽ thất bại trong im lặng)
+    - Trong chế độ strict, code được chuyển đến eval() không thể khai báo các biến hoặc định nghĩa các hàm trong phạm vi của người gọi như trong chế độ non-strict. Thay vào đó, các định nghĩa biến và hàm nằm trong cùng một phạm vi mới được tạo cho eval(). Phạm vi này bị loại bỏ khi eval() trả về
+    - Trong chế độ strict, object **Agruments**(8.3.3) trong 1 hàm chứa một bản sao tĩnh của các giá trị được chuyển đến hàm. Trong chế độ non-strict, object Agruments có hành vi “ma thuật” trong đó các phần tử của mảng và các tham số hàm được đặt tên đều tham chiếu đến cùng một giá trị
+    - Trong strict, SyntaxError được ném ra nếu toán tử delete được theo sau bởi một định danh không đủ điều kiện như biến, hàm hoặc tham số hàm. (Trong chế độ non-strict, biểu thức delete như vậy không làm gì cả và đánh giá là false)
+    - Trong chế độ strict, đó là lỗi cú pháp đối với một object literal để định nghĩa hai hoặc nhiều thuộc tính bằng cùng một tên. (Trong chế độ non-strict, không có lỗi nào xảy ra.)
+    - Trong chế độ strict, đó là lỗi cú pháp đối với khai báo hàm có hai hoặc nhiều tham số cùng tên. (Trong chế độ non-strict, không có lỗi nào xảy ra.)
+    - Trong chế độ strict, octal integer literals (bắt đầu bằng số 0 không được theo sau bởi x) không được phép. (Trong chế độ non-strict, một số triển khai cho phép octal literals .)
+    - Trong chế độ strict, các định danh **eval** và **arguments** được coi như các từ khóa và bạn không được phép thay đổi giá trị của chúng. Bạn không thể gán giá trị cho các định danh này, khai báo chúng như biến, sử dụng chúng như tên hàm, sử dụng chúng như tên tham số hàm hoặc sử dụng chúng như định danh của khối **catch**.
+    - Trong chế độ strict, khả năng kiểm tra ngăn xếp cuộc gọi bị hạn chế. **arguments.caller** và **arguments.callee** đều ném ra **TypeError** trong một hàm chế độ strict. Các hàm chế độ strict cũng có các thuộc tính **caller** và **arguments** ném ra **TypeError** khi đọc. (Một số triển khai định nghĩa các thuộc tính không chuẩn này trên các hàm non-strict.)
