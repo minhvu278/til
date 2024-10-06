@@ -857,3 +857,113 @@
     - Trong chế độ strict, octal integer literals (bắt đầu bằng số 0 không được theo sau bởi x) không được phép. (Trong chế độ non-strict, một số triển khai cho phép octal literals .)
     - Trong chế độ strict, các định danh **eval** và **arguments** được coi như các từ khóa và bạn không được phép thay đổi giá trị của chúng. Bạn không thể gán giá trị cho các định danh này, khai báo chúng như biến, sử dụng chúng như tên hàm, sử dụng chúng như tên tham số hàm hoặc sử dụng chúng như định danh của khối **catch**.
     - Trong chế độ strict, khả năng kiểm tra ngăn xếp cuộc gọi bị hạn chế. **arguments.caller** và **arguments.callee** đều ném ra **TypeError** trong một hàm chế độ strict. Các hàm chế độ strict cũng có các thuộc tính **caller** và **arguments** ném ra **TypeError** khi đọc. (Một số triển khai định nghĩa các thuộc tính không chuẩn này trên các hàm non-strict.)
+
+## **5.7 Declarations**
+
+- Các từ khoá const, let, var, function, class, import và export về mặt kỹ thuật không phải là câu lệnh, nhưng chúng rất giống câu lệnh và cuốn sách này gọi chúng một cách không chính thức là câu lệnh, vì vậy chúng đang được đề cập đến trong chương này
+- Các từ khoá này được mô tả chính xác hơn là khai báo hơn là câu lệnh. Chúng ta đã nói ở đầu chương này rằng các câu lệnh “làm cho điều gì đó xảy ra”. Khai báo phục vụ để xác định các giá trị mới và đặt tên cho chúng để chúng ta có thể sử dụng để tham chiếu đến các giá trị đó. Bản thân chúng không làm cho nhiều điều xảy ra, nhưng bằng cách cung cấp tên cho các giá trị, theo một nghĩa quan trọng, chúng xác định ý nghĩa của các câu lệnh khác trong chương trình của bạn
+- Khi một chương trình chạy, đó là các biểu thức của chương trình đang được đánh giá và các câu lệnh của chương trình đang được thực thi. Các khai báo trong một chương trình không chạy theo cùng một cách: thay vào đó, chúng xác định cấu trúc của chính chương trình. Nói một cách lỏng lẻo, bạn có thể nghĩ về các khai báo là các phần của chương trình được xử lý trước khi code bắt đầu chạy
+- Các khai báo Js được sử dụng để xác định hằng số, biến, hàm và class để import và export các giá trị giữa các module. Các phần phụ tiếp theo đưa ra các ví dụ về tất cả các khai báo này. Tất cả chúng đều được đề cập chi tiết hơn ở những nơi khác trong cuốn sách này
+
+### 5.7.1 const, let và var
+
+Các khai báo **const**, **let** và **var** được đề cập trong §3.10. Trong ES6 trở lên, **const** khai báo hằng số và **let** khai báo biến. Trước ES6, từ khóa **var** là cách duy nhất để khai báo biến và không có cách nào để khai báo hằng số. Các biến được khai báo bằng **var** được giới hạn phạm vi trong hàm chứa chứ không phải khối chứa. Điều này có thể là một nguồn gây ra lỗi và trong JavaScript hiện đại, thực sự không có lý do gì để sử dụng **var** thay vì **let**.
+
+```jsx
+const TAU = 2*Math.PI;
+let radius = 3;
+var circumference = TAU * radius;
+```
+
+### 5.7.2 function
+
+Khai báo hàm được sử dụng để định nghĩa các hàm, được đề cập chi tiết trong Chương 8. (Chúng ta cũng đã thấy **function** trong §4.3, nơi nó được sử dụng như một phần của biểu thức hàm chứ không phải khai báo hàm.) Khai báo hàm trông như thế này:
+
+```jsx
+function area(radius) {
+  return Math.PI * radius * radius;
+}
+```
+
+Khai báo hàm tạo một đối tượng hàm và gán nó cho tên được chỉ định - **area** trong ví dụ này. Ở những nơi khác trong chương trình của chúng ta, chúng ta có thể tham chiếu đến hàm — và chạy mã bên trong nó — bằng cách sử dụng tên này. Các khai báo hàm trong bất kỳ khối mã JavaScript nào được xử lý trước khi mã đó chạy và các tên hàm được liên kết với các đối tượng hàm trong toàn bộ khối. Chúng tôi nói rằng các khai báo hàm được “nâng lên” (hoisted) bởi vì nó giống như thể tất cả chúng đã được di chuyển lên đầu bất kỳ phạm vi nào mà chúng được xác định bên trong. Kết quả là mã gọi một hàm có thể tồn tại trong chương trình của bạn trước mã khai báo hàm.
+
+§12.3 mô tả một loại hàm đặc biệt được gọi là trình tạo (generator). Khai báo trình tạo sử dụng từ khóa **function** nhưng theo sau nó là dấu hoa thị. §13.3 mô tả các hàm không đồng bộ (asynchronous), cũng được khai báo bằng cách sử dụng từ khóa **function** nhưng được thêm tiền tố bằng từ khóa **async**.
+
+### 5.7.3 class
+
+Trong ES6 trở lên, khai báo **class** tạo ra một lớp mới và đặt tên cho nó để chúng ta có thể sử dụng để tham chiếu đến nó. Các lớp được mô tả chi tiết trong Chương 9. Khai báo lớp đơn giản có thể trông như thế này:
+
+```jsx
+class Circle {
+  constructor(radius) { this.r = radius; }
+  area() { return Math.PI * this.r * this.r; }
+  circumference() { return 2 * Math.PI * this.r; }
+}
+```
+
+Không giống như các hàm, khai báo lớp không được nâng lên và bạn không thể sử dụng lớp được khai báo theo cách này trong mã xuất hiện trước khai báo.
+
+### 5.7.4 import và export
+
+Các khai báo **import** và **export** được sử dụng cùng nhau để làm cho các giá trị được xác định trong một mô-đun mã JavaScript có sẵn trong một mô-đun khác. Mô-đun là một tệp mã JavaScript có không gian tên toàn cục riêng, hoàn toàn độc lập với tất cả các mô-đun khác. Cách duy nhất để một giá trị (chẳng hạn như hàm hoặc lớp) được xác định trong một mô-đun có thể được sử dụng trong một mô-đun khác là nếu mô-đun xác định xuất nó với **export** và mô-đun sử dụng nhập nó với **import**. Các mô-đun là chủ đề của Chương 10 và **import** và **export** được đề cập chi tiết trong §10.3.
+
+Các chỉ thị **import** được sử dụng để nhập một hoặc nhiều giá trị từ một tệp mã JavaScript khác và đặt tên cho chúng trong mô-đun hiện tại. Các chỉ thị **import** có một số dạng khác nhau. Dưới đây là một số ví dụ:
+
+```jsx
+import Circle from './geometry/circle.js';
+import { PI, TAU } from './geometry/constants.js';
+import { magnitude as hypotenuse } from './vectors/utils.js';
+```
+
+Các giá trị trong một mô-đun JavaScript là riêng tư và không thể được nhập vào các mô-đun khác trừ khi chúng đã được xuất rõ ràng. Chỉ thị **export** thực hiện điều này: nó khai báo rằng một hoặc nhiều giá trị được xác định trong mô-đun hiện tại được xuất và do đó có sẵn để nhập bởi các mô-đun khác. Chỉ thị **export** có nhiều biến thể hơn chỉ thị **import**. Đây là một trong số đó:
+
+```jsx
+// geometry/constants.js
+const PI = Math.PI;
+const TAU = 2 * PI;
+export { PI, TAU };
+```
+
+Từ khóa **export** đôi khi được sử dụng như một bộ điều chỉnh trên các khai báo khác, dẫn đến một loại khai báo phức hợp xác định một hằng số, biến, hàm hoặc lớp và xuất nó cùng một lúc. Và khi một mô-đun chỉ xuất một giá trị duy nhất, điều này thường được thực hiện với dạng đặc biệt **export default**:
+
+```jsx
+export const TAU = 2 * Math.PI;
+export function magnitude(x,y) { return Math.sqrt(x*x + y*y); } 
+export default class Circle { /* định nghĩa lớp được bỏ qua ở đây */ }
+```
+
+## Summary
+
+- Chương này đã giới thiệu từng câu lệnh của ngôn ngữ Js, được tóm tắt trong bảng 5-1
+
+**Bảng 5-1. Cú pháp câu lệnh JavaScript**
+
+| **Câu lệnh** | **Mục đích** |
+| --- | --- |
+| **break** | Thoát khỏi vòng lặp hoặc **switch** trong cùng hoặc khỏi câu lệnh bao quanh được đặt tên |
+| **case** | Gắn nhãn một câu lệnh trong **switch** |
+| **class** | Khai báo một lớp |
+| **const** | Khai báo và khởi tạo một hoặc nhiều hằng số |
+| **continue** | Bắt đầu lần lặp tiếp theo của vòng lặp trong cùng hoặc vòng lặp được đặt tên |
+| **debugger** | Điểm dừng trình gỡ lỗi |
+| **default** | Gắn nhãn câu lệnh mặc định trong **switch** |
+| **do/while** | Một lựa chọn thay thế cho vòng lặp **while** |
+| **export** | Khai báo các giá trị có thể được nhập vào các mô-đun khác |
+| **for** | Vòng lặp dễ sử dụng |
+| **for/await** | Lặp lại không đồng bộ các giá trị của một trình vòng lặp không đồng bộ |
+| **for/in** | Liệt kê các tên thuộc tính của một đối tượng |
+| **for/of** | Liệt kê các giá trị của một đối tượng có thể lặp lại chẳng hạn như một mảng |
+| **function** | Khai báo một hàm |
+| **if/else** | Thực thi câu lệnh này hay câu lệnh khác tùy thuộc vào điều kiện |
+| **import** | Khai báo tên cho các giá trị được xác định trong các mô-đun khác |
+| **label** | Đặt tên cho câu lệnh để sử dụng với **break** và **continue** |
+| **let** | Khai báo và khởi tạo một hoặc nhiều biến có phạm vi khối (cú pháp mới) |
+| **return** | Trả về một giá trị từ một hàm |
+| **switch** | Phân nhánh đa hướng đến **case** hoặc **default**: nhãn |
+| **throw** | Ném ra một ngoại lệ |
+| **try/catch/finally** | Xử lý ngoại lệ và dọn dẹp mã |
+| **"use strict"** | Áp dụng các hạn chế chế độ strict cho tập lệnh hoặc hàm |
+| **var** | Khai báo và khởi tạo một hoặc nhiều biến (cú pháp cũ) |
+| **while** | Cấu trúc vòng lặp cơ bản |
+| **with** | Mở rộng chuỗi phạm vi (không được dùng nữa và bị cấm trong chế độ strict) |
+| **yield** | Cung cấp một giá trị để được lặp lại; chỉ được sử dụng trong các hàm trình tạo |
