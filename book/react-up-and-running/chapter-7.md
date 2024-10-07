@@ -250,3 +250,152 @@
     
 - Bây giờ nếu bạn tải http://localhost:3000/discovery thay vì http://localhost:3000/, bạn có thể thấy tất cả các component mà bạn đã thêm vào Discovery
 - Tại thời điểm này, chỉ có một component duy nhất, nhưng trang này sẽ sớm được phát triển. Hãy bắt tay vào làm việc và xây dựng chúng - từng cái một
+
+## Logo and a Body
+
+- Bắt đầu với một vài component đơn giản, bạn có thể kiểm tra xem mọi thứ có hoạt động hay không và cảm thấy hào hứng khi thấy tiến độ nhanh chóng. Dưới đây là 2 component mới mà mọi ứng dụng đều cần
+
+### **Logo**
+
+- Components Logo không cần nhiều code. Và chỉ để cho điều đó là có thể , chúng ta hãy bắt đầu sử dụng một arrow function để định nghĩa component này
+    
+    ```jsx
+    import logo from './../images/whinepad-logo.png';
+    const Logo = () => {
+     return <img src={logo} width="300" alt="Whinepad logo" />;
+    };
+    export default Logo;
+    ```
+    
+
+### Body
+
+- Phần body cũng là một nơi đơn giản cho một vài style, và nó chỉ đơn giản là hiển thị các phần tử con được truyền cho nó
+    
+    ```jsx
+    import './Body.css';
+    const Body = ({children}) => {
+     return <div className="Body">{children}</div>;
+    };
+    export default Body;
+    ```
+    
+- Trong `Body.css`, bạn tham chiếu đến hình ảnh theo cách tương tự như trong file Js: tương đối với vị trí của file CSS. Quá trình build sẽ trích xuất các hình ảnh được tham chiếu trong code và đóng gói chúng với các phần còn lại của ứng dụng trong `build
+    
+    ```jsx
+    .Body {
+     background: url('./../images/back.jpg') no-repeat center center fixed;
+     background-size: cover;
+     padding: 40px;
+    }
+    ```
+    
+
+### **Discoverable**
+
+- Đây là những component thật sự đơn giản (và có thể bạn cho là không cần thiết, nhưng các ứng dụng có xu hướng phát triển), và chúng minh hoạ cách bạn bắt đầu lắp ráp ứng dụng từ những mảnh ghép nhỏ.
+    
+    ```jsx
+    import Logo from './Logo';
+    import Header from './Header';
+    import Body from './Body';
+    function Discovery() {
+     return (
+     <div className="Discovery">
+     <h2>Logo</h2>
+     <div style={{background: '#f6f6f6', display: 'inline-block'}}>
+     <Logo />
+     </div>
+     <h2>Body</h2>
+     <Body>Tôi là nội dung bên trong Body</Body>
+     {/* và cứ tiếp tục như vậy */}
+     </div>
+     );
+    }
+    ```
+    
+
+## Component `<Button>`
+
+- Không hề phóng đại khi nói rằng mọi ứng dụng đều cần button. Nó thường là 1 thẻ HTML `<button>` được style đẹp mắt, nhưng đôi khi nó phải là 1 thẻ a, như trong chương 3 cho nút download. Vậy hãy tạo ra 1 `<Button>` mới có thể nhận một option property? Nếu có , nó sẽ hiển thị 1 thẻ a bên dưới tất cả
+- Theo tinh thần phát triển hướng kiểm thử (TDD), bạn có thể bắt đầu ngược lại bằng cách xác định cách sử dụng **component trong component `<Discovery>`**
+    
+    ```jsx
+    import Button from './Button';
+    // ...
+    <h2>Buttons</h2>
+    <p>
+     Button with onClick:{' '}
+     <Button onClick={() => alert('ouch')}>Click me</Button>
+    </p>
+    <p>
+     A link: <Button href="https://reactjs.org/">Follow me</Button>
+    </p>
+    <p>
+     Custom class name:{' '}
+     <Button className="Discovery-custom-button">I do nothing</Button>
+    </p>
+    ```
+    
+    - Vậy chúng ta nên gọi nó là phát triển theo **TDD hay DDD**
+
+### **Button.js**
+
+- Hãy xem component `Button` một cách đầy đủ
+    
+    ```jsx
+    import classNames from 'classnames';
+    import PropTypes from 'prop-types';
+    import './Button.css';
+    const Button = (props) =>
+     props.href ? (
+     <a {...props} className={classNames('Button', props.className)}>
+     {props.children}
+     </a>
+     ) : (
+     <button {...props} className={classNames('Button', props.className)} />
+     );
+    Button.propTypes = {
+     href: PropTypes.string,
+    };
+    export default Button;
+    ```
+    
+- Component này ngắn gọn nhưng có một số điều cần lưu ý
+    - Nó sử dụng module `classname`(sẽ nói bên dưới)
+    - Nó sử dụng cú pháp **function expression** (const Button = () => {} trái ngược với function Button() {}). Thực sự không có lý do gì để sử dụng cú pháp này trong ngữ cảnh này; bạn thích cú pháp nào là tuỳ bạn, nhưng thật tốt khi biết điều đó là có thể
+    - Nó sử dụng toán tử spead `...props` như một cách thuận tiện để nói: tất cả property nào được truyền cho `Button` hãy chuyển chúng sang element HTML bên dưới
+
+### classnames Package
+
+- Bạn có nhớ dòng này không
+    
+    ```jsx
+    import classNames from 'classnames';
+    ```
+    
+- `classnames package` cung cấp cho bạn một hàm hữu ích khi xử lý các tên class CSS. Nó giúp bạn thực hiện nhiệm vụ phổ biến là để component của bạn sử dụng các class của chính nó, nhưng cũng đủ linh hoạt để cho phép custom thông qua tên class được truyền bởi component cha
+- Việc đưa package này vào CRA của bạn bao gồm việc chạy
+    
+    ```jsx
+    $ cd ~/reactbook/whinepad
+    $ npm i classnames
+    ```
+    
+- Lưu ý rằng `package.json` của bạn được cập nhật với dependency mới
+- Sử dụng hàm duy nhất của package
+    
+    ```jsx
+    const cssclasses = classNames('Button', props.className);
+    ```
+    
+- Dòng này hợp nhất tên class Button với bất kỳ (nếu có) tên class nào được truyền dưới dạng property khi tạo component
+- Bạn luôn có thể tự nối các tên class, nhưng classnames là một package nhỏ giúp bạn thực hiện nhiệm vụ phổ biến này thuận tiện hơn. Nó cũng cho phép bạn đặt tên class có điều kiện, cũng rất thuận tiện
+    
+    ```jsx
+    <div className={classNames({
+     'mine': true, // không điều kiện
+     'highlighted': this.state.active, // phụ thuộc vào trạng thái...
+     'hidden': this.props.hide, // ... hoặc thuộc tính
+    })} />
+    ```
