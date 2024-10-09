@@ -399,3 +399,141 @@
      'hidden': this.props.hide, // ... hoặc thuộc tính
     })} />
     ```
+
+## Form
+
+- Hãy chuyển sang phần tiếp theo, một phần thiết yếu của bất kỳ ứng dụng nhập liệu nào: xử lý form. Là dev, chúng ta hiếm khi hài lòng với giao diện và cảm nhận của các input form được tích hợp sẵn của trình duyệt và chúng ta có xu hướng tạo ra phiên bản của riêng mình. Ứng dụng này cũng không thể là ngoại lệ
+- Hãy tạo một component <FormInput> chung chung - một factory, nếu bạn muốn. Tuỳ thuộc vào property `type` của nó, component này sẽ uỷ quyền tạo input cho các component chuyên biệt hơn, ví dụ như input `<Suggest>`, input `<Rating>`,…
+- Chúng ta hãy bắt đầu với component cấp thấp hơn
+
+### Suggest
+
+- Các input tự động gợi ý (hay còn gọi là typeahead) rất phổ biến trên web, nhưng hãy giữ cho nó đơn giản và tận dụng những gì trình duyệt đã cung cấp - cụ thể là element HTML `<datalist>`
+- Việc đầu tiên và cần cập nhật component Discovery
+    
+    ```jsx
+    <h2>Suggest</h2>
+    <p>
+     <Suggest options={['eenie', 'meenie', 'miney', 'mo']} />
+    </p>
+    ```
+    
+- Bây giờ hãy triển khai component Suggest.js
+    
+    ```jsx
+    import PropTypes from 'prop-types';
+    function Suggest({id, defaultValue = '', options=[]}) {
+     const randomid = Math.random().toString(16).substring(2);
+     return (
+     <>
+     <input
+     id={id}
+     list={randomid}
+    defaultValue={defaultValue}
+     />
+     <datalist id={randomid}>
+     {options.map((item, idx) => (
+     <option value={item} key={idx} />
+     ))}
+     </datalist>
+     </>
+     );
+    }
+    Suggest.propTypes = {
+     defaultValue: PropTypes.string,
+     options: PropTypes.arrayOf(PropTypes.string),
+    };
+    export default Suggest;
+    ```
+    
+- Như đoạn code trước cho thấy, không có gì đặt biệt về component này; nó chỉ là một trình bao bọc xung quanh input với một datalist được gắn vào nó (thông qua randomId)
+- Về cú pháp Js, ví dụ này cho thấy cách sử dụng phép gán desctructuring để gán nhiều property cho một biến và đồng thời giác định giá trị default
+    
+    ```jsx
+    // trước
+    function Suggest(props) {
+     const id = props.id;
+     const defaultValue = props.defaultValue || '';
+     const options = props.options || [];
+     // ...
+    }
+    // sau
+    function Suggest({id, defaultValue = '', options=[]}) {}
+    ```
+    
+
+### Rating component
+
+- Ứng dụng là về việc bạn ghi chú những gì bạn thử, cách ghi chú lười biếng nhất là sử dụng xếp hạng sao, ví dụ thang điểm số nguyên từ 1 đến 5
+- Component có khả năng tái sử dụng cao này có thể được định cấu hình để
+    - Sử dụng bất kỳ số lượng sao nào - mặc định là 5
+    - Chỉ đọc, bởi vì đôi khi bạn không muốn những cú click chuột vô tình vào các ngôi sao làm thay đổi dữ liệu xếp hạng
+    
+    ```jsx
+    <h2>Rating</h2>
+    <p>
+     No initial value: <Rating />
+    </p>
+    <p>
+     Initial value 4: <Rating defaultValue={4} />
+    </p>
+    <p>
+     This one goes to 11: <Rating max={11} />
+    </p>
+    <p>
+     Read-only: <Rating readonly={true} defaultValue={3} />
+    </p>
+    ```
+    
+- Những điều cần thiết cơ bản của việc triển khai bao gồm thiết lập các property, type và default value cũng như state cần được duy trì
+    
+    ```jsx
+    import classNames from 'classnames';
+    import {useState} from 'react';
+    import PropTypes from 'prop-types';
+    import './Rating.css';
+    function Rating({id, defaultValue = 0, max = 5, readonly = false}) {
+     const [rating, setRating] = useState(defaultValue);
+     const [tempRating, setTempRating] = useState(defaultValue);
+     // TODO phần hiển thị nằm ở đây...
+    }
+    Rating.propTypes = {
+     defaultValue: PropTypes.number,
+     readonly: PropTypes.bool,
+     max: PropTypes.number,
+    };
+    export default Rating;
+    ```
+    
+- Các property tự giải thích : `max` là số lượng cao nhất và `readonly` là chỉ đọc. State chứa `rating` là các giá trị hiện tại của các sao được chỉ định và `tempRating` sẽ được sử dụng khi người dùng di chuyển chuột xung quanh component nhưng chưa sẵn sàng click vào cam kết xếp hạng.
+- Tiếp theo là phần hiển thị. Nó có
+    - Một vòng lặp để tạo các star từ 1 đến `props.max`. Các star chỉ là biểu tượng emoij. Khi kiểu `RatingOn` không được áp dụng, các star sẽ chuyển sang màu xám với sự trợ giúp của bộ lọc CSS (filter: grayscale(0.9))
+    - Một input ẩn để hoạt động như một input form thực sự và cho phép thu thập giá trị một cách chung chung (Giống như bất kỳ input cũ nào)
+    
+    ```jsx
+    const stars = [];
+    for (let i = 1; i <= max; i++) {
+     stars.push(
+     <span
+     className={i <= tempRating ? 'RatingOn' : null}
+     key={i}
+    onClick={() => (readonly ? null : setRating(i))}
+     onMouseOver={() => (readonly ? null : setTempRating(i))}>
+     
+     </span>,
+     );
+    }
+    return (
+    <span
+     className={classNames({
+     Rating: true,
+     RatingReadonly: readonly,
+     })}
+     onMouseOut={() => setTempRating(rating)}>
+     {stars}
+     <input id={id} type="hidden" value={rating} />
+     </span>
+    );
+    ```
+    
+- Khi người dùng di chuyển chuột qua component, state `tempRating` sẽ được cập nhật, điều này làm thay đổi tên class `RatingOn`. Khi người dùng click chuột, state rating thực sự sẽ được cập nhật. Điều này cũng cập nhật input ẩn. Rời khỏi component (di chuột ra ngoài) sẽ từ bỏ tempRating, làm cho nó giống với rating
