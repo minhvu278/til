@@ -220,3 +220,49 @@
     - `o` có property riêng `p` chỉ đọc: không thể thiết lập các property chỉ đọc
     - `o` có property kế thừa `p` chỉ đọc: không thể ẩn property chỉ đọc kế thừa bằng property riêng cùng tên
     - `o` không có property riêng `p`; `o` không kế thừa property `p` với method setter và property mở rộng của `p` (xem 14.2) là `false`. Vì `p` chưa tồn tại trong `o` và nếu không có method setter nào để gọi, thì `p` phải được thêm vào `o`. Nhưng nếu `o` không thể mở rộng, thì không thể định nghĩa các property mới trên đó
+
+## **6.4 Deleting Properties**
+
+- Toán tử `delete` (4.13.4) loại bỏ một property khỏi một object. Toán hạng duy nhất của nó là một biểu thức truy cập property. Đáng ngạc nhiên, `delete` không hoạt động trên giá trị của property mà trên chính property
+    
+    ```jsx
+    delete book.author; // Đối tượng book hiện không có thuộc tính author.
+    delete book["main title"]; // Bây giờ nó cũng không có "main title".
+    ```
+    
+- Toán tử delete chỉ xoá các property riêng, không xoá các property kế thừa. (Để xoá một property được kế thừa, bạn phải xoá nó khỏi prototype object mà nó được xác định. Làm điều này ảnh hưởng đến mọi object kế thừa từ prototype đó).
+- Biểu thức delete được đánh giá là true nếu việc xoá thành công hoặc việc xoá không có tác dụng (chẳng hạn như xoá một property không tồn tại. `delete` cũng được đánh giá là true khi được sử dụng (vô nghĩa) với một biểu thức không phải là biểu thức truy cập property
+    
+    ```jsx
+    let o = {x: 1}; // o có thuộc tính riêng x và kế thừa thuộc tính toString
+    delete o.x // => true: xóa thuộc tính x
+    delete o.x // => true: không làm gì cả (x không tồn tại) nhưng vẫn là true
+    delete o.toString // => true: không làm gì cả (toString không phải là thuộc tính riêng)
+    delete 1 // => true: vô nghĩa, nhưng vẫn là true
+    ```
+    
+- `delete` không loại bỏ các property có property configurable là false. Các property nhất định của các object tích hợp sẵn không thể định cấu hình, cũng như các property của global object được tạo ở khai báo biến và hàm. Ở chế độ strict, việc cố gắng xoá một property không thể định cấu hình sẽ gây ra `TypeError`. Ở chế độ non-strict, delete chỉ đơn giản là đánh giá thành false
+    
+    ```jsx
+    // Ở chế độ strict, tất cả các lần xóa này đều ném ra TypeError thay vì trả về false
+    delete Object.prototype // => false: thuộc tính không thể định cấu hình
+    var x = 1; // Khai báo một biến toàn cục
+    delete globalThis.x // => false: không thể xóa thuộc tính này
+    function f() {} // Khai báo một hàm toàn cục
+    delete globalThis.f // => false: cũng không thể xóa thuộc tính này
+    ```
+    
+- Khi xoá một property có thể định cấu hình của global object ở chế độ non-strict, bạn có thể bỏ qua tham chiếu đến global object và chỉ cần theo toán tử delete với tên property
+    
+    ```jsx
+    globalThis.x = 1; // Tạo một thuộc tính toàn cục có thể định cấu hình (không có let hoặc var)
+    delete x // => true: thuộc tính này có thể bị xóa
+    ```
+    
+- Tuy nhiên, ở chế độ strict, delete đưa ra SyntaxError nếu toán hạng của nó là một định danh không đủ điều kiện như `x` và bạn phải rõ ràng về việc truy cập property
+    
+    ```jsx
+    delete x; // SyntaxError ở chế độ strict
+    delete globalThis.x; // Điều này hoạt động
+    ```
+
