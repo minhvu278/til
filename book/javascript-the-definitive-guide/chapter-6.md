@@ -90,3 +90,133 @@
 - Khả năng tạo một object mới với 1 prototype tuỳ ý là một khả năng mạnh mẽ và chúng ta sẽ sử dụng `Object.create()` ở một số nơi trong chương này. (`Object.create()` cũng nhận một đối số thứ 2 tuỳ chọn mô tả các property của object mới. Đối số thứ 2 này là một tính năng nâng cao được đề cập trong 14.1)
 - Một cách sử dụng cho `Object.create()` là khi bạn muốn bảo vệ chống lại sự sửa đổi ngoài ý muốn (nhưng không độc hại) đối với 1 object bởi một hàm thư viện mà bạn không kiểm soát được. Thay vì chuyển trực tiếp object cho hàm, bạn có thể chuyển một object kế thừa từ nó. Nếu hàm đọc các thuộc tính của object đó, nó sẽ thấy các giá trị được kết thừa. Tuy nhiên, nếu nó đặt các property, thì những lần ghi đó sẽ không ảnh hưởng đến object ban đầu
 - Để hiểu tại sao điều này hoạt động, bạn cần biết cách các thuộc tính được truy vấn và thiết lập trong JavaScript. Đây là chủ đề của phần tiếp theo.
+
+## **6.3 Querying and Setting Properties**
+
+- Để lấy giá tri của một property, hãy sử dụng toán tử (.) hoặc ([]) được mô tả trong 4.4. Vế trái phải là một biểu thức có giá trị là một object. Nếu sử dụng toán tử `.`, về phải phải là một định danh đơn giản đặt tên cho property. Nếu sử dụng dấu ngoặc vuông, giá trị trong dấu ngoặc vuông phải là một biểu thức đánh giá thành một chuỗi chứa tên property mong muốn
+    
+    ```jsx
+    let author = book.author; // Lấy thuộc tính "author" của book.
+    let name = author.surname; // Lấy thuộc tính "surname" của author.
+    let title = book["main title"]; // Lấy thuộc tính "main title" của book.
+    ```
+    
+- Để tạo hoặc thiết lập một property, hãy sử dụng dấu chấm hoặc dấu ngoặc vuông như khi bạn truy cập property nhưng đặt chúng ở vế trái của biểu thức gán
+    
+    ```jsx
+    book.edition = 7; // Tạo thuộc tính "edition" của book.
+    book["main title"] = "ECMAScript"; // Thay đổi thuộc tính "main title".
+    ```
+    
+- Khi sử dụng ký hiệu dấu ngoặc vuông, chúng ta đã nói rằng biểu thức bên trong dấu ngoặc vuông phải được đánh giá thành một chuỗi. Một câu lệnh chính xác hơn là biểu thức phải được đánh giá thành một chuỗi hoặc một giá trị có thể được chuyển đổi thành một chuỗi hoặc thành một Symbol (6.10.3). Ví dụ, trong chương 7 chúng ta sẽ thấy rằng việc sử dụng số trong đầu dấu ngoặc vuông là phổ biến
+
+### **6.3.1 Objects As Associative Arrays**
+
+- Như đã giải thích trong phần trước, hai biểu thức Js sau có cùng giá trị
+    
+    ```jsx
+    object.property
+    object["property"]
+    ```
+    
+- Cú pháp đầu tiên sử dụng dấu chấm và một định danh, giống như cú pháp được sử dụng để truy cập một môi trường tĩnh của một struct hoặc một object trong C hoặc Java. Cú pháp thứ 2 sử dụng dấu ngoặc vuông và một chuỗi, trông giống như truy cập mảng, nhưng đối với 1 mảng được lập index bằng chuỗi chứ không phải bằng số. Loại mảng này gọi là mảng kết hợp (associative arrays) (hoặc hash hoặc map hoặc dictionary). Các object Js là mảng kết hợp và phần này giải thích lý do tại sao điều đó quan trọng
+- Trong C, C++, Java và một số ngôn ngữ được nhập mạnh tương tự, một object chỉ có thể có một số lượng property cố định và tên của các property này phải được xác định trước. Vì Js là một ngôn ngữ được nhập lỏng lẻo, nên quy tắc này không được áp dụng: một chương trình có thể tạo bất kỳ số lượng property nào trong bất kỳ object nào. Tuy nhiên khi bạn sử dụng toán tử `.` để truy cập 1 property của object, tên của property được biểu thị dưới dạng một định danh. Các định danh phải được nhập theo đúng nghĩa đen vào chương trình Js của bạn; chúng không phải là một kiểu dữ liệu, vì vậy chúng không thể thao tác bởi chương trình
+- Mặt khác, khi bạn truy cập một property của 1 object bằng `[]`, tên của property được biểu thị dưới dạng 1 chuỗi. Chuỗi là kiểu dữ liệu Js, vì vậy chúng có thể được thao tác và tạo trong khi chương trình đang chạy. Vì vậy, ví dụ, bạn có thể viết code sau trong Js
+- Đoạn mã này đọc và nối các thuộc tính address0, address1, address2 và address3 của đối tượng customer.
+- Ví dụ ngắn gọn này thể hiện tính linh hoạt của việc sử dụng ký hiệu mảng để truy cập các property của một object với các biểu thức chuỗi. Đoạn code này có thể viết lại bằng cách sử dụng ký hiệu `.`, nhưng có những trường hợp mà chỉ có `[]` mới thực hiện được. Ví dụ, giả sử bạn viết một chương trình sử dụng tài nguyên mạng để tính toán giá trị hiện tại của các khoản đầu tư của thị trường chứng khoán của người dùng. Chương trình cho phép người dùng nhập tên của từng cổ phiếu mà họ sở hữu cũng như số lượng cổ phiếu của từng cổ phiếu. Bạn có thể sử dụng một object có tên `portfolio` để lưu giữ thông tin này. Object có một property cho mỗi cổ phiếu. Tên của property là tên của mỗi cổ phiếu và giá trị property là số lượng cổ phiếu đó. Vì vậy, nếu người dùng nắm giữ 50 cổ phiếu IBM thì property [`portfolio.ibm`](http://portfolio.ibm) có giá trị là 50
+- Một phần của chương trình này có thể là một hàm để thêm một cổ phiếu mới vào danh mục đầu tư
+    
+    ```jsx
+    function addstock(portfolio, stockname, shares) {
+      portfolio[stockname] = shares;
+    }
+    ```
+    
+- Ví dụ người dùng nhập tên cổ phiếu tại thời điểm chạy, nên không có cách nào để bạn biết tên property trước thời hạn. Vì bạn không thể biết tên property khi bạn viết chương trình, nên không có cách nào để bạn sử dụng toán tử `.` để truy cập các property của object `portfolio`. Tuy nhiên bạn có thể sử dụng toán tử `[]` vì nó sử dụng giá trị chuỗi (là động và có thể thay đổi trong thời gian chạy) thay vì định danh (là tĩnh và được mã hoá cứng trong chương trình) để đặt tên cho property
+- Trong chương 5, chúng ta đã giới thiệu vòng lặp `for/in` (và chúng ta sẽ thấy nó một lần nữa trong thời gian ngắn, trong 6.6). Sức mạnh của câu lệnh JS này trở nên rõ ràng khi bạn xem xét việc sử dụng nó với mảng kết hợp. Đây là cách bạn sẽ sử dụng nó khi tính toán tổng giá trị của một danh mục đầu tư
+    
+    ```jsx
+    function computeValue(portfolio) {
+      let total = 0.0;
+      for(let stock in portfolio) { // Đối với mỗi cổ phiếu trong danh mục đầu tư:
+        let shares = portfolio[stock]; // lấy số lượng cổ phiếu
+        let price = getQuote(stock); // tra cứu giá cổ phiếu
+        total += shares * price; // thêm giá trị cổ phiếu vào tổng giá trị
+      }
+      return total; // Tr trả về tổng giá trị.
+    }
+    ```
+    
+- Các object Js thường được sử dụng làm mảng kết hợp như được hiển thị ở đây và điều quan trọng là phải hiểu được cách thức hoạt động này. Tuy nhiên, trong ES6 trở lên, class Map được mô tả trong 11.1.2 thường là lựa chọn tốt hơn so với việc sử dụng 1 object đơn giản
+
+### **6.3.2 Inheritance**
+
+- Các object Js có một tập hợp “property riêng” và chúng cũng kế thừa một tập hợp các property từ prototype object (object nguyên mẫu) của chúng. Để hiểu điều này, chúng ta phải xem xét việc truy cập property chi tiết hơn. Các ví dụ trong phần này sử dụng `Object.create()` để tạo các object với các `prototype` được chỉ định. Tuy nhiên, chúng ta sẽ thấy trong chương 9, mỗi khi bạn tạo một thể hiện mới với `new`, bạn đang tạo 1 object kế thừa các property từ một prototype object
+- Giả sử  bạn truy vấn property `x` trong object `o`. Nếu `o` không có property riêng có tên đó, thì prototype object của `o` được truy vấn cho property `x`. Nếu prototype object không có property riêng có tên đó, nhưng bản thân nó có một prototype, thì truy vấn được thực hiện trên prototype của prototype. Điều này tiếp tục cho đến khi tìm thấy property `x` hoặc đến khi object prototype `null` được tìm kiếm. Như bạn có thể thấy, prototype attribute của một object tạo ra một chuỗi danh sách được liên kết mà từ đó các property được kế thừa
+    
+    ```jsx
+    let o = {}; // o kế thừa các phương thức đối tượng từ Object.prototype
+    o.x = 1; // và bây giờ nó có thuộc tính riêng x.
+    let p = Object.create(o); // p kế thừa các thuộc tính từ o và Object.prototype
+    p.y = 2; // và có thuộc tính riêng y.
+    let q = Object.create(p); // q kế thừa các thuộc tính từ p, o, và ...
+    q.z = 3; // ... Object.prototype và có thuộc tính riêng z.
+    let f = q.toString(); // toString được kế thừa từ Object.prototype
+    q.x + q.y // => 3; x và y được kế thừa từ o và p
+    ```
+    
+- Bây giờ giả sử bạn gán cho property `x` của object `o`. Nếu `o` đã có một property riêng (không phải kế thừa) có tên `x`, thì phép gán chỉ đơn giản là thay đổi giá trị của property hiện có này. Nếu không, phép gán này sẽ tạo một property mới có tên là `x` trên object `o`. Nếu `o` trước đó đã kế thừa property `x` thì property được kế thừa đó bây giờ bị ẩn bởi property riêng mới được tạo có cùng tên
+- Phép gán property chỉ kiểm tra chuỗi prototype để xem phép gán có được phép hay không. Ví dụ, nếu `o` kế thừa một property chỉ đọc có tên `x`, thì phép gán không được phép. (Chi tiết về thời điểm có thể đặt property có trong 6.3.3). Tuy nhiên, nếu phép gán được phép, thì nó luôn tạo hoặc đặt một property trong object ban đầu và không bao giờ sửa đổi các object trong prototype. Thực tế là kế thừa xảy ra khi truy vấn các property nhưng không xảy ra khi thiết lập chúng là một tính năng quan trọng của Js vì nó cho phép chúng ta ghi đè một cách có chọn lọc các property được kế thừa
+    
+    ```jsx
+    let unitcircle = { r: 1 }; // Một đối tượng để kế thừa từ
+    let c = Object.create(unitcircle); // c kế thừa thuộc tính r
+    c.x = 1; c.y = 1; // c định nghĩa hai thuộc tính riêng của nó
+    c.r = 2; // c ghi đè thuộc tính được kế thừa của nó
+    unitcircle.r // => 1: nguyên mẫu không bị ảnh hưởng
+    ```
+    
+- Có một ngoại lệ đối với quy tắc mà phép gán property không thành công hoặc tạo, đặt property trong object ban đầu. Nếu `o` kế thừa property `x` và property đó là property accessor với method setter (6.10.6), thì method setter đó được gọi thay vì tạo property `x` mới trong `o`. Tuy nhiên, lưu ý rằng method setter được gọi trên object `o`, không phải trên object prototype định nghĩa property, vì vậy nếu method setter định nghĩa bất kỳ property nào, nó sẽ làm như vậy trên `o` và nó sẽ để lại nguyên chuỗi prototype không bị sửa đổi
+
+### **6.3.3 Property Access Errors**
+
+- Các biểu thức truy cập property không phải lúc nào cũng trả về hoặc thiết lập 1 giá trị. Phần này sẽ giải thích những điều có thể xảy ra sai sót khi bạn truy vấn hoặc đặt một property
+- Việc truy vấn một property không tồn tại không phải lỗi. Nếu property `x` không được tìm thấy dưới dạng property riêng hoặc property được kế thừa bởi `o`, thì biểu thức truy cập property `o.x` được đánh giá thành undefined. Nhớ lại object book của chúng ta có property `sub-title` nhưng không có property `subtitle`
+    
+    ```php
+    book.subtitle // => undefined: thuộc tính không tồn tại
+    ```
+    
+- Tuy nhiên, việc cố gắng truy cập một property của một object không tồn tại là một lỗi. Các giá trị null và undefined không có property và việc truy vấn các property của giá trị này là một lỗi
+    
+    ```php
+    let len = book.subtitle.length; // !TypeError: undefined không có length
+    ```
+    
+- Các biểu thức truy cập property sẽ không thành công nếu vế trái  của `.` là `null` hoặc `undefined`. Vì vậy khi viết 1 biểu thức như [`book.author](http://book.author).surname` bạn cần phải cẩn thận nếu bạn không chắc chắn rằng book và book.author thực sự được xác định. Dưới đây là 2 cách để bảo vệ chống lại loại vấn đề này
+    
+    ```php
+    // Một kỹ thuật dài dòng và rõ ràng
+    let surname = undefined;
+    if (book) {
+      if (book.author) {
+        surname = book.author.surname;
+      }
+    }
+    
+    // Một cách thay thế ngắn gọn và惯用 để lấy họ hoặc null hoặc undefined
+    surname = book && book.author && book.author.surname;
+    ```
+    
+- Để hiểu tại sao biểu thức này hoạt động để ngăn chặn các `TypeError`, bạn có thể cần xem lại toán tử `&&` trong 4.10.1
+- Như được mô tả trong 4.4.1, ES2020 hỗ trợ truy cập property có điều kiện với `?.`, cho phép chúng ta viết lại biểu thức gán trước đó
+    
+    ```php
+    let surname = book?.author?.surname;
+    ```
+    
+- Cố gắng thiết lập một property trên null hoặc undefined cũng gây ra `TypeError`. Nỗ lực thiết lập các property trên các giá trị khác cũng không phải lúc nào cũng thành công: một số property chỉ đọc không thể thiết lập và một số object cũng không cho phép thêm property mới. Ở chế độ strict (5.6.3), TypeError được ném ra bất cứ khi nào cố gắng thiết lập một property không thành công, ở chế độ non-strict thì điều này thường im lặng
+- Các quy tắc chỉ định khi nào phép gán property thành công và khi nào nó không thành công là trực quan nhưng khó diễn đạt một cách ngắn gọn. Nỗ lực thiết lập property `p` của object `o` không thành công trong các trường hợp sau
+    - `o` có property riêng `p` chỉ đọc: không thể thiết lập các property chỉ đọc
+    - `o` có property kế thừa `p` chỉ đọc: không thể ẩn property chỉ đọc kế thừa bằng property riêng cùng tên
+    - `o` không có property riêng `p`; `o` không kế thừa property `p` với method setter và property mở rộng của `p` (xem 14.2) là `false`. Vì `p` chưa tồn tại trong `o` và nếu không có method setter nào để gọi, thì `p` phải được thêm vào `o`. Nhưng nếu `o` không thể mở rộng, thì không thể định nghĩa các property mới trên đó
