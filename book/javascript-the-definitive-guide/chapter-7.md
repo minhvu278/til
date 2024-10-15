@@ -1,0 +1,130 @@
+# Arrays
+
+- Chương này mô tả về array, một kiểu dữ liệu cơ bản trong Js và hầu hết các ngôn ngữ lập trình khác. Array là một tập hợp có thứ tự của các giá trị. Mỗi giá trị được gọi là một phần tử (element), và mỗi phần tử có một ví trị số trong mảng được gọi là chỉ số (index)
+- Array Js là không xác định kiểu (untyped): một phần tử mảng có thể thuộc bất kỳ kiểu nào và các phần tử khác nhau của cùng một mảng có thể thuộc các kiểu khác nhau. Các phần tử mảng thậm chí có thể là object hoặc các array khác, cho phép bạn tạo các cấu trúc dữ liệu phức tạp chẳng hạn như array các object và array các array
+- Array Js bắt đầu từ o (zero-based) và sử dụng chỉ số 32-bit: index của phần tử đầu tiên là 0 và index cao nhất có thể là 4294967294 (2<sup>32</sup> - 2), với kích thước mảng tối đa là 4.294.967.295 phần tử.
+- Array Js là động (dynamic) : Chúng phát triển hoặc thu hẹp khi cần và không cần khai báo kích thước cố định cho mảng khi bạn tạo nó hoặc cấp phát lại khi kích thước thay đổi. Array Js có thể thưa thớt (sparse): các phần tử không cần phải có index liền kề và có khoảng trống
+- Mỗi array js đề có property `length`. Đổi với array không thưa thớt, property này chỉ định số lượng phần tử trong mảng. Đối với array thưa thớt, length lớn hơn index cao nhất của bất kỳ phần tử nào
+- Array Js là một dạng đặc biệt của object Js, và index array thực sự chỉ là tên property là số nguyên. Chúng ta sẽ nói thêm về các đặc điểm chuyển biệt của mảng ở những phần khác trong chương này. Việc triển khai thường tối ưu hoá array để truy cập vào các phần tử array được đánh index bằng số thường nhanh hơn đáng kể so với việc truy cập vào các property object thông thường
+- Array kế thừa các property từ `Array.prototype`, nơi định nghĩa một tập hợp phong phú các method các thao tác array được đề cập trong 7.8. Hầu hết các method này đều là chung chung (generic), có nghĩa là chúng hoạt động chính xác không chỉ cho array thực mà còn cho bất kỳ object nào giống array nào. Chúng ta sẽ thảo luận về các object giống mảng trong 7.9. Cuối cùng, chuỗi Js hoạt động giống như mảng các ký tự và chúng ta sẽ thảo luận điều này trong 7.10
+- ES6 giới thiệu một tập hợp các class array được gọi chung là typed arrays. Không giống như array js thông thường, typed array có độ dài cố định và kiểu phần tử số cố định. Chúng cung cấp mức byte vào dữ liệu nhị phân và được đề cập trong 11.2
+
+## **7.1 Tạo Mảng**
+
+- Có một số cách để tạo mảng. Các phần sau sẽ giải thích cách tạo mảng bằng
+    - Array literals (Lịch sử mảng)
+    - Toán tử spread `...` trên một object có thể lặp lại (iterable object)
+    - Hàm tạo Array()
+    - Các method factory `Array.of()` và `Array.form()`
+
+### **7.1.1 Array literals**
+
+- Cho đến nay, cách đơn giản nhất để tạo mảng là sử dụng array literals, đơn giản là các phần tử mảng được phân tách bởi dấu phẩy trong dấu ngoặc vuông
+    
+    ```jsx
+    let empty = []; // Một mảng không có phần tử
+    let primes = [2, 3, 5, 7, 11]; // Một mảng có 5 phần tử số
+    let misc = [ 1.1, true, "a", ]; // 3 phần tử thuộc nhiều kiểu khác nhau + dấu phẩy ở cuối
+    ```
+    
+- Các giá trị trong array literals không cần phải là hằng số, chúng có thể là biểu thức tuỳ ý
+    
+    ```jsx
+    let base = 1024;
+    let table = [base, base+1, base+2, base+3];
+    ```
+    
+- Array literal có thể chứa object literal hoặc array literal khác
+    
+    ```jsx
+    let b = [[1, {x: 1, y: 2}], [2, {x: 3, y: 4}]];
+    ```
+    
+- Nếu một array literal chứa nhiều dấu chấm phẩy liên tiếp, không có giá trị nào ở giữa, thì mảng đó là mảng thưa thớt (xem 7.3). Các phần tử mảng mà giá trị bị bỏ qua sẽ không tồn tại nhưng có vẻ là undefined nếu bạn truy vấn chúng
+    
+    ```jsx
+    let count = [1,,3]; // Phần tử tại chỉ số 0 và 2. Không có phần tử tại chỉ số 1
+    let undefs = [,,]; // Một mảng không có phần tử nhưng có độ dài là 2
+    ```
+    
+- Cú pháp array literal cho phép  dấu chấm phẩy ở cuối là tuỳ chọn, vì vậy `[, ,]` có độ dài là 2 chứ không phải 3
+
+### **7.1.2 Toán tử Spread**
+
+- Trong ES6 trở lên, bạn có thể sử dụng toán tử spread `...` để đưa các phần tử của một mảng vào trong một array literal
+    
+    ```jsx
+    let a = [1, 2, 3];
+    let b = [0, ...a, 4]; // b == [0, 1, 2, 3, 4]
+    ```
+    
+- Dấu 3 chấm “lan truyền” mảng a để các phần tử của nó trở thành phần tử trong array literal đang được tạo. Nó giống như thể `...a` được thay thế bởi các phần tử của mảng a, được liệt kê theo nghĩa đen như một phần của array literal bao quanh. (Lưu ý rằng, mặc dù chúng gọi ba dấu chấm này là toán tử spread, nhưng đây không phải là toán tử thực sự vì nó có thể được sử dụng trong array literal và, như chúng ta đã thấy trong cuốn sách, các lệnh gọi hàm)
+- Toán tử spread là một cách thuận tiện để tạo bản sao (nông) của một mảng
+    
+    ```jsx
+    let original = [1,2,3];
+    let copy = [...original];
+    copy[0] = 0; // Sửa đổi bản sao không làm thay đổi bản gốc
+    original[0] // => 1
+    ```
+    
+- Toán tử spread hoạt động trên bất kỳ object có thể lặp lại nào. (Object có thể lặp lại những gì vòng lặp for of lặp lại; chúng ta lần đầu tiên thấy chúng trong  5.4.4 và chúng ta sẽ thấy nhiều hơn trong chương 12). Chuỗi có thể lặp lại, vì vậy bạn có thể sử dụng toán tử spread để biến bất kỳ chuỗi nào thành một mảng các chuỗi ký tự đơn
+    
+    ```jsx
+    let digits = [..."0123456789ABCDEF"];
+    digits // => ["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]
+    ```
+    
+
+### **7.1.3 Hàm tạo Array()**
+
+- Một cách khác đề tạo mảng là sử dụng hàm tạo Array(). Bạn có thể gọi hàm tạo này theo 3 cách khác biệt
+    - **Gọi mà không có đối số**
+    
+    ```jsx
+    let a = new Array();
+    ```
+    
+    - Method này tạo một mảng rỗng không có phần tử và tương đương với array literal `[]`
+    - **Gọi với một đối số duy nhất, chỉ định độ dài**
+    
+    ```jsx
+    let a = new Array(10);
+    ```
+    
+    - Kỹ thuật này tạo một mảng với độ dài được chỉ định. Hình thức này của hàm tạo Array có thể được sử dụng để phân bổ trước một mảng khi bạn biết trước cần bao nhiêu phần tử. Lưu ý rằng không có giá trị nào được lưu trữ trong mảng và các property index mảng “0”, “1”,… thậm chí không được xác định cho mảng
+    - **Chỉ định rõ ràng hai hoặc nhiều phần tử của mảng hoặc một phần tử không phải là số duy nhất cho mảng**
+    
+    ```jsx
+    let a = new Array(5, 4, 3, 2, 1, "testing, testing");
+    ```
+    
+    - Ở dạng này, các đối số của hàm tạo trở thành các phần tử của mảng mới. Sử dụng array literal hầu như luôn đơn giản hơn với việc sử dụng hàm tạo `Array()` này
+
+### **7.1.4 Array.of()**
+
+- Khi hàm tạo `Array()` được gọi với một đối số, nó sẽ sử dụng đối số đó làm độ dài của mảng. Nhưng khi được gọi với nhiều hơn một đối số, nó sẽ coi các đối số đó là phần tử cho mảng sẽ được tạo. Điều này có nghĩa là hàm tạo `Array()` không thể được sử dụng để tạo một mảng với một phần tử số duy nhất
+- Trong ES6, hàm `Array.of()` giải quyết vấn đề này: nó là một method factory tạo và trả về một mảng mới, sử dụng các giá trị của đối số của nó (bất kể có bao nhiêu giá trị trong đối số đó) làm phần tử của mảng
+    
+    ```jsx
+    Array.of() // => []; trả về mảng rỗng không có đối số
+    Array.of(10) // => [10]; có thể tạo mảng với một đối số số duy nhất
+    Array.of(1,2,3) // => [1, 2, 3]
+    ```
+    
+
+### **7.1.5 Array.from()**
+
+- Là một factory method array khác được giới thiệu trong ES6. Nó mong đợi một object có thể lặp lại hoặc giống mảng làm đối số đầu tiên và trả về một mảng mới chứa các phần tử của object đó. Với một đối số có thể lặp lại, `Array.form(iterable)` hoạt động giống như toán tử spread `[...iterable]` hoạt động. Nó cũng là một cách đơn giản để tạo một bản sao của một mảng
+    
+    ```jsx
+    let copy = Array.from(original);
+    ```
+    
+- `Array.from()` cũng rất quan trọng vì nó xác định cách tạo bản sao mảng thực sự của một object giống mảng. Object giống mảng là các object. Object giống mảng là các object không phải là mảng có property độ dài số và có các giá trị được lưu trữ với các property mà tên của chúng tình cờ là số nguyên. Khi làm việc với Js phía client, giá trị trả về của một số method trình duyệt web là giống mảng và bạn có thể dễ dàng làm việc với chúng hơn nếu bạn chuyển đổi thành mảng thực sự trước
+    
+    ```jsx
+    let truearray = Array.from(arraylike);
+    ```
+    
+- Array.from() cũng chấp nhận một đối số thứ 2 tuỳ chọn. Nếu bạn chuyển một hàm làm đối số thứ 2, thì khi mảng mới đang được xây dựng, mỗi phần tử từ object nguồn sẽ được chuyển đến hàm bạn chỉ định và giá trị trả về của hàm sẽ được lưu trữ trong mảng thay vì  giá trị ban đầu. (Điều này giống với method map() của mảng sẽ được giới thiệu sau trong chương này, nhưng sẽ hiệu quả hơn khi thực hiện ánh xạ trong khi mảng đang được xây dựng so với việc xây dựng mảng sau đó ánh xạ nó thành một mảng mới khác)
