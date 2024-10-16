@@ -128,3 +128,31 @@
     ```
     
 - Array.from() cũng chấp nhận một đối số thứ 2 tuỳ chọn. Nếu bạn chuyển một hàm làm đối số thứ 2, thì khi mảng mới đang được xây dựng, mỗi phần tử từ object nguồn sẽ được chuyển đến hàm bạn chỉ định và giá trị trả về của hàm sẽ được lưu trữ trong mảng thay vì  giá trị ban đầu. (Điều này giống với method map() của mảng sẽ được giới thiệu sau trong chương này, nhưng sẽ hiệu quả hơn khi thực hiện ánh xạ trong khi mảng đang được xây dựng so với việc xây dựng mảng sau đó ánh xạ nó thành một mảng mới khác)
+
+## **7.2 Đọc và Ghi Phần tử Mảng**
+
+- Bạn truy cập phần tử mảng bằng cách sử dụng toán tử `[]`. Một tham chiếu đến mảng sẽ xuất hiện bên trái của dấu ngoặc vuông. Một biểu thức tuỳ ý có giá trị số nguyên không âm sẽ nằm trong dấu ngoặc vuông. Bạn có thể sử dụng cú pháp này để đọc ghi các giá trị của một phần tử của mảng. Do đó, những điều sau đây đều là các câu lệnh Js hợp lệ
+    
+    ```jsx
+    let a = ["world"]; // Bắt đầu với mảng một phần tử
+    let value = a[0]; // Đọc phần tử 0
+    a[1] = 3.14; // Ghi phần tử 1
+    let i = 2;
+    a[i] = 3; // Ghi phần tử 2
+    a[i + 1] = "hello"; // Ghi phần tử 3
+    a[a[i]] = a[0]; // Đọc phần tử 0 và 2, ghi phần tử 3
+    ```
+    
+- Điều đặc biệt về mảng là khi bạn sử dụng tên property là số nguyên âm nhỏ hơn 2<sup>32</sup> - 1, mảng sẽ tự động duy trì giá trị của property length cho bạn. Ví dụ: trong ví dụ trước, chúng ta đã tạo một mảng a với một phần tử duy nhất. Sau đó chúng ta gán giá trị tại số 1, 2 và 3. Thuộc tính length của mảng đã thay đổi khi chúng ta thực hiện, vì vậy
+    
+    ```jsx
+    a.length // => 4
+    ```
+    
+- Hãy nhớ rằng mảng là một dạng đặc biệt của object. Dấu ngoặc vuông được sử dụng để truy cập các phần tử mảng hoạt động giống như dấu ngoặc vuông được sử dụng để truy cập các property của object. Js chuyển đổi index mảng số mà bạn chỉ định thành một chuỗi - index số 1 trở thành string “1” - sau đó sử dụng chuỗi đó làm tên property. Không có gì đặc biệt về việc chuyển đổi index từ số sang chuỗi: Bạn cũng có thể làm điều đó với các object thông thường
+    
+    ```jsx
+    let o = {}; // Tạo một đối tượng đơn giản
+    o[1] = "one"; // Chỉ mục nó bằng một số nguyên
+    o["1"] // => "one"; tên thuộc tính số và chuỗi là giống nhau
+    ```
