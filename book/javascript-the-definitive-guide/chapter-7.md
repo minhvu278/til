@@ -156,3 +156,65 @@
     o[1] = "one"; // Chỉ mục nó bằng một số nguyên
     o["1"] // => "one"; tên thuộc tính số và chuỗi là giống nhau
     ```
+- Sẽ rất hữu ích khi phân biệt rõ ràng index mảng với tên property object. Tất cả các index đều là tên property, nhưng chỉ các tên property là số nguyên từ 0 đến 2<sup>32</sup> - 2 mới là index. Tất cả các mảng đều là object và bạn có thể tạo object với bất kỳ tên nào trên chúng. Tuy nhiên, nếu bạn sử dụng các property là index mảng, mảng sẽ có hành vi đặc biệt là cập nhật thuộc tính length của chúng khi cần thiết
+- Lưu ý rằng bạn có thể lập index mảng bằng cách sử dụng các số âm hoặc không phải số nguyên. Khi bạn làm điều này, số đó sẽ được chuyển đổi thành một chuỗi và chuỗi đó được sử dụng làm tên property. Vì tên không phải là số nguyên không âm, nó được coi là property object thông thường, không phải là index mảng. Ngoài ra, nếu bạn lập index một mảng bằng một chuỗi tình cờ là một số nguyên không âm, nó sẽ hoạt động như một index mảng, không phải là property object. Điều này cũng đúng nếu bạn sử dụng một dấu phẩy động giống như một số nguyên
+    
+    ```jsx
+    a[-1.23] = true; // Điều này tạo ra một thuộc tính có tên "-1.23"
+    a["1000"] = 0; // Đây là phần tử thứ 1001 của mảng
+    a[1.000] = 1; // Chỉ mục mảng 1. Giống như a[1] = 1;
+    ```
+    
+- Thực tế là index mảng chỉ đơn giản là một loại tên property object đặc biệt có nghĩa là mảng Js không có khái niệm về lỗi “ngoài giới hạn” (out of bounds). Khi bạn cố gắng truy vấn một property không tồn tại của bất kỳ object nào, bạn sẽ không nhận được lỗi; bạn chỉ đơn giản là nhận được undefined. Điều này cũng đúng với mảng như đối với các object
+    
+    ```jsx
+    let a = [true, false]; // Mảng này có các phần tử tại chỉ số 0 và 1
+    a[2] // => undefined; không có phần tử nào tại chỉ mục này.
+    a[-1] // => undefined; không có thuộc tính nào có tên này.
+    ```
+    
+
+## **7.3 Mảng Thưa Thớt - Sparce Array**
+
+- Là mảng mà các phần tử không có index liên tiếp bắt đầu từ 0. Thông thường, property length của mảng chỉ định số lượng phần tử trong mảng. Nếu mảng là thưa thớt, giá trị của property length sẽ lớn hơn số lượng phần tử
+- Mảng thưa thớt có thể được tạo bằng hàm tạo `Array()` hoặc đơn giản bằng cách gán một index mảng lớn hơn độ dài mảng hiện tại
+    
+    ```jsx
+    let a = new Array(5); // Không có phần tử, nhưng a.length là 5.
+    a = []; // Tạo một mảng không có phần tử và length = 0.
+    a[1000] = 0; // Việc gán thêm một phần tử nhưng đặt length thành 1001.
+    ```
+    
+- Chúng ta sẽ thấy sau này bạn cũng có thể tạo một mảng thưa thớt bằng toán tử delete
+- Các mảng đủ thưa thớt được triển khai theo cách chậm hơn, sử dụng bộ nhớ hiệu quả hơn so với các mảng dày đặc và việc tra cứu các phần tử trong một mảng như vậy sẽ mất khoảng thời gian tương tự như tra cứu property thông thường
+- Lưu ý rằng khi bạn bỏ qua một giá trị trong array literal (sử dụng dấu phẩy lặp lại như trong [1,,3]), nảg kết quả sẽ là thưa thớt và các phần tử bị bỏ qua sẽ đơn giản là không tồn tại
+    
+    ```jsx
+    let a1 = [,]; // Mảng này không có phần tử và length là 1
+    let a2 = [undefined]; // Mảng này có một phần tử undefined
+    0 in a1 // => false: a1 không có phần tử nào có chỉ số 0
+    0 in a2 // => true: a2 có giá trị undefined tại chỉ số 0
+    ```
+    
+- Hiểu về mảng thưa thớt là một phần quan trọng để hiểu bản chất thực sự của mảng Js. Tuy nhiên, trong thực tế, hầu hết các mảng Js mà bạn sẽ làm việc sẽ không phải là mảng thưa thớt. Và nếu bạn phải làm việc với một mảng thưa thớt, code của bạn có thể sẽ coi nó giống như các nó xử lý một mảng không thưa thớt với các phần tử undefined
+
+## **7.4 Độ Dài Mảng**
+
+- Mọi mảng đều có property `length` và chính property này tạo nên sự khác biệt của mảng so với object Js thông thường. Đối với mảng dày đặc (nghĩa là không thưa thớt), property length chỉ định số lượng phần tử trong mảng. Giá trị của nó lớn hơn 1 so với index cao nhất trong mảng
+    
+    ```jsx
+    [].length // => 0: mảng không có phần tử
+    ["a","b","c"].length // => 3: chỉ số cao nhất là 2, length là 3
+    ```
+    
+- Khi một mảng là thưa thớt, property length sẽ lớn hơn số lượng phần tử và tất cả những gì chúng ta có thể nói về nó là `length` được đảm bảo lớn hơn index của mọi phần tử trong mảng. Hoặc nói cách khác, một mảng (thưa thớt hoặc không) sẽ không bao giờ có một phần tử có index lớn hơn hoặc bằng length của nó. Để duy trì tính bất biến này, mảng có 2 hành vi đặc biệt. Điều đầu tiên chúng tôi đã mô tả ở trên: nếu bạn gán một giá trị cho một phần tử mảng có index `i` lớn hơn hoặc bằng length hiện tại của mảng, thì giá trị của property length sẽ được đặt là `i + 1`
+- Hành vi đặc biệt thứ 2 mà mảng thực hiện để duy trì tính bất biến của length là nếu bạn đặt property length thành một số nguyên `n` không âm nhỏ hơn giá trị hiện tại của nó, thì bất kỳ phần tử mảng nào có index lớn hơn hoặc bằng `n` sẽ bị xoá khỏi mảng
+    
+    ```jsx
+    a = [1,2,3,4,5]; // Bắt đầu với một mảng 5 phần tử.
+    a.length = 3; // a bây giờ là [1,2,3].
+    a.length = 0; // Xóa tất cả các phần tử. a là [].
+    a.length = 5; // Length là 5, nhưng không có phần tử, giống như new Array(5)
+    ```
+    
+- Bạn có thể đặt property length của mảng thành một giá trị lớn hơn giá trị hiện tại của nó. Làm điều này không thực sự thêm bất kỳ phần tử mới nào vào mảng; nó chỉ đơn giản là tạo ra một vùng thưa thớt ở cuối mảng
