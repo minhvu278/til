@@ -218,3 +218,35 @@
     ```
     
 - Bạn có thể đặt property length của mảng thành một giá trị lớn hơn giá trị hiện tại của nó. Làm điều này không thực sự thêm bất kỳ phần tử mới nào vào mảng; nó chỉ đơn giản là tạo ra một vùng thưa thớt ở cuối mảng
+
+## **7.5 Thêm và Xóa Phần tử Mảng**
+
+- Chúng ta đã thấy cách đơn giản nhất để thêm phần tử vào mảng: chỉ cần gán giá trị cho các index mới
+    
+    ```jsx
+    let a = []; // Bắt đầu với một mảng rỗng.
+    a[0] = "zero"; // Và thêm các phần tử vào nó.
+    a[1] = "one"; 
+    ```
+    
+- Bạn cũng có thể áp dụng method `push()` để thêm một hoặc nhiều value vào cuối mảng
+    
+    ```jsx
+    let a = []; // Bắt đầu với một mảng rỗng
+    a.push("zero"); // Thêm một giá trị vào cuối. a = ["zero"]
+    a.push("one", "two"); // Thêm hai giá trị nữa. a = ["zero", "one", "two"]
+    ```
+    
+- Đẩy một value vào mảng a cũng giống như gán giá trị đó cho `a[a.length]`. Bạn có thể sử dụng method `unshift()` (được mô tả trong 7.8) để chèn một giá trị vào đầu mảng, dịch chuyển các phần tử mảng hiện có sang các index cao hơn. Method `pop()` là ngược lại với `push()`: nó loại bỏ phần tử cuối cùng của mảng và trả về nó, giảm độ dài của mảng đi 1. Tương tự, method `shift()` loại bỏ và trả về method đầu tiên của mảng, giảm độ dài đi 1 và dịch chuyển tất cả các phần tử xuống một index thấp hơn index hiện tại của chúng. Xem 7.8  để biết thêm chi tiết về các method này
+- Bạn có thể xoá method trong array bằng toán tử delete , giống như bạn có thể xoá các property của object
+    
+    ```jsx
+    let a = [1,2,3];
+    delete a[2]; // a bây giờ không có phần tử nào tại chỉ số 2
+    2 in a // => false: không có chỉ số mảng 2 nào được xác định
+    a.length // => 3: delete không ảnh hưởng đến độ dài mảng
+    ```
+    
+- Xoá một phần tử mảng tương tự như (nhưng khác biệt một chút so với) việc gán `undefined` cho method đó. Lưu ý rằng việc sử dụng `delete` trên một phần tử mảng không làm thay đổi property length và không dịch chuyển các phần tử có index cao hơn xuống để lấp đầy khoảng trống do property đã xoá để lại. Nếu bạn xoá một phần tử khỏi mảng, mảng đó sẽ trở thành mảng thưa thớt
+- Như chúng ta đã thấy ở trên, bạn cũng có thể xoá các phần tử cuối mảng bằng cách đặt property length thành độ dài mong muốn mới
+- Cuối cùng, `splice()` là method mục đích chung để chèn, xoá hoặc thay thế các phần tử mảng. Nó thay đổi property length và dịch chuyển các phần tử mảng sang các index cao hơn hoặc thấp hơn khi cần thiết
