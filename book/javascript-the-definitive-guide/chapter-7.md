@@ -250,3 +250,99 @@
 - Xoá một phần tử mảng tương tự như (nhưng khác biệt một chút so với) việc gán `undefined` cho method đó. Lưu ý rằng việc sử dụng `delete` trên một phần tử mảng không làm thay đổi property length và không dịch chuyển các phần tử có index cao hơn xuống để lấp đầy khoảng trống do property đã xoá để lại. Nếu bạn xoá một phần tử khỏi mảng, mảng đó sẽ trở thành mảng thưa thớt
 - Như chúng ta đã thấy ở trên, bạn cũng có thể xoá các phần tử cuối mảng bằng cách đặt property length thành độ dài mong muốn mới
 - Cuối cùng, `splice()` là method mục đích chung để chèn, xoá hoặc thay thế các phần tử mảng. Nó thay đổi property length và dịch chuyển các phần tử mảng sang các index cao hơn hoặc thấp hơn khi cần thiết
+
+## **7.6 Lặp qua Mảng**
+
+- Kể từ ES6, cách dễ nhất để lặp qua từng phần tử của mảng (hoặc bất kỳ object có thể lặp lại nào) là sử dụng vòng lặp for of, đã được đề cập trong 5.4.4
+    
+    ```jsx
+    let letters = [..."Hello world"]; // Một mảng các chữ cái
+    let string = "";
+    for(let letter of letters) {
+      string += letter;
+    }
+    string // => "Hello world"; chúng ta đã tập hợp lại văn bản gốc
+    ```
+    
+- Trình lặp mảng tích hợp mà vòng lặp `for/of` sử dụng trả về các phần tử của mảng theo thứ tự tăng dần. Nó không có hành vi đặc biệt nào đối với mảng thưa thớt và chỉ đơn giản là trả về `undefined` cho bất kỳ phần tử mảng nào không tồn tại
+- Nếu bạn muốn sử dụng vòng lặp `for/of` cho một mảng và cần biết index của mỗi phần tử mảng, hãy sử dụng method `entries()` của mảng, cùng với phép gán phân rã như thế này
+    
+    ```jsx
+    let everyother = "";
+    for(let [index, letter] of letters.entries()) {
+      if (index % 2 === 0) everyother += letter; // chữ cái tại các chỉ mục chẵn
+    }
+    everyother // => "Hlowrd"
+    ```
+    
+- Một cách tốt khác để lặp qua mảng là với forEach(). Đây không phải là dạng mới của vòng lặp for, mà là một method mảng cung cấp cách tiếp cận hàm cho việc lặp mảng. Bạn chuyển một hàm cho `forEach()` method của mảng và forEach() gọi hàm của bạn một lần trên mỗi phần tử của mảng
+    
+    ```jsx
+    let uppercase = "";
+    letters.forEach(letter => { // Lưu ý cú pháp hàm mũi tên ở đây
+      uppercase += letter.toUpperCase();
+    });
+    uppercase // => "HELLO WORLD"
+    ```
+    
+- Như bạn mong đợi, `forEach()` lặp qua mảng theo thứ tự và nó thực sự chuyển index mảng cho hàm của bạn làm đối số thứ 2, điều này đôi khi hữu ích. Không giống như vòng lặp `for of`, `forEach()` nhận biết các mảng thưa thớt và không gọi hàm của bạn cho các phần tử không có ở đó
+- 7.8.1 ghi lại method `forEach()` chi tiết hơn. Phần đó cũng đề cập đến method liên quan map() và filter() thực hiện các loại lặp mảng chuyên biệt
+- Bạn cũng có thể lặp qua các phần tử của mảng bằng vòng lặp for cổ điển
+    
+    ```jsx
+    let vowels = "";
+    for(let i = 0; i < letters.length; i++) { // Đối với mỗi chỉ mục trong mảng
+      let letter = letters[i]; // Lấy phần tử tại chỉ mục đó
+      if (/[aeiou]/.test(letter)) { // Sử dụng kiểm tra biểu thức chính quy
+        vowels += letter; // Nếu nó là một nguyên âm, hãy ghi nhớ nó
+      }
+    }
+    vowels // => "eoo"
+    ```
+    
+- Trong các vòng lặp lồng nhau hoặc ngữ cảnh khác mà hiệu suất là rất quan trọng, đôi khi bạn có thể thấy vòng lặp lặp mảng cơ bản này được viết sao cho độ dài mảng chỉ được tra cứu một lần thay vì trên mỗi lần lặp. Cả 2 dạng vòng lặp for sau đây đều là thành ngữ, mặc dù không phổ biến đặc biệt và với các trình thông dịch Js hiện đại, không rõ ràng lắm liệu chúng có tác động đến hiệu suất hay không
+    
+    ```jsx
+    // Lưu độ dài mảng vào một biến cục bộ
+    for(let i = 0, len = letters.length; i < len; i++) {
+      // thân vòng lặp vẫn giữ nguyên
+    }
+    // Lặp ngược từ cuối mảng đến đầu
+    for(let i = letters.length-1; i >= 0; i--) {
+      // thân vòng lặp vẫn giữ nguyên
+    }
+    ```
+    
+- Các ví dụ này giả định rằng mảng là dày đặc và tất cả các phần tử đều chứa dữ liệu hợp lệ. Nếu không phải như vậy, bạn nên kiểm tra các phần tử mảng trước khi sử dụng chúng. Nếu bạn muốn bỏ qua các phần tử undefined và không tồn tại, bạn có thể viết
+    
+    ```jsx
+    for(let i = 0; i < a.length; i++) {
+      if (a[i] === undefined) continue; // Bỏ qua các phần tử undefined + không tồn tại
+      // thân vòng lặp ở đây
+    }
+    ```
+## **7.7 Mảng Đa chiều**
+
+- Js không hỗ trợ mảng đa chiều thực sự, nhưng bạn có thể mô phỏng chúng bằng mảng các mảng. Để truy cập một giá trị trong một mảng các mảng, chỉ cần sử dụng toán tử `[]` hai lần. Ví dụ: giả sử biến `matrix` là một mảng các mảng số. Mọi phần tử trong `matrix[x]` là một mảng số. Để truy cập một số cụ thể trong mảng này, bạn sẽ viết `matrix[x][y]`. Dưới đây là một ví dụ cụ thể sử dụng mảng 2 chiều để làm bảng cửu chương
+    
+    ```jsx
+    // Tạo một mảng đa chiều
+    let table = new Array(10); // 10 hàng của bảng
+    for(let i = 0; i < table.length; i++) {
+      table[i] = new Array(10); // Mỗi hàng có 10 cột
+    }
+    // Khởi tạo mảng
+    for(let row = 0; row < table.length; row++) {
+      for(let col = 0; col < table[row].length; col++) {
+        table[row][col] = row * col;
+      }
+    }
+    // Sử dụng mảng đa chiều để tính 5 * 7
+    table[5][7] // => 35
+    ```
+    
+- **Giải thích**
+    - **Tạo mảng 2 chiều:** Đầu tiên chúng ta tạo một mảng `table` có 10 phần tử, mỗi phần tử đại diện cho một hàng trong bảng. Sau đó, chúng ta lặp qua từng phần tử của table và gán cho nó một mảng mới co 10 phần tử đại diện cho 10 cột. Kết quả sau đó là mảng 2 chiều 10 x 10.
+    - **Khởi tạo mảng:** Chúng ta sử dụng 2 vòng lặp for lồng nhau để duyệt qua từng phần tử của mảng `table`. Với mỗi phần tử `table[row][col]` chúng ta gán giá trị là tích của row và col, tương ứng với phép nhân trong bảng cửu chương
+    - **Truy cập phần tử:** Để lấy kết quả cho phép nhân 5 * 7, chúng ta truy cập phần tử `table[5][7]`, trả về giá trị 35
+- Lưu ý, mảng đa chiều trong Js chỉ là mảng của mảng, không phải kiểu dữ liệu riêng biệt như một số ngôn ngữ lập trình khác
