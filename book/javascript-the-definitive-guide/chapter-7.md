@@ -346,3 +346,14 @@
     - **Khởi tạo mảng:** Chúng ta sử dụng 2 vòng lặp for lồng nhau để duyệt qua từng phần tử của mảng `table`. Với mỗi phần tử `table[row][col]` chúng ta gán giá trị là tích của row và col, tương ứng với phép nhân trong bảng cửu chương
     - **Truy cập phần tử:** Để lấy kết quả cho phép nhân 5 * 7, chúng ta truy cập phần tử `table[5][7]`, trả về giá trị 35
 - Lưu ý, mảng đa chiều trong Js chỉ là mảng của mảng, không phải kiểu dữ liệu riêng biệt như một số ngôn ngữ lập trình khác
+
+## **7.8 Phương thức Mảng**
+
+- Các phần trước tập chung vào cú pháp Js cơ bản để làm việc với mảng. Tuy nhiên, nói chung, chính các method được định nghĩa bởi class `Array` mới là mạnh mẽ nhất. Các phần tiếp theo ghi lại các method này
+- Trong khi đọc về các method này, hãy nhớ rằng một số method sửa đổi mảng mà chúng được gọi và một số method khác để nguyên mảng. Một số method trả về một mảng: đôi khi, đây là một mảng mới và bản gốc không bị thay đổi. Trong các trường hợp khác, một method sẽ sửa đổi mảng tại chỗ và cũng sẽ trả về tham chiếu đến mảng đã sửa đổi
+- Một phần nhỏ sau đây đề cập đến một nhóm các method mảng có liên quan
+    - Method trình lặp (Iterator methods) lặp qua các phần tử của mảng, thường gọi một hàm mà bạn chỉ định trên mỗi phần tử đó
+    - Method ngăn xếp và hàng đợi (Stack and queue methods) thêm và xoá các phần tử mảng vào và tử đầu đến cuối mảng
+    - Method mảng con (Subarray methods) dùng để trích xuất, xoá, chèn, điền và sao chép các vùng liền kề của một mảng lớn hơn
+    - Method tìm kiếm và sắp xếp (Searching and sorting methods) dùng để xác định vị trí các phần tử trong mảng và để sắp xếp các phần tử của mảng
+- Các phần nhỏ sau đây cũng đề cập đến các method tĩnh của class `Array` và một số method linh tinh để nối các mảng và chuyển đổi mảng thành chuỗi
