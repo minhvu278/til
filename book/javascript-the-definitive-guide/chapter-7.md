@@ -357,3 +357,9 @@
     - Method mảng con (Subarray methods) dùng để trích xuất, xoá, chèn, điền và sao chép các vùng liền kề của một mảng lớn hơn
     - Method tìm kiếm và sắp xếp (Searching and sorting methods) dùng để xác định vị trí các phần tử trong mảng và để sắp xếp các phần tử của mảng
 - Các phần nhỏ sau đây cũng đề cập đến các method tĩnh của class `Array` và một số method linh tinh để nối các mảng và chuyển đổi mảng thành chuỗi
+
+### **7.8.1 Phương thức Trình lặp Mảng**
+
+- Các method được mô tả trong phần này lặp lại các mảng bằng cách chuyển các phần tử mảng, theo thứ tự, cho một hàm mà bạn cung cấp và chúng cung cấp các cách thuận tiện để lặp, ánh xạ, lọc, kiểm tra và giảm mảng
+- Tuy nhiên, trước khi chúng ta giải thích chi tiết về các method, điều đáng giá là phải khái quát một số điều về chúng. Đầu tiên, tất cả các method này đều chấp nhận một hàm làm đối số đầu tiên của chúng và gọi hàm đó một lần cho mỗi phần tử (hoặc một số phần tử) của mảng. Nếu mảng là thưa thớt, hàm bạn truyền vào sẽ không được gọi cho các phần tử không tồn tại. Trong hầu hết các trường hợp, hàm bạn cung cấp được gọi với ba đối số: giá trị của phần tử mảng, index của phần tử mảng và chính mảng đó. Thông thường, bạn chỉ cần giá trị đầu tiên của các giá trị đối số này và bạn có thể bỏ qua giá trị thứ 2 và thứ 3
+- Hầu hết các method trình lặp được mô tả trong các phần nhỏ sau đây đều chấp nhận một đối số thứ 2 tuỳ chọn. Nếu được chỉ định, hàm sẽ được gọi như thể nó là một method của đối số thứ hai này. Nghĩa là, đối số thứ 2 mà bạn chuyển vào sẽ trở thành giá trị của từ khoá `this` bên trong hàm mà bạn chuyển làm đối số đầu tiên. Giá trị trả về của hàm bạn truyền thường rất quan trọng, nhưng các method khác nhau xử lý các giá trị trả về theo những cách khác nhau. Không có method nào được mô tả ở đây sửa đổi mảng mà chúng đươc gọi (mặc dù hàm bạn truyền có thể sửa đổi mảng
