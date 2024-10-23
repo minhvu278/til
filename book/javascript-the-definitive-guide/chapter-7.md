@@ -724,3 +724,66 @@
     Array.isArray({}) // => false
     ```
 
+## **7.9 Đối tượng Giống Mảng**
+
+- Như chúng ta đã thấy, mảng Js có một số tính năng đặc biệt mà các object khác không có
+    - Property `length` được tự động cập nhật khi các phần tử mới được thêm vào danh sách
+    - Đặt `length` thành một giá trị nhỏ hơn sẽ cắt ngắn mảng
+    - Mảng kế thừa các method hữu ích như `Array.prototype`
+    - `Array.isArray()` trả về true cho các mảng
+- Đây là những tính năng tạo nên sự khác biệt của mảng Js so với các object thông thường. Nhưng chúng không phải là những tính năng thiết yếu để xác định một mảng. Thường thì hoàn toàn hợp lý khi coi bất kỳ object nào có property length là số và các property số nguyên không âm tương ứng như một loại mảng
+- Các object “giống mảng” (array-like object) này đôi khi thực sự xuất hiện trong thực tế và mặc dù mặc dù bạn không thể gọi trực tiếp các method mảng trên chúng hoặc mong đợi hành vi đặc biệt từ  property `length`, bạn vẫn có thể lặp lại chúng bằng cùng một code mà bạn sử dụng cho một mảng thực
+- Hoá ra nhiều thuật toán mảng hoạt động tốt như nhau với các object mảng cũng như với các mảng thực. Điều này đặc biệt đúng nếu thuật toán của bạn coi mảng là chỉ đọc hoặc ít nhất chung để nguyên độ dài mảng
+- Đoạn code sau lấy một object thông thường, thêm các property để biến nó thành một object giống mảng và sau đó lặp qua các phần tử của mảng giả lập kết quả
+    
+    ```jsx
+    let a = {}; // Bắt đầu với một đối tượng rỗng thông thường
+    // Thêm các thuộc tính để biến nó thành "giống mảng"
+    let i = 0;
+    while(i < 10) {
+      a[i] = i * i;
+      i++;
+    }
+    a.length = i;
+    // Bây giờ lặp qua nó như thể nó là một mảng thực
+    let total = 0;
+    for(let j = 0; j < a.length; j++) {
+      total += a[j];
+    }
+    ```
+    
+- Trong Js phía client, một số method để làm việc với các DOM HTML (ví dụ `document.querySelectorAll()`) trả về các object giống mảng. Dưới đây là một hàm bạn có thể sử dụng để kiểm tra các object hoạt động giống như mảng
+    
+    ```jsx
+    // Xác định xem o có phải là một đối tượng giống mảng hay không.
+    // Chuỗi và hàm có thuộc tính length là số, nhưng
+    // bị loại trừ bởi kiểm tra typeof. Trong JavaScript phía máy khách, 
+    // các nút văn bản DOM có thuộc tính length là số và có thể cần phải được 
+    // loại trừ bằng cách kiểm tra o.nodeType !== 3 bổ sung.
+    function isArrayLike(o) {
+      if (o && // o không phải là null, undefined, v.v.
+          typeof o === "object" && // o là một đối tượng
+          Number.isFinite(o.length) && // o.length là một số hữu hạn
+          o.length >= 0 && // o.length là không âm
+          Number.isInteger(o.length) && // o.length là một số nguyên
+          o.length < 4294967295) { // o.length < 2^32 - 1
+        return true; // Thì o là giống mảng.
+      } else {
+        return false; // Nếu không thì không phải.
+      }
+    }
+    ```
+    
+- Chúng ta sẽ thấy trong một phần sau rằng chuỗi hoạt động giống như mảng. Tuy nhiên, các bài kiểm tra như bài kiểm tra này cho các object giống mảng thường trả về false cho chuỗi - chúng thường được xử lý tốt nhất dưới dạng chuỗi, không phải mảng
+- Hầu hết các method mảng Js được cố tình xác định là chung chung để chúng hoạt động chính xác khi được áp dụng cho các object giống mảng ngoài các mảng thực. Vì các object giống mảng không kế thừa từ `Array.prototype`, bạn không thể gọi trực tiếp các method mảng trên chúng. Tuy nhiên, bạn có thể gọi chúng gián tiếp bằng cách sử dụng method [`Function.call`](http://Function.call) (Xem chi tiết 8.7.4)
+    
+    ```jsx
+    let a = {"0": "a", "1": "b", "2": "c", length: 3}; // Một đối tượng giống mảng
+    Array.prototype.join.call(a, "+") // => "a+b+c"
+    Array.prototype.map.call(a, x => x.toUpperCase()) // => ["A","B","C"]
+    Array.prototype.slice.call(a, 0) // => ["a","b","c"]: bản sao mảng thực
+    Array.from(a) // => ["a","b","c"]: sao chép mảng dễ dàng hơn
+    ```
+    
+- Dòng áp chót của code này gọi `slice()` method của `Array` trên 1 object giống mảng để sao chép các phần tử của object đó vào một object mảng thực. Đây là một thủ thuật thành ngữ tồn tại trong nhiều code kế thừa, nhưng bây giờ dễ thực hiện hơn nhiều với `Array.from()`
+
