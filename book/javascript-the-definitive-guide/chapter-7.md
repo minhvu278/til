@@ -787,3 +787,31 @@
     
 - Dòng áp chót của code này gọi `slice()` method của `Array` trên 1 object giống mảng để sao chép các phần tử của object đó vào một object mảng thực. Đây là một thủ thuật thành ngữ tồn tại trong nhiều code kế thừa, nhưng bây giờ dễ thực hiện hơn nhiều với `Array.from()`
 
+## **7.10 Chuỗi dưới dạng Mảng**
+
+- Chuỗi Js hoạt động giống như mảng chỉ đọc các ký tự Unicode UTF-16. Thay vì truy cập các ký tự riêng lẻ bằng methd `charAt()`, bạn có thể sử dụng dấu ngoặc vuông
+    
+    ```jsx
+    let s = "test";
+    s.charAt(0) // => "t"
+    s[1] // => "e"
+    ```
+    
+- Toán tử `typeof` vẫn trả về string cho chuỗi và `Array.isArray()` trả về false nếu bạn truyền cho nó một chuỗi
+- Lợi ích chính của chuỗi có thể lập index đơn giản là chúng ta có thể thay thế các lệnh gọi đến `charAt()` bằng dấu ngoặc vuông, ngắn gọn và dễ đọc hơn và có khả năng hiệu quả hơn. Tuy nhiên, thực tế là chuỗi hoạt động giống như mảng cũng co nghĩa là chúng ta có thể áp dụng các method mảng chung cho chúng
+    
+    ```jsx
+    Array.prototype.join.call("JavaScript", " ") // => "J a v a S c r i p t"
+    ```
+    
+- Hãy nhớ rằng chuỗi là các giá trị bất biến, vì vậy khi chúng được coi là mảng, chúng là mảng chỉ đọc. Các method mảng như `push(), sort(), reverse() và splice()` sửa đổi mảng tại chỗ và không hoạt động trên chuỗi
+- Tuy nhiên việc cố gắng sửa đổi chuỗi bằng cách sử dụng method mảng không gây ra lỗi: nó chỉ đơn giản là không thành công âm thầm
+
+## Summary
+
+- Chương này đã đề cập chi tiết về array Js, bao gồm các chi tiết bí truyền về mảng thưa thớt và object giống mảng. Các điểm chính cần rút ra trong chương này là
+    - Array literal được viết dưới dạng danh sách các giá trị được phân tách bởi dấu phẩy trong dấu ngoặc vuông
+    - Các phần tử mảng riêng lẻ được truy cập bằng cách chỉ định index mảng mong muốn trong dấu ngoặc vuông
+    - Vòng lặp for of và toán tử spread `...` được giới thiệu trong ES6 là những cách đặc biệt hữu ích để lặp lại các mảng
+    - Class `Array` định nghĩa một tập hợp phong phú các method để thao tác với mảng và bạn nên nhớ làm quen với API `Array`
+
