@@ -362,4 +362,365 @@
 
 - Các method được mô tả trong phần này lặp lại các mảng bằng cách chuyển các phần tử mảng, theo thứ tự, cho một hàm mà bạn cung cấp và chúng cung cấp các cách thuận tiện để lặp, ánh xạ, lọc, kiểm tra và giảm mảng
 - Tuy nhiên, trước khi chúng ta giải thích chi tiết về các method, điều đáng giá là phải khái quát một số điều về chúng. Đầu tiên, tất cả các method này đều chấp nhận một hàm làm đối số đầu tiên của chúng và gọi hàm đó một lần cho mỗi phần tử (hoặc một số phần tử) của mảng. Nếu mảng là thưa thớt, hàm bạn truyền vào sẽ không được gọi cho các phần tử không tồn tại. Trong hầu hết các trường hợp, hàm bạn cung cấp được gọi với ba đối số: giá trị của phần tử mảng, index của phần tử mảng và chính mảng đó. Thông thường, bạn chỉ cần giá trị đầu tiên của các giá trị đối số này và bạn có thể bỏ qua giá trị thứ 2 và thứ 3
-- Hầu hết các method trình lặp được mô tả trong các phần nhỏ sau đây đều chấp nhận một đối số thứ 2 tuỳ chọn. Nếu được chỉ định, hàm sẽ được gọi như thể nó là một method của đối số thứ hai này. Nghĩa là, đối số thứ 2 mà bạn chuyển vào sẽ trở thành giá trị của từ khoá `this` bên trong hàm mà bạn chuyển làm đối số đầu tiên. Giá trị trả về của hàm bạn truyền thường rất quan trọng, nhưng các method khác nhau xử lý các giá trị trả về theo những cách khác nhau. Không có method nào được mô tả ở đây sửa đổi mảng mà chúng đươc gọi (mặc dù hàm bạn truyền có thể sửa đổi mảng
+- Hầu hết các method trình lặp được mô tả trong các phần nhỏ sau đây đều chấp nhận một đối số thứ 2 tuỳ chọn. Nếu được chỉ định, hàm sẽ được gọi như thể nó là một method của đối số thứ hai này. Nghĩa là, đối số thứ 2 mà bạn chuyển vào sẽ trở thành giá trị của từ khoá `this` bên trong hàm mà bạn chuyển làm đối số đầu tiên. Giá trị trả về của hàm bạn truyền thường rất quan trọng, nhưng các method khác nhau xử lý các giá trị trả về theo những cách khác nhau. Không có method nào được mô tả ở đây sửa đổi mảng mà chúng đươc gọi (mặc dù hàm bạn truyền có thể sửa đổi mảng)
+
+- Mỗi hàm này được gọi với một hàm làm đối số đầu tiên của nó và rất phổ biến để xác định hàm đó nội tuyến như một phần của biểu thức gọi method thay vì sử dụng một hàm hiện có được xác định ở một nơi khác. Cú pháp arrow function (8.1.3) hoạt động đặc biệt tốt với các method này và chúng ta sẽ sử dụng nó trong các ví dụ sau đây
+- `forEach()` method lặp qua một mảng, gọi một hàm mà bạn chỉ định cho mỗi phần tử. Như đã mô tả, bạn truyền hàm làm đối số đầu tiên cho `forEach()`. `forEach()` sau đó gọi hàm của bạn với 3 đối số: value của phần tử mảng, index của mảng và chính mảng đó. Nếu bạn chỉ quan tâm đến value của phần tử của mảng, bạn có thể viết một hàm chỉ có một tham số - các đối số bổ sung sẽ bị bỏ qua
+    
+    ```jsx
+    let data = [1,2,3,4,5], sum = 0;
+    // Tính tổng các phần tử của mảng
+    data.forEach(value => { sum += value; }); // sum == 15
+    // Bây giờ tăng mỗi phần tử mảng lên 1
+    data.forEach(function(v, i, a) { a[i] = v + 1; }); // data == [2,3,4,5,6]
+    ```
+    
+- Lưu ý rằng `forEach()` không cung cấp cách để chấm dứt lặp lại trước khi tất cả các phần tử được chuyển đến hàm. Tức là không có câu lệnh **break** tương đương mà bạn có thể sử dụng trong vòng lặp `for` thông thường
+- `map()` method chuyển từng phần của mảng mà nó được gọi đến hàm bạn chỉ định và trả về một mảng chứa các giá trị được trả về bởi hàm của bạn. Ví dụ
+    
+    ```jsx
+    let a = [1, 2, 3];
+    a.map(x => x*x) // => [1, 4, 9]: hàm nhận đầu vào x và trả về x*x
+    ```
+    
+- Hàm bạn truyền cho `map()` được gọi theo cách tương tự hàm được truyền cho `forEach()`. Tuy nhiên, đối với method `map()`, bạn truyền vào phải trả về một giá trị. Lưu ý rằng `map()` trả về một mảng mới: nó không sử đổi mảng mà nó được gọi. Nếu mảng là mảng thưa thớt, hàm sẽ không được gọi cho các phần tử bị thiếu, nhưng mảng trả về sẽ thưa thớt giống như mảng ban đầu: nó sẽ có cùng độ dài và cùng các phần tử bị thiếu
+- `filter()` method trả về một mảng chứa một tập hợp con các phần tử của mảng mà nó được gọi. Hàm bạn truyền cho nó phải là một vị ngữ: một hàm trả về true hoặc false. Vị ngữ được gọi giống như đối với `forEach()` và `map()`. Nếu giá trị trả về là true hoặc một giá trị chuyển đổi thành true, thì phần tử được truyền cho vị ngữ là một thành viên của tập hợp con và được thêm vào mảng sẽ trở thành giá trị trả về
+    
+    ```jsx
+    let a = [5, 4, 3, 2, 1];
+    a.filter(x => x < 3) // => [2, 1]; các giá trị nhỏ hơn 3
+    a.filter((x,i) => i%2 === 0) // => [5, 3, 1]; cách giá trị khác
+    ```
+    
+- **Lưu ý rằng**: `filter()` bỏ qua các phần tử bị thiếu trong mảng thưa thớt  và trả về giá trị của nó luôn dày đặc. Để đóng các khoảng trống trong một mảng thưa thớt, bạn có thể làm như sau
+    
+    ```jsx
+    let dense = sparse.filter(() => true);
+    ```
+    
+- Và để đóng các khoảng trống và loại bỏ các phần tử **undefined và null**, bạn có thể sử dụng
+    
+    ```jsx
+    a = a.filter(x => x !== undefined && x !== null);
+    ```
+    
+- Các method `find()` và `findIndex()` giống như `filter()` ở chỗ chúng lặp lại mảng của bạn để tìm kiếm các phần tử mà hàm vị ngữ của bạn trả về truthy. Tuy nhiên, không giống như `filter()`, hai method này ngừng lặp lại lần đầu tiên vị ngữ tìm thấy một phần tử. Khi điều đó xảy ra, `find()` trả về phần tử phù hợp và `findIndex()` trả về index của phần tử phù hợp. Nếu không tìm thấy phần tử phù hợp, `find()` trả về undefined và `findIndex()` trả về -1
+    
+    ```jsx
+    let a = [1,2,3,4,5];
+    a.findIndex(x => x === 3) // => 2; giá trị 3 xuất hiện ở chỉ mục 2
+    a.findIndex(x => x < 0) // => -1; không có số âm nào trong mảng
+    a.find(x => x % 5 === 0) // => 5: đây là bội số của 5
+    a.find(x => x % 7 === 0) // => undefined: không có bội số của 7 trong mảng
+    ```
+    
+- Các method `every()` và `some()` là các vị ngữ mảng: chúng áp dụng một hàm vị ngữ mà bạn chỉ định cho các phần tử của mảng, sau đó trả về true hoặc false
+- `every()` method giống như lượng từ “cho tất cả” trong toán học ∀: nó trả về true nếu và chỉ khi hàm vị ngữ của bạn trả về true cho tất cả các phần tử trong mảng
+    
+    ```jsx
+    let a = [1,2,3,4,5];
+    a.every(x => x < 10) // => true: tất cả các giá trị đều < 10.
+    a.every(x => x % 2 === 0) // => false: không phải tất cả các giá trị đều chẵn.
+    ```
+    
+- `some()` method giống như lượng tử “tồn tại” trong toán học ∃: Nó trả về true nếu ít nhất một phần tử trong mảng mà vị ngữ trả về true và trả về false nếu và chỉ khi giá trị vị ngữ trả về false cho tất cả các phần tử trong mảng
+    
+    ```jsx
+    let a = [1,2,3,4,5];
+    a.some(x => x%2===0) // => true; a có một số số chẵn.
+    a.some(isNaN) // => false; a không có số không phải là số.
+    ```
+    
+- Lưu ý rằng cả `every() và some()` đều ngừng lặp lại các phần tử trong mảng ngay khi chúng biết giá trị nào sẽ trả về. `some()` trả về true lần đầu tiên vị ngữ của bạn trả về `true` và chỉ lặp lại toàn bộ mảng nếu vị ngữ của bạn luôn trả về false. `every()` thì ngược lại: nó trả về false lần đầu tiên vị ngữ của bạn trả về false và chỉ lặp lại các phần tử nếu vị ngữ của bạn luôn trả về true
+- Cũng lưu ý rằng, theo quy ước toán học, `every()` trả về true và `some()` trả về false khi được gọi trên một mảng rỗng
+
+### reduce() & reduceRight()
+
+- Các method `reduce()` và `reduceRight()` kết hợp các phần tử của một mảng, sử dụng hàm mà bạn chỉ định để tạo ra một giá trị duy nhất. Đây là một thao tác phổ biến trong lập trình hàm và còn được gọi với cái tên là “inject” và “fold”. Các ví dụ minh hoạt cho cách thức hoạt động của nó
+    
+    ```jsx
+    let a = [1,2,3,4,5];
+    a.reduce((x,y) => x+y, 0) // => 15; tổng của các giá trị
+    a.reduce((x,y) => x*y, 1) // => 120; tích của các giá trị
+    a.reduce((x,y) => (x > y) ? x : y) // => 5; giá trị lớn nhất của các giá trị
+    ```
+    
+- `reduce()` nhận 2 đối số. Đầu tiên là hàm thực hiện theo tác giảm. Nhiệm vụ của hàm giảm này là bằng cách nào đó kết hợp hoặc giảm hai giá trị thành một giá trị duy nhất và trả về giá trị đã giảm đó. Trong các ví dụ chúng ta đã trình bày ở đây, các hàm kết hợp 2 giá trị bằng cách cộng chúng, nhân và chọn giá trị lớn nhất. Đối số thứ 2 (optional) là giá trị ban đầu được truyền cho hàm
+- Các hàm được sử dụng với `reduce()` khác với các hàm được sử dụng với `forEach()` và `map()`. Các giá trị quen thuộc là `value, index, array` được truyền dưới dạng đối số thứ 2, thứ 3 và 4. Đối số đầu tiên là kết quả tích luỹ của việc giảm cho đến nay. Trong lần gọi đầu tiên đến hàm, đối số đầu tiên này là giá trị ban đầu mà bạn đã truyền làm đối số thứ 2 cho `reduce()`. Trong các lần gọi tiếp theo, nó là giá trị được trả về bởi lần gọi trước đó của hàm. Trong ví dụ đầu tiên, hàm giảm đầu tiên được gọi với các đối số 0 và 1. Nó cộng chúng lại và trả về 1. Sau đó nó được gọi lại với các đối số 1 và 2 và trả về 3, tiếp theo nó tính 3 + 3 = 6, sau đó 6 + 4 = 10 và cuối cùng là 10 + 5 = 15. Giá trị cuối cùng này, 15, sẽ trở thành giá trị trả về của `reduce()`
+- Bạn có thể nhận thấy rằng lần gọi thứ 3 đến `reduce()` trong ví dụ này chỉ có một đối số duy nhất, không có giá trị ban đầu nào được chỉ định. Khi bạn gọi `reduce()` như thế này mà không có giá trị ban đầu, nó sẽ sử dụng phần tử đầu tiên của mảng làm giá trị ban đầu. Điều này có nghĩa là lần gọi đầu tiên đến hàm giảm sẽ có phần tử mảng thứ 1 và thứ 2 làm đối số thứ 1 và thứ 2 của nó. Trong các ví dụ về tổng và tích chúng ta có thể bỏ qua đối số giá trị ban đầu
+- Việc gọi `reduce()` trên một mảng rỗng mà không có đối số giá trị ban đầu sẽ gây ra `TypeError`. Nếu bạn gọi nó chỉ với một giá trị - một mảng có 1 phần tử và không có giá trị ban đầu hoặc một mảng rỗng và một giá trị ban đầu - nó sẽ chỉ trả về một giá trị đó mà không bao giờ gọi hàm giảm
+- `reduceRight()` hoạt động giống như `reduce()`, ngoại trừ việc nó xử lý mảng tử index cao nhất đến thấp nhất (từ phải sang trái) thay vì từ thấp đến cao. Bạn có thể muốn làm điều này nếu thao tác giảm có tính kết hợp từ phải sang trái
+    
+    ```jsx
+    // Tính 2 ^ (3 ^ 4). Lũy thừa có độ ưu tiên từ phải sang trái
+    let a = [2, 3, 4];
+    a.reduceRight((acc,val) => Math.pow(val,acc)) // => 2.4178516392292583e+24
+    ```
+    
+- Lưu ý rằng cả `reduce()` và `reduceRight()` đều không chấp nhận một đối số tuỳ chọn chỉ định giá trị `this` mà hàm giảm sẽ được gọi. Đối số giá trị ban đầu tuỳ chọn sẽ thay thế vị trí của nó. Xem method `Function.bind()` (8.7.5) nếu bạn cần hàm giảm của mình được gọi như một method của một object cụ thể
+- Các ví dụ được hiển thị cho đến nay là số để cho đơn giản, nhưng `reduce()` và `reduceRight()` không chỉ dành riêng cho các phép tính toán học. Bất kỳ hàm nào có thể kết hợp 2 giá trị (chẳng hạn như 2 object) thành một giá trị cùng loại đều có thể sử dụng làm hàm giảm
+- Mặt khác, thuật toán được biểu thị bằng cách sử dụng giảm mảng có thể nhanh chóng trở phức tạp và khó hiểu và bạn có thể thấy rằng sẽ dễ đọc, viết và lý luận code của mình hơn nếu bạn sử dụng các cấu trúc lặp thông thường để xử lý mảng của mình
+
+### **7.8.2 Làm phẳng mảng với flat() và flatMap()**
+
+- Trong ES2019, `flat()` method tạo và trả về một mảng mới chứa các phần tử giống với mảng mà nó được gọi, ngoại trừ bất kỳ phần tử nào là mảng sẽ được “làm phẳng” (“flattened”) thành mảng được trả về
+    
+    ```jsx
+    [1, [2, 3]].flat() // => [1, 2, 3]
+    [1, [2, [3]]].flat() // => [1, 2, [3]]
+    ```
+    
+- Khi được gọi mà không có đối số, `flat()` làm phẳng một cấp độ lồng nhau. Các phần tử  của mảng ban đầu là mảng sẽ được làm phẳng, nhưng các phần tử của các mảng đó sẽ không được làm phẳng. Nếu bạn muốn làm phẳng nhiều cấp độ hơn, hãy truyền một số vào `flat()`
+    
+    ```jsx
+    let a = [1, [2, [3, [4]]]];
+    a.flat(1) // => [1, 2, [3, [4]]]
+    a.flat(2) // => [1, 2, 3, [4]]
+    a.flat(3) // => [1, 2, 3, 4]
+    a.flat(4) // => [1, 2, 3, 4]
+    ```
+    
+- `flatMap()` method hoạt động giống như `map()` method ngoại trừ việc mảng trả về sẽ tự động làm phẳng như thể được truyền cho `flat()`. Có nghĩa là gọi `a.flatMap(f)` cũng giống như (nhưng hiệu quả hơn) `a.map(f).flat()`
+    
+    ```jsx
+    let phrases = ["hello world", "the definitive guide"];
+    let words = phrases.flatMap(phrase => phrase.split(" "));
+    words // => ["hello", "world", "the", "definitive", "guide"];
+    ```
+    
+- Bạn có thể gọi `flatMap()` như một dạng tổng quan của `map()` cho phép mỗi phần tử của mảng đầu vào ánh xạ tới bất kỳ số lượng phần tử nào của mảng đầu ra. Cụ thể, `flatMap()` cho phép bạn ánh xạ các phần tử đầu vào tới một mảng rỗng, mảng này sẽ được làm phẳng thành không có gì trong mảng đầu ra
+    
+    ```jsx
+    // Ánh xạ các số không âm thành căn bậc hai của chúng
+    [-2, -1, 1, 2].flatMap(x => x < 0 ? [] : Math.sqrt(x)) // => [1, 2**0.5]
+    ```
+    
+
+### **7.8.3 Thêm mảng với concat()**
+
+- `concat()` method tạo và trả về một mảng mới chứa các phần tử của mảng ban đầu mà `concat()` được gọi, theo sau là mỗi đối số của `concat()`. Nếu bất kỳ đối số nào trong số này là một mảng, thì chính các phần tử mảng sẽ được nối, chứ không phải bản thân mảng đó. Tuy nhiên, lưu ý rằng `concat()` không làm phẳng đệ quy các mảng của mảng. `concat()` không sửa đổi mảng mà nó được gọi
+    
+    ```jsx
+    let a = [1,2,3];
+    a.concat(4, 5) // => [1,2,3,4,5]
+    a.concat([4,5],[6,7]) // => [1,2,3,4,5,6,7]; mảng được làm phẳng
+    a.concat(4, [5,[6,7]]) // => [1,2,3,4,5,[6,7]]; nhưng không phải mảng lồng nhau
+    a // => [1,2,3]; mảng ban đầu không bị sửa đổi
+    ```
+    
+- Lưu ý rằng `concat()` tạo một bản  sao mới của mảng mà nó được gọi. Trong nhiều trường hợp, đây là điều nên làm, nhưng đó là một thao tác tốn kém. Nếu bạn đang viết code là `a = a.concat(x)`, thì bạn nên nghĩ đến việc sửa đổi mảng của mình tại chỗ bằng cách sử dụng `push()` hoặc `splice()` thay vì tạo một mảng mới
+
+### **7.8.4 Ngăn xếp và Hàng đợi với push(), pop(), shift() và unshift()**
+
+- Các method `push() và pop()` cho phép bạn làm việc với mảng như chúng là ngăn xếp. `push()` method cho phép nối thêm một hoặc nhiều phần tử vào cuối mảng và trả về độ dài mới của mảng. Không giống như `concat()`, `push()` không làm phẳng các đối số của mảng. `pop()` thực hiện điều ngược lại: nó xoá phần tử cuối cùng của mảng, giảm độ dài mảng và trả về giá trị mà nó đã xoá. Lưu ý rằng cả 2 method đều sửa đổi mảng tại chỗ. Sự kết hợp của `push() và pop()` cho phép bạn sử dụng mảng Js để triển khai ngăn xếp và trước, ra sau (First-In, Last-out)
+    
+    ```jsx
+    let stack = []; // stack == []
+    stack.push(1,2); // stack == [1,2];
+    stack.pop(); // stack == [1]; trả về 2
+    stack.push(3); // stack == [1,3]
+    stack.pop(); // stack == [1]; trả về 3
+    stack.push([4,5]); // stack == [1,[4,5]]
+    stack.pop() // stack == [1]; trả về [4,5]
+    stack.pop(); // stack == []; trả về 1
+    ```
+    
+- `push()` method không làm phẳng mảng mà bạn truyền vào cho nó, nhưng nếu bạn muốn đẩy tất cả các phần tử từ mảng này sang mảng khác, bạn có thể sử dụng toán tử spread (8.3.4) để làm phẳng nó một cách rõ ràng
+    
+    ```jsx
+    a.push(...values);
+    ```
+    
+- Các method `unshift() và shift()` hoạt động rất giống `push() và pop()`, ngoại trừ việc chúng chèn và xoá các phần tử từ đầu mảng chứ không phải ở cuối. `unshift()` thêm một hoặc các phần tử vào đầu mảng, dịch chuyển các phần tử mảng hiện có lên các index cao hơn để nhường chỗ và trả về đội dài mới của mảng. `shift()` loại bỏ và trả về phần tử đầu tiên của mảng, dịch chuyển tất cả các phần tử tiếp theo xuống một vị trí để chiếm không gian trống ở đầu mảng
+- Bạn có thể sử dụng `unshift() và shift()` để triển khai ngăn xếp, nhưng nó sẽ kém hiệu quả hơn so với việc sử dụng `push() và pop()` vì các phần tử mảng cần được dịch chuyển lên hoặc xuống mỗi khi phần tử được thêm hoặc xoá khỏi đầu mảng
+- Thay vào đó, bạn có thể triền khai cấu trúc dữ liệu hàng đợi (queue) bằng cách sử dụng push() để thêm vào cuối mảng và `shift()` để xoá chúng khỏi đầu mảng
+    
+    ```jsx
+    let q = []; // q == []
+    q.push(1,2); // q == [1,2]
+    q.shift(); // q == [2]; trả về 1
+    q.push(3) // q == [2, 3]
+    q.shift() // q == [3]; trả về 2
+    q.shift() // q == []; trả về 3
+    ```
+    
+
+### **7.8.5 Mảng con với slice(), splice(), fill() và copyWithin()**
+
+- Mảng xác định một số method hoạt động trên các vùng liền kề hoặc mảng con hoặc “cắt lát” của một mảng. Các phần sau đây mô tả các method để trích xuất, thay thế, điền và sao chép các lát cắt
+- `slice()` method trả về một lát cắt hoặc một mảng con của mảng được chỉ định. Hai đối số của nó chỉ định điểm đầu và điểm cuối của lát cắt cần trả về. Mảng được trả về chứa phần tử được chỉ định bởi đối số đầu tiên và cho đến các phần tử tiếp theo, nhưng không bao gồm, phần tử được chỉ định bởi tham số thứ 2
+- Nếu chỉ định một đối số, mảng được trả về chứa tất cả các phần tử từ vị trí bắt đầu đến cuối mảng. Nếu một trong 2 đối số là âm, nó sẽ chỉ định một phần tử liên quan đến độ dài mảng. Ví dụ: đối số -1 chỉ định phần tử cuối cùng của mảng và đối số -2 chỉ định phần tử trước đó. Lưu ý rằng, `slice()` không sửa đổi mảng mà nó được gọi
+    
+    ```jsx
+    let a = [1,2,3,4,5];
+    a.slice(0,3); // Trả về [1,2,3]
+    a.slice(3); // Trả về [4,5]
+    a.slice(1,-1); // Trả về [2,3,4]
+    a.slice(-3,-2); // Trả về [3]
+    ```
+    
+- `splice()` là một method đa năng để chèn hoặc xoá phần tử khỏi mảng. Không giống như `slice() và concat()`, `splice()` sửa đổi mảng mà nó được gọi. Lưu ý rằng `slice()` và `splice()` có tên rất giống nhau nhưng thực hiện các hoạt động khác nhau đáng kể
+- `splice()` có thể xoá phần tử khỏi mảng, chèn các phần tử mới vào mảng hoặc thực hiện đồng thời cả 2 thao tác. Các phần tử của mảng xuất hiện sau điểm chèn hoặc xoá có index được tăng hoặc giảm khi cần thiết để chúng vẫn liền kề với các phần còn lại của mảng
+- Đối số đầu tiên của `splice()` chỉ định vị trí mảng mà tại đó việc chèn và / hoặc xoá sẽ bắt đầu. Đối số thứ 2 chỉ định số lượng phần tử cần được xoá (bị loại bỏ)khỏi mảng. (Lưu ý rằng đây là điểm khác biệt giữa 2 method này. Đối số thứ 2 cho `slice()` là vị trí kết thúc. Đối số thứ 2 của `splice()` là độ dài.) Nếu đối số thứ 2 này bị bỏ qua, tất cả các phần tử mảng từ phần tử bắt đầu đến cuối mảng sẽ bị loại bỏ. `splice()` trả về một mảng  các phần tử đã xoá hoặc một mảng rỗng nếu không có phần tử nào bị xoá
+    
+    ```jsx
+    let a = [1,2,3,4,5,6,7,8];
+    a.splice(4) // => [5,6,7,8]; a bây giờ là [1,2,3,4]
+    a.splice(1,2) // => [2,3]; a bây giờ là [1,4]
+    a.splice(1,1) // => [4]; a bây giờ là [1]
+    ```
+    
+- Hai đối số đầu tiên cho `splice()` chỉ định phần tử mảng nào sẽ bị xoá. Các đối số này có thể được theo sau bởi bất kỳ số lượng đối số bổ sung nào được chỉ định các phần tử được chèn vào mảng, bắt đầu từ vị trí được chỉ định bởi đối số đầu tiên
+    
+    ```jsx
+    let a = [1,2,3,4,5];
+    a.splice(2,0,"a","b") // => []; a bây giờ là [1,2,"a","b",3,4,5]
+    a.splice(2,2,[1,2],3) // => ["a","b"]; a bây giờ là [1,2,[1,2],3,3,4,5]
+    ```
+    
+- Lưu ý rằng, không giống như `concat()` , `splice()` chèn chính các mảng, chứ không phải các phần tử của mảng đó
+- `fill()` method đặt các phần tử của mảng hoặc một lát cắt của mảng thành giá trị được chỉ định. Nó thay đổi mảng mà nó được gọi và cũng trả về mảng đã sửa đổi
+    
+    ```jsx
+    let a = new Array(5); // Bắt đầu với không có phần tử và length là 5
+    a.fill(0) // => [0,0,0,0,0]; điền vào mảng bằng các số 0
+    a.fill(9, 1) // => [0,9,9,9,9]; điền bằng 9 bắt đầu từ chỉ mục 1
+    a.fill(8, 2, -1) // => [0,9,8,8,9]; điền bằng 8 tại chỉ mục 2, 3
+    ```
+    
+- Đối số đầu tiên cho `fill()` là giá trị được đặt cho các phần tử mảng. Đối số thứ 2 tuỳ chọn chỉ định index bắt đầu. Nếu bị bỏ qua, việc điền sẽ bắt đầu ở index 0. Đối số thứ 3 tuỳ chọn chỉ định mục kết thúc - các phần tử mảng cho đến, nhưng không bao gồm, index này sẽ được điền. Nếu đối số này bị bỏ qua, thì mảng được điền từ index bắt đầu đến cuối. Bạn có thể chỉ định các index liên quan đến phần cuối của mảng bằng cách chuyển đổi các số âm, giống như bạn có thể làm với `slice()`
+- `copyWithin()` sao chép một lát cắt của mảng đến một vị trí mới trong mảng. Nó sửa đổi mảng tại chỗ và trả về mảng đã sửa đổi, nhưng nó không thay đổi độ dài của mảng
+- Đối số đầu tiên chỉ định index đến mà phần tử đầu tiên được sao chép đến đó. Đối số thứ 2 chỉ định index của phần tử đầu tiên được sao chép. Nếu đối số thứ 2 bị bỏ qua, 0 sẽ được sử dụng. Đối số thứ 3 chỉ định phần cuối của lát cắt các phần tử được sao chép. Nếu bị bỏ qua, độ dài của mảng sẽ được sử dụng. Các phần tử từ index bắt đầu đến, nhưng không bao gồm, index kết thúc sẽ được sao chép. Bạn có thể chỉ định các index liên quan đến phần cuối của mảng bằng cách chuyển các số âm giống như bạn có thể làm đối với `slice()`
+    
+    ```jsx
+    let a = [1,2,3,4,5];
+    a.copyWithin(1) // => [1,1,2,3,4]: sao chép các phần tử mảng lên một
+    a.copyWithin(2, 3, 5) // => [1,1,3,4,4]: sao chép 2 phần tử cuối cùng đến chỉ mục 2
+    a.copyWithin(0, -2) // => [4,4,3,4,4]: các offset âm cũng hoạt động
+    ```
+    
+- `copyWithin()` được thiết kế như một method hiệu suất cao, đặc biệt hữu ích với mảng được nhập (11.2). Nó được mô hình hoá theo hàm `memmove()` từ thư viện chuẩn C. Lưu ý rằng việc sao chép sẽ hoạt động chính xác ngay cả khi có sự chồng chéo giữa vùng nguồn và vùng đích
+
+### **7.8.6 Phương thức Tìm kiếm và Sắp xếp Mảng**
+
+- Mảng triển khai các method `indexOf()`, `lastIndexOf()` và `includes()` tương tự như các method cùng tên của chuỗi. Ngoài ra còn có các method `sort()` và `reverse()` để sắp xếp lại các phần tử của mảng. Các method được mô tả trong các phần nhỏ sau đây
+- `indexOf() và lastIndexOf()` tìm kiếm một mảng cho mỗi phần tử có giá trị được chỉ định và trả về index của phần tử đầu tiên được tìm thấy như vậy hoặc -1 nếu không tìm thấy phần tử nào. `indexOf()` tìm kiếm mảng từ đầu đến cuối và `lastIndexOf()` tìm kiếm từ cuối lên đầu
+    
+    ```jsx
+    let a = [0,1,2,1,0];
+    a.indexOf(1) // => 1: a[1] là 1
+    a.lastIndexOf(1) // => 3: a[3] là 1
+    a.indexOf(3) // => -1: không có phần tử nào có giá trị 3
+    ```
+    
+- `indexOf() và lastIndexOf()` so sánh đối số của chúng với phần tử mảng bằng cách sử dụng toán tử `===`. Nếu phần tử của bạn chứa các object thay vì giá trị nguyên thuỷ, thì các method này sẽ kiểm tra xem hai tham chiếu có cùng tham chiếu chính xác đến một object hay không. Nếu bạn thực sự muốn xem xét nội dung của một object, hãy thử sử dụng method find() với hàm vị ngữ tuỳ chỉnh của riêng bạn
+- `indexOf và lastIndexOf()` nhận một đối số thứ 2 là tuỳ chọn chỉ định index mảng để bắt đầu tìm kiếm. Nếu đối số này bị bỏ qua, indexOf bắt đầu tử đầu và lastIndexOf bắt đầu từ cuối. Các giá trị âm được phép cho đối số thứ 2 và được coi là một offset từ cuối mảng, như đối với method `slice()`: ví dụ -1 chỉ định giá trị cuối của mảng
+- Hàm sau khi tìm kiếm một mảng cho một giá trị được chỉ định và trả về một mảng của tất cả các index phù hợp. Điều này cho thấy cách đối số thứ 2  cho `indexOf()` có thể được sử dụng để tìm các kết quả khớp ngoài kết quả khớp đầu tiên
+    
+    ```jsx
+    // Tìm tất cả các lần xuất hiện của giá trị x trong mảng a và trả về một mảng
+    // của các chỉ mục phù hợp
+    function findall(a, x) {
+      let results = [], // Mảng các chỉ mục mà chúng ta sẽ trả về
+      len = a.length, // Độ dài của mảng cần tìm kiếm
+      pos = 0; // Vị trí để tìm kiếm từ đó
+      while(pos < len) { // Trong khi còn nhiều phần tử để tìm kiếm ...
+        pos = a.indexOf(x, pos); // Tìm kiếm
+        if (pos === -1) break; // Nếu không tìm thấy gì, chúng ta đã xong.
+        results.push(pos); // Nếu không, hãy lưu trữ chỉ mục trong mảng
+        pos = pos + 1; // Và bắt đầu tìm kiếm tiếp theo ở phần tử tiếp theo
+      }
+      return results; // Trả về mảng các chỉ mục
+    }
+    ```
+    
+- Lưu ý rằng chuỗi có các method indexOf() và lastIndexOf() hoạt động giống như các method mảng này, ngoài trừ đối số thứ 2 âm được gọi là 0
+- `includes()` method của ES2016 nhận một đối số duy nhất và trả về `true` nếu mảng chứa giá trị đó hoặc `false` nếu ngược lại. Nó không cho bạn biết index của giá trị, chỉ cho biết nó có tồn tại hay không. `includes()` method có hiệu quả là một bài kiểm tra tư cách thành viên tập hợp cho các mảng. Tuy nhiên, lưu ý rằng mảng không phải là một đại diện hiệu quả cho tập hợp và nếu bạn đang làm việc với nhiều hơn một vài phần tử, bạn nên sử dụng object `Set` thực (11.1)
+- `includes()` method hơi khác so với method `indexOf()` theo một cách quan trọng. `indexOf()` kiểm tra sự bằng nhau bằng cách sử dụng  cùng một thuật toán mà toán tử `===` thực hiện và thuật toán bằng nhau đó coi giá trị not-a-number (NaN) là khác với mọi giá trị khác, bao gồm cả chính nó. `includes()` sử dụng một phiên bản bằng nhau hơi khác một chút, coi `NaN` bằng chính nó. Điều này có nghĩa là `indexOf()` sẽ không phát hiện giá trị `NaN` trong mảng, nhưng `includes()` sẽ
+    
+    ```jsx
+    let a = [1,true,3,NaN];
+    a.includes(true) // => true
+    a.includes(2) // => false
+    a.includes(NaN) // => true
+    a.indexOf(NaN) // => -1; indexOf không thể tìm thấy NaN
+    ```
+    
+- `sort()` sắp xếp các phần tử của mảng tại chỗ và trả về mảng đã sắp xếp. Khi `sort()` được gọi mà không có đối số, nó sẽ sắp xếp các phần tử mảng theo thứ tự bảng chữ cái (tạm thời chuyển đổi chúng thành chuỗi để thực hiện so sánh, nếu cần)
+    
+    ```jsx
+    let a = ["banana", "cherry", "apple"];
+    a.sort(); // a == ["apple", "banana", "cherry"]
+    ```
+    
+- Nếu một mảng chứa các phần tử `undefined`, chúng sẽ được sắp xếp đến cuối mảng
+- Để sắp xếp một mảng theo một thứ tự nào đó khác với thứ tự bảng chữ cái, bạn phải chuyển một hàm so sánh làm đối số cho `sort()`. Hàm này quyết định xem hai đối số nào của nó sẽ xuất hiện trước trong mảng đã sắp xếp. Nếu đối số đầu tiên xuất hiện trước đối số thứ 2, thì hàm so sánh trả về một số nhỏ hơn 0. Nếu đối số đầu tiên xuất hiện sau đối số thứ 2 trong mảng đã sắp xếp, thì hàm sẽ trả về một số lớn hơn 0. Và nếu hai giá trị tương đương ( tức là nếu thứ tự của chúng không liên quan), thì hàm so sánh sẽ trả về 0
+- Vì vậy, ví dụ: để sắp xếp các phần tử mảng theo thứ tự số thay vì thứ tự bảng chữ cái, bạn có thể làm như sau
+    
+    ```jsx
+    let a = [33, 4, 1111, 222];
+    a.sort(); // a == [1111, 222, 33, 4]; thứ tự bảng chữ cái
+    a.sort(function(a,b) { // Truyền hàm so sánh
+      return a-b; // Trả về <0, 0 hoặc> 0, tùy thuộc vào thứ tự
+    }); // a == [4, 33, 222, 1111]; thứ tự số
+    a.sort((a,b) => b-a); // a == [1111, 222, 33, 4]; đảo ngược thứ tự số
+    ```
+    
+- Ví dụ khác về việc sắp xếp các mục mảng, bạn có thể thực hiện sắp xếp theo thứ tự bảng chữ cái không phân biệt hoa thường trên một mảng chuỗi bằng cách chuyển một hàm so sánh chuyển đổi cả 2 đối số của nó thành chữ thường (với `toLowerCase()` ) trước khi so sánh chúng
+    
+    ```jsx
+    let a = ["ant", "Bug", "cat", "Dog"];
+    a.sort(); // a == ["Bug","Dog","ant","cat"]; sắp xếp phân biệt chữ hoa chữ thường
+    a.sort(function(s,t) {
+      let a = s.toLowerCase();
+      let b = t.toLowerCase();
+      if (a < b) return -1;
+      if (a > b) return 1;
+      return 0;
+    }); // a == ["ant","Bug","cat","Dog"]; sắp xếp không phân biệt chữ hoa chữ thường
+    ```
+    
+- `reverse()` method đảo ngược thứ tự của các phần tử mảng và trả về mảng đảo ngược. Nó làm điều này tại chỗ; nói cách khác, nó không tạo ra một mảng mới với các phần tử được sắp xếp lại mà thay vào đó sắp xếp lại chúng trong mảng đã tồn tại
+    
+    ```jsx
+    let a = [1,2,3];
+    a.reverse(); // a == [3,2,1]
+    ```
+    
+
+### **7.8.7 Chuyển đổi Mảng thành Chuỗi**
+
+- Class `Array` định nghĩa 3 method có thể chuyển đổi mảng thành chuỗi, thường là điều bạn có thể làm khi tạo log và thông báo lỗi. (Nếu bạn muốn lưu nội dung của mảng ở dạng văn bản để sử dụng lại sau này, hãy tuần tự hoá mảng bằng `JSON.stringify()` thay vì sử dụng các method được mô tả trước đây)
+- Method `join()` chuyển đổi tất cả các phần tử của mảng thành chuỗi và nối chúng lại với nhau, trả về chuỗi kết quả. Bạn có thể định nghĩa một chuỗi tuỳ chọn để phân tách các phần tử trong chuỗi kết quả. Nếu không có chuỗi phân cách nào được chỉ định, dấu phẩy sẽ được sử dụng
+    
+    ```jsx
+    let a = [1, 2, 3];
+    a.join() // => "1,2,3"
+    a.join(" ") // => "1 2 3"
+    a.join("") // => "123"
+    let b = new Array(10); // Một mảng có độ dài 10 không có phần tử
+    b.join("-") // => "---------": một chuỗi gồm 9 dấu gạch nối
+    ```
+    
+- `join()` method là nghịch đảo của `String.split()` method, method tại ra một mảng bằng cách chia một chuỗi thành các phần
+- Mảng, giông như tất cả các object Js, đều có method `toString()`. Đối với một mảng, method này hoạt động như `join()` method mà không có đối số
+    
+    ```jsx
+    [1,2,3].toString() // => "1,2,3"
+    ["a", "b", "c"].toString() // => "a,b,c"
+    [1, [2,"c"]].toString() // => "1,2,c"
+    ```
+    
+- Lưu ý rằng đầu ra không bao gồm dấu ngoặc vuông hoặc bất kỳ loại dấu phân cách nào khác xung quanh giá trị mảng
+- `toLocaleString()` là phiên bản địa hoá của `toString()`. Nó chuyển đổi mỗi phần tử mảng thành chuỗi bằng cách gọi `toLocaleString()` method của phần tử, sau đó nối các chuỗi kết quả bằng cách sử dụng chuỗi phân tách cụ thể theo miền địa phương (và được xác định bởi triển khai)
+
+### **7.8.8 Hàm Mảng Tĩnh**
+
+- Ngoài các method mảng mà chúng ta đã ghi lại, class `Array` cũng định nghĩa 3 hàm tĩnh mà bạn có thể gọi thông qua hàm tạo `Array` chứ không phải trên các mảng. `Array.of()` và `Array.from()` là các method factory để tạo mảng mới. Chúng đã được ghi lại trong 7.1.4 và 7.1.5
+- Hàm mảng tĩnh còn lại là `Array.isArray()`, rất hữu ích để xác định xem một giá trị chưa biết có phải là mảng không
+    
+    ```jsx
+    Array.isArray([]) // => true
+    Array.isArray({}) // => false
+    ```
+
