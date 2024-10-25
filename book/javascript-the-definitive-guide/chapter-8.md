@@ -130,3 +130,108 @@
     ```
     
 - Điều thú vị về các hàm lồng nhau là các quy tắc phạm vi biến của chúng: chúng có thể truy cập các tham số và biến của hàm (hoặc các hàm) mà chúng được lồng vào đó. Ví dụ trong code được hiển thị ở đây, hàm bên trong `square()` có thể đọc và ghi các tham số a và b được định nghĩa bởi hàm bên ngoài `hypotenuse()`. Các quy tắc phạm vi này cho các hàm lồng nhau rất quan trọng và chúng ta sẽ xem xét lại chúng trong 8.6
+
+# **8.2 Gọi Hàm (Invoking Functions)**
+
+- Code Js tạo nên phần thân của hàm không được thực thi khi hàm được định nghĩa mà được thực thi khi nó được gọi. Hàm Js có thể được gọi theo 5 cách
+    - Là các hàm
+    - Là các method
+    - Là các hàm tạo
+    - Gián tiếp thông qua method `call()` và `apply()` của chúng
+    - Ngầm định, thông qua các tính năng ngôn ngữ Js mà không xuất hiện giống như các cách gọi hàm thông thường
+
+## **8.2.1 Gọi Hàm (Function Invocation)**
+
+- Các hàm được gọi là các hàm hoặc là các method với một biểu thức gọi (4.5). Một biểu thức gọi bao gồm một biểu thức hàm được đánh giá thành một object hàm theo sau là dấu ngoặc đơn mở, một danh sách phân cách bằng dấu phẩy gồm không hoặc nhiều biểu thức đối số và dấu ngoặc đơn đóng. Nếu biểu thức hàm là một biểu thức truy cập property - nếu hàm là property của một object hoặc một phần tử của một mảng - thì đó là một biểu thức gọi method. Trường hợp đo sẽ được giải thích trong các ví dụ sau
+    
+    ```jsx
+    printprops({x: 1});
+    let total = distance(0,0,2,1) + distance(2,1,3,5);
+    let probability = factorial(5)/factorial(13);
+    ```
+    
+- Trong một lần gọi, mỗi biểu thức đối số (những biểu thức nằm giữa dấu ngoặc đơn) được đánh giá và các giá trị kết quả trở thành các đối số cho hàm. Các giá trị này được gán cho các tham số được đặt tên trong định nghĩa hàm. Trong phần thân của hàm, một tham chiếu đến một tham số được đánh giá thành giá trị đối số tương ứng
+- Đối với cách gọi hàm thông thường, giá trị trả về của hàm trở thành giá trị của biểu thức gọi. Nếu hàm trả về vì trình thông dịch đến cuối, thì giá trị trả về là `undefined`. Nếu hàm trả về vì trình thông dịch thực thi một câu lệnh `return`, thì giá trị trả về là giá trị của biểu thức theo sau `return` hoặc là `undefined` nếu câu lệnh return không có giá trị
+
+### **GỌI CÓ ĐIỀU KIỆN (CONDITIONAL INVOCATION)**
+
+- Trong ES2020, bạn có thể chèn `?.` sau biểu thức hàm và trước dấu ngoặc đơn trong cách gọi hàm để chỉ gọi hàm nếu nó không phải là `null` hoặc `undefined`. Nghĩa là, biểu thức `f?.(x)` tương đương (giả sử không có tác dụng phụ) với:
+    
+    ```jsx
+    (f !== null && f !== undefined) ? f(x) : undefined
+    ```
+    
+    - Chi tiết đầy đủ về cú pháp gọi có điều kiện này có trong 4.5.1
+- Đối với cách gọi hàm trong chế độ không nghiêm ngặt, ngữ cảnh gọi (giá trị `this`) là object toàn cục. Tuy nhiên, ở chế độ nghiêm ngặt, ngữ cảnh gọi là `undefined`. Lưu ý rằng các hàm được định nghĩa bằng cách sử dụng cú pháp arrow function hoạt động khác nhau: chúng luôn kế thừa giá trị `this` có hiệu lực ở nơi chúng được định nghĩa
+- Các hàm được viết để được gọi là các hàm (và không phải là method) thường sử dụng từ khoá `this`. Tuy nhiên, từ khoá này có thể được sử dụng để xác định xem chế độ nghiêm ngặt có đang được bật không
+    
+    ```jsx
+    // Định nghĩa và gọi một hàm để xác định xem chúng ta có đang ở chế độ nghiêm ngặt hay không.
+    const strict = (function() { return !this; }());
+    ```
+    
+
+### **HÀM ĐỆ QUY VÀ NGĂN XẾP (RECURSIVE FUNCTIONS AND THE STACK)**
+
+- Hàm đệ quy là hàm, giống như hàm `factorial()` ở đầu chương này, tự gọi chính nó. Một số thuật toán, chẳng hạn như những thuật toán liên quan đến cấu trúc dữ liệu dựa trên cây, có thể được triển khai đặc biệt thanh lịch bằng các hàm đệ quy. Tuy nhiên, khi viết một hàm đệ quy, điều quan trọng là phải nghĩ đến các ràng buộc về bộ nhớ
+- Khi một hàm A gọi hàm B, và sau đó hàm B gọi hàm C, trình thông dịch Js cần theo dõi ngữ cảnh thực thi cho cả 3 hàm. Khi hàm C hoàn thành, trình thông dịch cần biết vị trí tiếp tục thực thi hàm B hoàn thành, nó cần biết vị trí tiếp tục thực thi hàm A. Bạn có thể tưởng tượng các ngữ cảnh thực thi này như một ngăn xếp. Khi một hàm gọi một hàm khác, một ngữ cảnh thực thi mới được đẩy vào ngăn xếp. Khi hàm đó trả về, object ngữ cảnh thực thi nó được đẩy ra khỏi ngăn xếp
+- Nếu một hàm tự gọi đệ quy 100 lần, ngăn xếp sẽ có 100 object được đẩy vào và sau đó 100 object đó được đẩy ra. Ngăn xếp cuộc gọi này chiếm bộ nhớ. Trên phần cứng hiện đại, thường có thể viết các hàm đệ quy tự gọi chính chúng hàng trăm lần. Nhưng nếu một hàm tự gọi chính nó mười nghìn lần, nó có thể sẽ không thành công với lỗi như “Vượt quá kích thước ngăn xếp cuộc gọi tối đa”
+
+## **8.2.2 Gọi Phương thức (Method Invocation)**
+
+- Method không khác gì là một hàm Js được lưu trữ trong một property của một object. Nếu bạn có 1 hàm `f` và 1 object `o`, bạn có thể định nghĩa một method có tên `m` của `o` bằng dòng sau
+    
+    ```jsx
+    o.m = f;
+    ```
+    
+- Sau khi đã định nghĩa method `m()` của object `o`, hãy gọi nó như thế này
+    
+    ```jsx
+    o.m();
+    ```
+    
+- Hoặc nếu `m()` mong đợi 2 đối số, bạn có thể gọi nó như thế này
+    
+    ```jsx
+    o.m(x, y);
+    ```
+    
+- Code trong ví dụ này là một biểu thức gọi: nó bao gồm một biểu thức hàm `o.m` và hai biểu thức đối số, `x` và `y`. Biểu thức hàm tự nó là một biểu thức truy cập proprerty và điều này có nghĩa là hàm được gọi như một method chứ không phải là một hàm thông thường
+- Các đối số và giá trị trả về của một lời gọi method được xử lý chính xác như được mô tả cho cách gọi hàm thông thường. Tuy nhiên, cách gọi method khác với cách gọi hàm ở một điểm quan trọng: ngữ cảnh gọi. Các biểu thức truy cập property gồm 2 phần: một object (trường hợp này là `o`) và một tên property (`m`). Trong một biểu thức gọi method như thế này, object `o` trở thành ngữ cảnh gọi và phần thân hàm có thể tham chiếu đến object đó bằng cách sử dụng từ khoá `this`
+    
+    ```jsx
+    let calculator = { // Một đối tượng literal
+      operand1: 1,
+      operand2: 1,
+      add() { // Chúng ta đang sử dụng cú pháp viết tắt phương thức cho hàm này
+        // Lưu ý việc sử dụng từ khóa this để tham chiếu đến đối tượng chứa.
+        this.result = this.operand1 + this.operand2;
+      }
+    };
+    calculator.add(); // Một lời gọi phương thức để tính 1+1.
+    calculator.result // => 2
+    ```
+    
+- Hầu hết các cách gọi method thường sử dụng dấu chấm để truy cập property, nhưng các biểu thức truy cập property sử dụng dấu ngoặc vuông cũng gây ra cách gọi method
+    
+    ```jsx
+    o["m"](x,y); // Một cách khác để viết o.m(x,y).
+    a[0](z) // Cũng là một cách gọi phương thức (giả sử a[0] là một hàm).
+    ```
+    
+- Các cách gọi method cũng có thể liên quan đến các biểu thức truy cập property phức tạp hơn
+    
+    ```jsx
+    customer.surname.toUpperCase(); // Gọi phương thức trên customer.surname
+    f().m(); // Gọi phương thức m() trên giá trị trả về của f()
+    ```
+    
+- Các method và từ khoá `this` là trung tâm của mô hình lập trình OOP. Bất kỳ hàm nào được sử dụng như một method đều được truyền một cách hiệu quả một cách hiệu quả một đối sô ngầm định - object mà no được gọi thông qua đó. Thông thường, một method thực hiện một số loại thao tác trên object đó và cú pháp gọi method là một cách thanh lịch để thể hiện thực tế là một hàm đang hoạt động trên 1 object
+    
+    ```jsx
+    rect.setSize(width, height);
+    setRectSize(rect, width, height);
+    ```
+    
+- Các hàm giả định được gọi trong hai dòng code này có thể được thực hiện chính xác cùng một thao tác trên object (giả định) `rect`, nhưng cú pháp gọi method trong dòng đầu tiên chỉ ra rõ ràng hơn ý tưởng rằng chính object `rect` là trọng tâm chính của hoạt động
