@@ -235,3 +235,69 @@
     ```
     
 - Các hàm giả định được gọi trong hai dòng code này có thể được thực hiện chính xác cùng một thao tác trên object (giả định) `rect`, nhưng cú pháp gọi method trong dòng đầu tiên chỉ ra rõ ràng hơn ý tưởng rằng chính object `rect` là trọng tâm chính của hoạt động
+
+### **CHUỖI PHƯƠNG THỨC (METHOD CHAINING)**
+
+- Khi các method trả về các object, bạn có thể sử dụng giá trị trả về của một cách gọi method như một phần của cách gọi tiếp theo. Điều này dẫn đến một chuỗi các cách gọi method như một biểu thức duy nhất. Ví dụ khi làm việc với các hoạt động không đồng bộ dựa trên Promise (xem chương 13), thường viết code có cấu trúc như sau
+    
+    ```jsx
+    // Chạy ba hoạt động không đồng bộ theo trình tự, xử lý lỗi.
+    doStepOne().then(doStepTwo).then(doStepThree).catch(handleErrors);
+    ```
+    
+- Khi bạn viết một method không có giá trị trả về của riêng nó, hãy cân nhắc việc để method trả về `this`. Nếu bạn thực hiện điều này một cách nhất quán trong toàn bộ API của mình, bạn sẽ cho phép một kiểu lập trình được gọi là chuỗi method, trong đó một object có thể được đặt tên một lần và sau đó nhiều method có thể được gọi trên nó
+    
+    ```jsx
+    new Square().x(100).y(100).size(50).outline("red").fill("blue").draw();
+    ```
+    
+- Lưu ý rằng `this` là một từ khoá, không phải là tên biến hoặc property. Cú pháp Js không cho phép bạn gán giá trị cho `this`
+- Từ khoá `this` không được xác định phạm vi theo cách của các biến và ngoại trừ các arrow function, các hàm lồng nhau không kế thừa giá trị `this` của hàm chứa. Nếu một hàm lồng nhau được gọi như một method, thì giá trị `this` của nó là object mà nó được gọi. Nếu một hàm lồng nhau (không phải là hàm mũi tên) được gọi như một hàm, thì giá trị `this` của nó sẽ là object toàn cục (chế độ nghiêm ngặt). Đó là một sai lầm phổ biến khi cho rằng một hàm lồng nhau được định nghĩa trong một method và được gọi như một hàm có thể được sử dụng `this` để có được ngữ cảnh của method.
+    
+    ```jsx
+    let o = { // Một đối tượng o.
+      m: function() { // Phương thức m của đối tượng.
+        let self = this; // Lưu giá trị "this" vào một biến.
+        this === o // => true: "this" là đối tượng o.
+        f(); // Bây giờ gọi hàm trợ giúp f().
+        function f() { // Một hàm lồng nhau f
+          this === o // => false: "this" là toàn cục hoặc undefined
+          self === o // => true: self là giá trị "this" bên ngoài.
+        }
+      }
+    };
+    o.m(); // Gọi phương thức m trên đối tượng o.
+    ```
+    
+- Bên trong hàm lồng nhau `f()` , từ khoá `this` không bằng object `o`. Điều này được nhiều người coi là một lỗ hổng trong ngôn ngữ JS và điều quan trọng là phải biết về nó. Code ở trên trình bày một cách giải quyết phổ biến. Trong method `m`, chúng ta gán giá trị `this` cho một biến `self` và trong hàm lồng nhau `f`, chúng ta có thể sử dụng `self` thay vì `this` để tham chiếu đến object chứa
+- Trong ES6 trở lên, một cách giải quyết khác cho vấn đề này là chuyển đổi hàm lồng nhau `f` thành arrow function, hàm này sẽ kế thừa đúng giá trị `this`
+    
+    ```jsx
+    const f = () => {
+      this === o // true, vì các hàm mũi tên kế thừa this
+    };
+    ```
+    
+- Các hàm được định nghĩa là method thay vì câu lệnh không được nâng lên, vì vậy để đoạn code này hoạt động, định nghĩa hàm cho `f` sẽ cần được di chuyển trong method `m` để nó xuất hiện trước khi gọi
+- Một cách giải quyết khác là gọi method `bind()` của hàm lồng nhau để định nghĩa một hàm mới được gọi ngầm trên một object được chỉ định
+    
+    ```jsx
+    const f = (function() {
+      this === o // true, vì chúng ta đã ràng buộc hàm này với this bên ngoài
+    }).bind(this);
+    ```
+    
+- Chúng ta sẽ nói về `bind()` trong 8.7.5
+
+### **8.2.3 Gọi Hàm Tạo (Constructor Invocation)**
+
+- Nếu một lời gọi hàm hoặc method được đặt trước bởi từ khoá `new`, thì đó là một lời gọi hàm tạo. (Các cách gọi hàm tạo đã được giới thiệu trong 4.6 và 6.2.2, và các hàm tạo sẽ được đề cập chi tiết hơn trong chương 9). Các cách gọi hàm tạo khác với các cách gọi hàm và method thông thường ở cách xử lý đối số, ngữ cảnh gọi và giá trị trả về
+- Nếu một cách gọi hàm tạo bao gồm một danh sách đối số trong dấu ngoặc đơn, thì các biểu thức đối số đó được đánh giá và chuyển cho hàm theo cách tương tự như đôi với các cách gọi hàm và method. Đó không phải là cách làm phổ biến, nhưng bạn có thể bỏ qua một cặp dấu ngoặc đơn trống trong cách gọi hàm tạo. Ví dụ, hai dòng sau là tương đương
+    
+    ```jsx
+    o = new Object();
+    o = new Object;
+    ```
+    
+- Một cách gọi hàm tạo tạo ra một object mới, trống kế thừa từ object được chỉ định bởi property `prototype` của hàm tạo. Các hàm tạo được thiết kế để khởi tạo các object và object mới được tạo này sử dụng làm ngữ cảnh gọi, vì vậy hàm tạo có thể tham chiếu đến nó bằng từ khoá this. Lưu ý rằng object mới được sử dụng làm context gọi ngay cả khi cách gọi hàm tạo trông giống như các gọi method. Nghĩa là, trong biểu thức `new o.m()`, `o` không được sử dụng làm context gọi
+- Các hàm tạo thường không sử dụng từ khoá `return`. Chúng thường khởi tạo object mới và sau đó trả về ngầm định khi chúng đến cuối phần thân của chúng. Trong trường hợp này, object mới là giá trị của biểu thức gọi hàm tạo. Tuy nhiên, nếu một hàm tạo sử dụng rõ ràng câu lệnh `return` để trả về 1 object, thì object đó trở thành giá trị của biểu thức gọi. Nếu hàm tạo sử dụng `return` mà không có giá trị, hoặc nếu nó trả về một giá trị nguyên thuỷ, thì giá trị trả về đó sẽ bị bỏ qua và các object mới được sử dụng làm giá trị của lời gọi
