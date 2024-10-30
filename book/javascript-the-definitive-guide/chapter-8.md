@@ -301,3 +301,17 @@
     
 - Một cách gọi hàm tạo tạo ra một object mới, trống kế thừa từ object được chỉ định bởi property `prototype` của hàm tạo. Các hàm tạo được thiết kế để khởi tạo các object và object mới được tạo này sử dụng làm ngữ cảnh gọi, vì vậy hàm tạo có thể tham chiếu đến nó bằng từ khoá this. Lưu ý rằng object mới được sử dụng làm context gọi ngay cả khi cách gọi hàm tạo trông giống như các gọi method. Nghĩa là, trong biểu thức `new o.m()`, `o` không được sử dụng làm context gọi
 - Các hàm tạo thường không sử dụng từ khoá `return`. Chúng thường khởi tạo object mới và sau đó trả về ngầm định khi chúng đến cuối phần thân của chúng. Trong trường hợp này, object mới là giá trị của biểu thức gọi hàm tạo. Tuy nhiên, nếu một hàm tạo sử dụng rõ ràng câu lệnh `return` để trả về 1 object, thì object đó trở thành giá trị của biểu thức gọi. Nếu hàm tạo sử dụng `return` mà không có giá trị, hoặc nếu nó trả về một giá trị nguyên thuỷ, thì giá trị trả về đó sẽ bị bỏ qua và các object mới được sử dụng làm giá trị của lời gọi
+
+### **8.2.4 Gọi Gián tiếp (Indirect Invocation)**
+
+- Các hàm Js là các object và giống như tất cả các object JS, chúng có các method. Hai trong số các method này, `call()` và `apply()`, gọi hàm gián tiếp. Cả 2 method đều cho phép bạn chỉ định rõ ràng giá trị `this` cho lời gọi, có nghĩa là bạn có thể gọi bất kỳ hàm nào như một method của bất kỳ object nào ngay cả khi nó không thực sự là một method của object đó. Cả 2 method cũng cho phép bạn chỉ định các đối số cho lời gọi. `call()` method sử dụng danh sách đối số của chính nó làm đối số cho hàm và `apply()` method mong đợi một mảng các giá trị được sử dụng làm đối số. Các method `call() và apply()` được mô tả chi tiết trong 8.7.4
+
+### **8.2.5 Gọi Hàm Ngầm định (Implicit Function Invocation)**
+
+- Có nhiều tính năng ngôn ngữ Js khác nhau mà không giống như cách gọi hàm nhưng lại khiến hàm được gọi. Hãy đặc biệt cẩn thận khi viết các hàm có thể được gọi ngầm định, bởi vì các lỗi, tác dụng phụ và sự cố về hiệu suất trong các hàm này khó chuẩn đoán và khắc phục hơn so với các hàm thông thường vì lý do đơn giản là không thể rõ ràng từ một kiểm tra đơn giản về code của bạn khi chúng ta đang được gọi
+- Các tính năng ngôn ngữ có thể gây ra cách gọi hàm ngầm định bao gồm
+    - Nếu 1 object có các getter hoặc setter được định nghĩa, thì việc truy vấn hoặc đặt giá trị cho các property của nó có thể gọi các method đó. Xem 6.10.6 để biết thêm thông tin
+    - Khi 1 object được sử dụng trong ngữ cảnh chuỗi (Chẳng hạn như khi nó được nối với một chuỗi), method `toString()` của nó được gọi. Tương tự, khi 1 object được sử dụng trong ngữ cảnh số, method `valueOf()` của nó được gọi. Xem 3.9.3  để biết thêm chi tiết
+    - Khi bạn lặp qua các phần tử của một object lặp lại, có một số lời gọi method xảy ra. Chương 12 giải thích cách thức hoạt động của các trình vòng lặp ở cấp độ gọi hàm và trình bày cách viết các method này để bạn có thể định nghĩa các loại lặp lại của riêng mình
+    - Một literal template được gắn thẻ là 1 cách gọi hàm trá hình. 14.5 trình bày cách viết hàm có thể được sử dụng cùng với các chuỗi literal template
+    - Các object Proxy (mô tả trong 14.7) có hành vi được kiểm soát hoàn toàn bởi các hàm. Hầu như bất kỳ thao tác nào trên một trong các object này sẽ khiến 1 hàm được gọi
