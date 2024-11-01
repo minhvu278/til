@@ -55,19 +55,19 @@
 - HTTP là một giao thức cho phép khách hàng, trong trường hợp này là người đưa thư
 - Và server chạy API để giao tiếp một giao thức về cơ bản là một tập hợp các quy tắc mà cả 2 bên cần tuân theo. Hầu hết các API sử đụng HTTP và điều cần thiết là phải hiểu một số điều cơ bản về HTTP để có thể đọc bất kỳ tài liệu API nào và sử dụng các API
 
-![alt text](image.png)
+![alt text](image/section1/image.png)
 
 - Sử dụng https đảm bảo rằng mọi dữ liệu của chúng ta gửi đều được mã hoá và không ai có thể đọc bất kỳ tin nhắn nào chúng ta gửi hoặc truy xuất
 
-![alt text](image-1.png)
+![alt text](image/section1/image-1.png)
 
 - Hãy liên tưởng đến việc gửi thư. Về cơ bản khi chúng ta gửi một lá thư, phong bì là yêu cầu và có các thành phần khác nhau: request method và URL là địa chỉ mà bức thư sẽ đến. Headers là một số thông tin bổ sung được thêm vào phong bì, như tem bưu chính hoặc mã vạch - điều này bổ sung một số dữ liệu bổ sung giúp bưu diện chuyển thư của bạn nhanh hơn nhiều. Và cuối cùng - body, là nội dung của chính bức thư, cũng giống như với bức thư có HTTP, bạn cần tuân theo một số quy ước. Bạn cần tạo thông báo HTTP theo cách mà API có thể hiểu chúng
 - Và cũng giống như với một bức thư, nếu bạn không đưa vào một số thông tin bắt buộc, thông điệp của bạn có thể không được gửi đi hoặc người nhận có thể không biết bạn muốn gì
 
-![alt text](image-2.png)
+![alt text](image/section1/image-2.png)
 
 ## The Postman Landscape
-![alt text](image-3.png)
+![alt text](image/section1/image-3.png)
 
 ## QUIZ 2: First steps in Postman
 
