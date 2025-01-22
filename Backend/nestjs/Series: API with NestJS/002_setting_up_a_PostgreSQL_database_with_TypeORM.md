@@ -240,3 +240,104 @@ CREATE DATABASE nestjs
 ```
 - Ngoài ra, truy vấn CREATE TABLE của chúng ta đặt ra ràng buộc cho các id để chúng luôn là duy nhất
   - PK_be5fda3aac270b134ff9c21cdee là tên của ràng buộc được tạo ra
+
+# Repositories
+- Với repository, chúng ta có thể quản lý 1 entity cụ thể. Repository có nhiều chức năng để tương tác với các entity. Để truy cập repository, chúng ta sử dụng lại `TypeOrmModule`
+- posts.module.ts
+```ts
+import { Module } from '@nestjs/common';
+import PostsController from './posts.controller';
+import PostsService from './posts.service';
+import Post from './post.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+ 
+@Module({
+  imports: [TypeOrmModule.forFeature([Post])],
+  controllers: [PostsController],
+  providers: [PostsService],
+})
+export class PostsModule {}
+```
+- Bây giờ, trong `PostsService`, chúng ta có thể đưa repository Posts vào
+```ts
+import { InjectRepository } from '@nestjs/typeorm';
+```
+```ts
+constructor(
+  @InjectRepository(Post)
+  private postsRepository: Repository<PostEntity>
+) {}
+```
+## Finding
+- Với hàm find, chúng ta có thể lấy được nhiều phần tử. Nếu chúng ta không cung cấp bất kỳ tuỳ chọn nào, nó sẽ trả về tất cả
+```ts
+getAllPosts() {
+  return this.postsRepository.find();
+}
+```
+- Để chỉ lấy 1 phần tử, chúng ta sử dụng hàm `findOne`. Bằng cách cung cấp cho nó 1 số, chúng ta chỉ ra rằng chúng ta muốn 1 phần tử có 1 id cụ thể. Nếu là undifined có nghĩa là phần tử không được tìm thấy
+```ts
+
+async getPostById(id: number) {
+  const post = await this.postsRepository.findOne(id);
+  if (post) {
+    return post;
+  }
+  throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+}
+```
+## Creating
+- Để tạo Post mới, chúng ta sử dụng hàm create. Chúng ta có thể sử dụng hàm `save` sau đó để lưu vào CSDL
+```ts
+async createPost(post: CreatePostDto) {
+  const newPost = await this.postsRepository.create(post);
+  await this.postsRepository.save(newPost);
+  return newPost;
+}
+```
+## Modifying
+- Để sửa đổi 1 phần tử hiện có, chúng ta có thể sử dụng hàm `update`. Sau đó, chúng ta sử dụng hàm `findOne` để trả về các phần tử update
+```ts
+async updatePost(id: number, post: UpdatePostDto) {
+  await this.postsRepository.update(id, post);
+  const updatedPost = await this.postsRepository.findOne(id);
+  if (updatedPost) {
+    return updatedPost
+  }
+  throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+}
+```
+- Một điều quan trọng là nó chấp nhận 1 entity 1 phần, do đó, nó hoạt động như 1 PATCH, không phải là 1 PUT
+## Deleting
+- Sử dụng `delete` để xoá 1 phần tử nhất định
+```ts
+async deletePost(id: number) {
+  const deleteResponse = await this.postsRepository.delete(id);
+  if (!deleteResponse.affected) {
+    throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+  }
+}
+```
+- Bằng cách kiểm tra docs của DELETE, chúng ta có thể thấy rằng chúng ta có quyền truy cập vào số lượng các phần tử đã xoá. Data này có sẵn trong `affected` property. Nếu nó là 0 thì là đã xoá
+## Handling asynchronous errors
+- 1 lợi ích của NestJs Controller là chúng xử lý lỗi không đồng bộ rất tốt
+```ts
+@Get(':id')
+getPostById(@Param('id') id: string) {
+  return this.postsService.getPostById(Number(id));
+}
+```
+- Nếu hàm getPostById throw lỗi, NestJs sẽ tự động bắt lỗi và phân tích cú pháp. Nếu sử dụng pure Express, chúng ta phải tự làm điều này
+```ts
+getAllPosts = async (request: Request, response: Response, next: Next) => {
+  const id = request.params.id;
+  try {
+    const post = await this.postsService.getPostById();
+    response.send(post);
+  } catch (error) {
+    next(error);
+  }
+}
+```
+# Summary
+- Bài viết này đã trình bày những điều cơ bản về việc kết nối ứng dụng NestJs với Postgres. Không chỉ sử dụng TypeORM mà còn xem xét 1 số truy vấn SQL. NestJs và TypeORM có nhiều tính năng tích hợp sẵn và sẵn sàng sử dụng
