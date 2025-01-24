@@ -88,3 +88,11 @@ export class UsersModule {}
 - Không nên lưu mật khẩu ở dạng text, vì nếu db bị xâm phạm, mật khẩu sẽ bị lộ. Để làm cho mật khẩu an toàn hơn, chúng ta sử dụng `hash`. Thuật toán hash biến đổi chuỗi thành 1 chuỗi khác, nếu thay đổi 1 ký tự trong chuỗi, chuỗi sẽ hoàn toàn khác
 - Thao tác trên chỉ có thể thực hiện theo 1 cách và không dễ đảo ngược - nghĩa là chúng tôi không biết mật khẩu của người dùng. Khi người dùng đăng nhập, chúng ta cần thực hiện thao tác này 1 lần nữa, sau đó so sánh với kết quả được lưu trong CSDL
 - Vì việc hashing 1 chuỗi 2 lần sẽ cho cùng 1 kết quả, chúng ta sử dụng `salt`. Nó chặn được những người dùng có cùng mật khẩu có cùng hash. `Salt` là 1 chuỗi ngẫu nhiên được thêm vào mật khẩu gốc để đạt được kết quả khác nhau sau mỗi lần
+
+## Using bcrypt
+- Sử dụng thuật toán bcrypt. Thuật toán này xử lý việc hash các chuỗi, so sánh các chuỗi thuần tuý với các hàm hash và thêm salt
+- Sử dụng bcrypt khá tốn CPU. Khá may mắn đó là việc triển khai bcrypt của chúng tôi sử dụng 1 nhóm luồng cho phép nó chạy trong 1 luồng bổ sung, nhờ đó app của chúng ta có thể thực hiện việc khác trong khi tạo hàm hash
+```ts
+npm install @types/bcrypt bcrypt
+```
+- Khi sử dụng bcrypt
