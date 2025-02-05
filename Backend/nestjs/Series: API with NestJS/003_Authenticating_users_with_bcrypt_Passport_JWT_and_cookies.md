@@ -95,4 +95,105 @@ export class UsersModule {}
 ```ts
 npm install @types/bcrypt bcrypt
 ```
-- Khi sử dụng bcrypt
+- Khi sử dụng bcrypt, chúng tôi xác định các vòng salt. Nó là yếu tố chi phí và kiểm soát thời gian cần thiết để nhận được kết quả. Tăng nó lên 1 thì thời gian sẽ tăng gấp đôi. Yếu tố chi phí càng lớn thì việc đảo ngược hàm băm bằng phương pháp brute-forcing càng trở nên khó khăn. Nói chung, 10 salt là đủ
+- Salt dùng để hash là 1 phần của kết quả, vì vậy không cần phải giữ riêng
+```ts
+const passwordInPlaintext = '12345678';
+const hash = await bcrypt.hash(passwordInPlaintext, 10);
+ 
+const isPasswordMatching = await bcrypt.compare(passwordInPlaintext, hashedPassword);
+console.log(isPasswordMatching); 
+```
+## Creating the authentication service
+- Với các kiến thức trên, chúng ta có thể triển khai basic login & logout. Để thực hiện, chúng ta cần 1 authentication service
+  - Authentication: Kiểm tra danh tính người dùng, xác thực người dùng là ai
+  - Authorization: Người dùng có được thực hiện thao tác này không
+- authentication/authentication.service.ts
+```ts
+export class AuthenticationService {
+  constructor(
+    private readonly usersService: UsersService
+  ) {}
+ 
+  public async register(registrationData: RegisterDto) {
+    const hashedPassword = await bcrypt.hash(registrationData.password, 10);
+    try {
+      const createdUser = await this.usersService.create({
+        ...registrationData,
+        password: hashedPassword
+      });
+      createdUser.password = undefined;
+      return createdUser;
+    } catch (error) {
+      if (error?.code === PostgresErrorCode.UniqueViolation) {
+        throw new HttpException('User with that email already exists', HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+  // (...)
+}
+```
+  - `createdUser.password = undefined` không phải là cách tốt nhất để không gửi password vào response. Trong các phần tiếp theo chúng ta sẽ tìm hiểu các cách khác
+- Một vài điều đáng chú ý ở trên là chúng ta tạo hàm hash và truyền nó đến method `usersService.create` cùng với phần còn lại của dữ liệu.
+- Để hiểu lỗi, chúng ta cần xem docs [PostgreSQL Error Codes documentation page.](https://www.postgresql.org/docs/9.2/errcodes-appendix.html)
+- Vì code cho uniqe_violation là 23505, chúng ta tạo enum để xử lý một cách rõ ràng
+```ts
+//database/postgresErrorCodes.enum.ts
+enum PostgresErrorCode {
+  UniqueViolation = '23505'
+}
+```
+- Việc còn lại là triển khai login
+```ts
+// authentication/authentication.service.ts
+export class AuthenticationService {
+  constructor(
+    private readonly usersService: UsersService
+  ) {}
+ 
+  // (...)
+ 
+  public async getAuthenticatedUser(email: string, hashedPassword: string) {
+    try {
+      const user = await this.usersService.getByEmail(email);
+      const isPasswordMatching = await bcrypt.compare(
+        hashedPassword,
+        user.password
+      );
+      if (!isPasswordMatching) {
+        throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
+      }
+      user.password = undefined;
+      return user;
+    } catch (error) {
+      throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
+    }
+  }
+}
+```
+- Code ở trên đều trả về 1 lỗi dù email hoặc password sai. Làm như vậy sẽ ngăn chặn được một số cuộc tấn công nhắm đến danh sách email đã đăng ký trong CSDL
+- Chúng ta cũng có thể refactor đoạn code trên tách riêng phần xác minh password
+```ts
+
+public async getAuthenticatedUser(email: string, plainTextPassword: string) {
+  try {
+    const user = await this.usersService.getByEmail(email);
+    await this.verifyPassword(plainTextPassword, user.password);
+    user.password = undefined;
+    return user;
+  } catch (error) {
+    throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
+  }
+}
+ 
+private async verifyPassword(plainTextPassword: string, hashedPassword: string) {
+  const isPasswordMatching = await bcrypt.compare(
+    plainTextPassword,
+    hashedPassword
+  );
+  if (!isPasswordMatching) {
+    throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
+  }
+}
+```
