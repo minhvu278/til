@@ -1,9 +1,0 @@
-<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd" >
-
- - Dependency injection 
-
- ## Package
-- Dao: Kết nối với DB
-- Entity: Map với DB (Chỉ đúng = với 1 table trong MySql)
-- Service: Tương tác với nhiều Dao 
-- Dto: Nếu entity k map đươc thì sử dụng Dto
