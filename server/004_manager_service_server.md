@@ -108,3 +108,34 @@ node -v
 npm -v
 ```
 
+# Quản lý service với systemctl
+- Hầu hết các dịch vụ trên server đều được quản lý bằng systemctl
+```sh
+sudo systemctl start nginx	Khởi động Nginx
+sudo systemctl stop nginx	Dừng Nginx
+sudo systemctl restart nginx	Khởi động lại Nginx
+sudo systemctl enable nginx	Tự động chạy Nginx khi khởi động máy
+sudo systemctl status nginx	Kiểm tra trạng thái Nginx
+```
+
+# Mở Port Firewall để truy cập server
+```sh
+80 : HTTP
+443 : HTTPS
+3306 : MySQL
+6379 : Redis
+```
+- Mở cổng HTTP & HTTPS
+```sh
+sudo ufw allow 80
+sudo ufw allow 443
+```
+- Mở cổng MySQL nếu cần truy cập từ xa
+```sh
+sudo ufw allow 3306
+```
+- Kiểm tra firewall
+```sh
+sudo ufw status
+```
+
