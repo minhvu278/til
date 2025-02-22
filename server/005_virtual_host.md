@@ -1,6 +1,6 @@
 # Cấu hình Virtual Host cho website với Nginx
 - `Virtual Host` (hay Server Block trong Nginx) giúp bạn chạy nhiều website trên cùng 1 server bằng cách trỏ các domain khác nhau về thư mục riêng của chúng
-- Ví dụ
+- Ví dụ:
   - site1.com trỏ về /var/www/site1.com
   - site2.com trỏ về /var/www/site2.com
 - Mặc định, Nginx lưu trữ file cấu hình của Virtual Host trong thư mục
