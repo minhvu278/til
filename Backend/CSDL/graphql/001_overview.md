@@ -70,3 +70,229 @@ mutation {
   - Với REST, chúng ta có thể gọi `/users/1` và nhận toàn bộ thông tin user (name, age, address,...) mặc dù ở đây bạn chỉ cần tên
   - Với GraphQL, bạn gửi truy vấn chỉ lấy `name` và server trả về đúng cái đó
 - **Nếu muốn tìm hiểu sâu hơn, chúng ta nên sử dụng GraphQL hoặc Apollo Sandbox để thử viết truy vấn hoặc đọc tài liệu chính thức tại `graphql.com`**
+
+# Thử 1 dự án "DEMO BLOG CÁ NHÂN"
+- Chúng ta sẽ thử tạo 1 ứng dụng nhỏ blog cá nhân, nơi người dùng có thể xem danh sách các bài viết và thêm bài viết mới
+
+## Chuẩn bị
+### Công cụ cần cài đặt
+- Node.js
+- npm
+- VS Code
+
+### Kiến thức cơ bản
+- Không cần biết quá nhiều, nhưng nếu quen với JS thì sẽ dễ hơn
+
+## Bước 1: Tạo dự án GrapQL cho server
+- Tạo thư mục
+```
+mkdir my-graphql-blog
+cd my-graphql-blog
+npm init -y
+```
+- Cài đặt thư viện cần thiết
+```
+npm install @apollo/server graphql graphql-tag
+```
+  - `apollo-server`: Một thư viện giúp chạy server GraphQL dễ dàng
+  - `graphql`: Thư viện cốt lõi để xử lý schema và truy vấn
+- Cập nhật pakage.json
+  - Thêm dòng "type": "module"
+- Tạo file server. Tạo 1 file index.js
+```ts
+import { ApolloServer } from '@apollo/server';
+import { startStandaloneServer } from '@apollo/server/standalone';
+import { gql } from 'graphql-tag';
+
+// Dữ liệu giả lập
+let posts = [
+  { id: '1', title: 'Bài viết đầu tiên', content: 'Chào mừng đến với blog!' },
+  { id: '2', title: 'Học GraphQL', content: 'Hôm nay học GraphQL rất vui!' },
+];
+
+// Định nghĩa schema
+const typeDefs = gql`
+  type Post {
+    id: String!
+    title: String!
+    content: String!
+  }
+
+  type Query {
+    posts: [Post!]!
+  }
+
+  type Mutation {
+    createPost(title: String!, content: String!): Post!
+  }
+`;
+
+// Định nghĩa resolver
+const resolvers = {
+  Query: {
+    posts: () => posts,
+  },
+  Mutation: {
+    createPost: (parent, args) => {
+      const newPost = {
+        id: String(posts.length + 1),
+        title: args.title,
+        content: args.content,
+      };
+      posts.push(newPost);
+      return newPost;
+    },
+  },
+};
+
+// Khởi chạy server
+const server = new ApolloServer({ typeDefs, resolvers });
+
+async function startServer() {
+  const { url } = await startStandaloneServer(server, {
+    listen: { port: 4000 },
+  });
+  console.log(`Server chạy tại: ${url}`);
+}
+
+startServer();
+```
+
+## Bước 2: Thử chạy với Apollo Sandbox
+### Lấy danh sách posts
+- Trong Apollo Sandbox, nhập truy vấn sau
+```
+query {
+  posts {
+    id
+    title
+    content
+  }
+}
+```
+- Nhấn run chúng ta sẽ thấy kết quả
+```
+{
+  "data": {
+    "posts": [
+      {
+        "id": "1",
+        "title": "Bài viết đầu tiên",
+        "content": "Chào mừng đến với blog!"
+      },
+      {
+        "id": "2",
+        "title": "Học GraphQL",
+        "content": "Hôm nay học GraphQL rất vui!"
+      }
+    ]
+  }
+}
+```
+
+### Thêm post mới
+- Thử gửi mutation
+```
+mutation {
+  createPost(title: "Bài mới", content: "Viết cái gì đó vui vẻ") {
+    id
+    title
+    content
+  }
+}
+```
+- Kết quả
+```
+{
+  "data": {
+    "createPost": {
+      "id": "3",
+      "title": "Bài mới",
+      "content": "Viết cái gì đó vui vẻ"
+    }
+  }
+}
+```
+- Chạy lại truy vấn `posts`, bạn sẽ thấy bài viết mới được thêm vào
+
+## Bước 3: Tạo client để gọi GraphQL
+- Bây giờ, giả sử bạn muốn làm 1 UI web đơn giản để hiển thị bài post. Chúng ta sẽ dùng HTML, JS để làm
+- Tạo file index.html
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blog GraphQL</title>
+</head>
+<body>
+  <h1>Danh sách bài viết</h1>
+  <ul id="post-list"></ul>
+
+  <h2>Thêm bài viết</h2>
+  <input id="title" placeholder="Tiêu đề" />
+  <input id="content" placeholder="Nội dung" />
+  <button onclick="addPost()">Thêm</button>
+
+  <script>
+    // Hàm lấy danh sách bài viết
+    async function fetchPosts() {
+      const response = await fetch('http://localhost:4000/graphql', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: `
+            query {
+              posts {
+                id
+                title
+                content
+              }
+            }
+          `,
+        }),
+      });
+      const { data } = await response.json();
+      const postList = document.getElementById('post-list');
+      postList.innerHTML = '';
+      data.posts.forEach(post => {
+        const li = document.createElement('li');
+        li.textContent = `${post.title}: ${post.content}`;
+        postList.appendChild(li);
+      });
+    }
+
+    // Hàm thêm bài viết
+    async function addPost() {
+      const title = document.getElementById('title').value;
+      const content = document.getElementById('content').value;
+      const response = await fetch('http://localhost:4000/graphql', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: `
+            mutation {
+              createPost(title: "${title}", content: "${content}") {
+                id
+                title
+                content
+              }
+            }
+          `,
+        }),
+      });
+      await response.json();
+      fetchPosts(); // Cập nhật danh sách sau khi thêm
+    }
+
+    // Load bài viết khi mở trang
+    fetchPosts();
+  </script>
+</body>
+</html>
+```
+- Mở thử file trên browser chúng ta sẽ thấy danh sách post và có thể thêm mới nữa
+
+## Bước 4: Hiểu cách nó kết nối
+- **Server**: Xử lý schema, resolver và cung cấp endpoint `/graphql`
+- **Client**: Gửi query/mutation qua HTTP (ở đây dùng fetch) đến server, nhận dữ liệu & hiển thị
+- **Ví dụ thực tế**: Nếu chúng ta làm ứng dụng khoai hơn 1 chút, GraphQL có thể giúp bạn lấy đúng thông tin bài viết (tiêu đề, nội dung) mà không cần load thông tin của author nếu không cần
