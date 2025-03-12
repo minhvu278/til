@@ -11,7 +11,7 @@
 # Container là gì?
 - Container giống như **Ngôi nhà LEGO đã lắp xong** từ Image (Bản thiết kế). Khi bạn "mở hộp" và sắp xếp theo hướng dẫn, bạn có 1 thứ có thể dùng ngay - đó là container
 - Ví dụ: Bạn lấy hộp LEGO "Ngôi nhà" (Image), xếp thành ngôi nhà hoàn chỉnh (Container). Bây giờ bạn có thể chơi với ngôi nhà đó, mang đi đâu cũng được
-- Trong Docker, Container là lúc bạn "chạy: Image, biến nó thành 1 thứ đang hoạt động (Như game đang được mở lên màn hình)
+- Trong Docker, Container là lúc bạn "chạy" Image, biến nó thành 1 thứ đang hoạt động (Như game đang được mở lên màn hình)
 
 # Image & Container khác nhau như thế nào?
 - **Image**: Là *hộp đồ chơi chưa mở*, đứng yên, không hoạt động. Bạn có thể copy nó, gửi cho bạn bè
@@ -28,7 +28,7 @@
 
 ## Chạy container
 - Bạn mở hộp image ra để chơi, chạy lệnh `docker run`
-
+    
 # Tại sao Image & Container lại quan trọng
 - Dễ bế đi: Image nhỏ gọn
 - Chạy nhanh: Container mở ra là chạy được ngay, không cần cài lại từ đầu
