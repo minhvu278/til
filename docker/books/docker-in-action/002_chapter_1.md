@@ -48,3 +48,29 @@ echo "hello world"
 ### Containers are not virtualization
 - Trong thời đại cloud-native này, mọi người có xu hướng nghĩ về máy ảo như các đơn vị triển khai, trong đó triển khai 1 quy trình duy nhất có nghĩa là tạo ra toàn bộ máy ảo được kết nối mạng. Máy ảo cung cấp phần cứng ảo (hoặc phần cứng mà trên đó có thể cài đặt hệ điều hành và các chương trình khác). Chúng mất nhiều thời gian (thường là vài phút) để tạo và đòi hỏi nhiều resource hơn vì chúng chạy toàn bộ hệ điều hành ngoài phần mềm bạn muốn sử dụng. Máy ảo có thể hoạt động tối ưu khi mọi thứ đã sẵn sàng, nhưng độ trễ khi khởi động khiến chúng không phù hợp với các tình huống triển khai tức thời hoặc phản ứng
 - Không giống như máy ảo, các container Docker không sử dụng bất kỳ ảo hoá phần cứng nào. Các chương trình chạy bên trong Docker containers interface trực tiếp với hạt nhân (kernel) Linux của máy chủ. Nhiều chương trình có thể chạy độc lập mà không cần chạy hệ điều hành dự phòng hoặc bị chậm trễ do trình tự khởi động đầy đủ. Đây là 1 sự phân biệt quan trọng. Docker không phải là công nghệ ảo hoá phần cứng. Thay vào đó, nó giúp bạn sử dụng công nghệ container đã được tích hợp sẵn trong kernel của bạn
+  - **NOTE**: VM - Máy ảo tạo ra 1 máy tính hoàn chỉnh (Có CPU, RAM, hệ điều hành riêng) bằng cách ảo hoá phần cứng. *Docker container* không tạo máy ảo, không ảo hoá phần cứng. Thay vào đó, nó dùng trực tiếp tài nguyên từ máy thật
+- Máy ảo cung cấp các bản tóm tắt phần cứng để bạn có thể chạy lệnh hệ điều hành. Container là 1 tính năng của hệ điều hành. Vì vậy, bạn luôn có thể chạy Docker trong máy ảo nếu máy đó đang chạy kernel Linux hiện đại. Docker dành cho người dùng Mac & Windows và hầu hết những người dùng cloud computing, sẽ chạy Docker bên trong máy ảo. Vì vậy, đây thực sự là những công nghệ bổ sung
+
+### Running software in containers for isolation
+- Các container & tính năng isolation (cô lập) đã tồn tại trong nhiều thập kỷ. Docker sử dụng namespaces và cgroup của Linux, vốn là 1 phần của Linux kể từ năm 2007. Docker không cung cấp container technology, nhưng nó đặc biệt giúp việc sử dụng trở nên đơn giản hơn. Để hiểu container trông như thế nào trên 1 hệ thống, trước tiên chúng ta hãy thiết lập 1 baseline. Hình 1.3 cho thấy 1 ví dụ cơ bản chạy trên nền kiến trúc hệ thống máy tính đơn giản hoá
+![basic running](./images/basic-running-1.3.png)
+- Hãy để ý rằng commandline (CLI) chạy trong vùng bộ nhớ gọi là *user space*, giống như các chương trình khác trên hệ điều hành. Lý tưởng nhất, các chương trình chạy trong *user space* không thể sửa đổi được memory của *kernel space*(nơi kernel hoạt động), để bảo vệ hệ thống. Nói 1 cách rộng hơn, hệ điều hành là cầu nối giữa tất cả các chương trình của người dùng & phần cứng mà máy tính đang chạy
+- Bạn có thể thấy trong hình 1.4, chạy Docker có nghĩa là chạy 2 chương trình trong *user space*. Đầu tiên là Docker engine. Nếu được cài đặt đúng cách, quy trình này sẽ luôn chạy. Thứ 2 là Docker CLI - đây là chương trình Docker mà người dùng tương tác. Nếu bạn muốn start, stop, install software, bạn sẽ đưa ra lệnh bằng cách sử dụng chương trình Docker (Vd như docker run, docker stop).
+  - Docker engine - Động cơ chính của Docker, chịu trách nhiệm quản lý container (tạo, chạy, dừng). Nó chạy ngầm trên máy tính sau khi cài đặt, giống như 1 service luôn sẵn sàng
+- Hình 1.4 cũng hiển thị 3 container đang chạy. Mỗi tiến trình chạy như 1 tiến trình con của Docker engine, được bao bọc bằng 1 container và tiến trình được giao phó chạy trong không gian bộ nhớ con riêng của *use space*. Các chương trình chạy bên trong 1 container chỉ có thể truy cập vào bộ nhớ và resource của riêng chúng theo phạm vi được container đó giới hạn. Docker xây dựng container bằng cách sử dụng 10 tính năng chính của hệ thống
+![running software in container](./images/running-software.png)
+- Phần 1 của cuốn sách này sử dụng các lệnh Docker để minh hoạ các tính năng này có thể được sửa đổi để phù hợp với nhu cầu của phần mềm được chứa và phù hợp với môi trường mà container sẽ chạy. Các tính năng cụ thể sẽ như sau:
+  - `PID namespace` - Mã định danh & khả năng của chương trình
+  - `UTS namespace` - Host & domain name
+  - `MNT namespace` -  Truy cập & cấu trúc hệ thống file
+  - `IPC namespace` - Quá trình giao tiếp qua shared memory
+  - `NET namespace` - Truy cập & cấu trúc mạng
+  - `USR namespace` - Username & mã định danh
+  - `chroot syscall` - Kiểm soát vị trí của filesystem root
+  - `cgroups` - Bảo vệ resource
+  - `CAP drop` - Hạn chế tính năng của hệ điều hành
+  - `Security modules` - Kiểm soát truy cập bắt buộc
+- Docker sử dụng các công nghệ đó để xây dựng các container khi chạy, nhưng nó sử dụng một bộ công nghệ khác để đóng gói & vận chuyển các container
+
+### Shipping containers
+- Bạn có thể nghĩ về 1 container Docker như 1 container thực tế. Nó là hộp chứa ứng dụng và mọi thứ cần thiết để chạy (trừ kernel hệ điều hành). Giống như xe tải, cần cẩu, tàu hoả, tàu biển dễ dàng xử lý thùng hàng, Docker cũng dễ dàng chạy, sao chép và phân phối container. Docker hoàn thiện ý tưởng này bằng cách đóng gói và phân phối phần mềm. Phần đóng vai trò thùng hàng là *image*.
