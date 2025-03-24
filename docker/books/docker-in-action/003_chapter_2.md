@@ -104,4 +104,18 @@ docker logs web
 ```
 "GET / HTTP/1.0" 200
 ```
-- Điều này có nghĩa là web server đang chạy và agent đang kiểm tra trang web. Mỗi lần agent kiểm tra trang web, một trong những dòng này sẽ được ghi vào log. Lệnh docker logs có thể hữu ích cho những trường hợp này nhưng không nên phụ thuộc hoàn toàn vào nó vì có rủi ro. Bất cứ điều gì mà chương trình ghi vào luồng đầu ra stdout hoặc stderr sẽ được ghi lại trong log. Vấn đề với pattern này là log không bao giờ xoay hoặc cắt bớt theo mặc định, do đó, dữ liệu sẽ được ghi vào log cho 1 container sẽ vẫn tồn tại và tăng lên miễn là container đó tồn tại
+- Điều này có nghĩa là web server đang chạy và agent đang kiểm tra trang web. Mỗi lần agent kiểm tra trang web, một trong những dòng này sẽ được ghi vào log. Lệnh docker logs có thể hữu ích cho những trường hợp này nhưng không nên phụ thuộc hoàn toàn vào nó vì có rủi ro. Bất cứ điều gì mà chương trình ghi vào luồng đầu ra stdout hoặc stderr sẽ được ghi lại trong log. Vấn đề với pattern này là log không bao giờ xoay hoặc cắt bớt theo mặc định, do đó, dữ liệu sẽ được ghi vào log cho 1 container sẽ vẫn tồn tại và tăng lên miễn là container đó tồn tại. Việc lưu trữ log lâu dài như vậy có thể gây rắc rối cho quá trình chạy dài hạn. Một cách tốt hơn để xử lý log bằng cách dùng volumes và sẽ thảo luận trong chương 4. 
+- Bạn có thể biết rằng agent đang giám sát web server bằng cách kiểm tra log chỉ dành cho web. Để hoàn thiện, bạn cũng nên kiểm tra log output cho mailer & agent
+```
+docker logs mailer
+docker logs agent
+```
+- Log của mailer sẽ trông như thế này
+```
+CH2 Example Mailer has started.
+```
+- Log của agent phải chứa 1 số dòng giống như dòng bạn đã xem khi bạn khởi động container
+```
+System up.
+```
+  - Lệnh docker logs có 1 flag -follow hoặc -f, sẽ hiển thị các bản ghi & sau đó tiếp tục theo dõi & cập nhật màn hình hiển thị với các thay đổi đối với bản ghi khi chúng xảy ra
