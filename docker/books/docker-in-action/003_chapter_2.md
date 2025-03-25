@@ -118,4 +118,49 @@ CH2 Example Mailer has started.
 ```
 System up.
 ```
-  - Lệnh docker logs có 1 flag -follow hoặc -f, sẽ hiển thị các bản ghi & sau đó tiếp tục theo dõi & cập nhật màn hình hiển thị với các thay đổi đối với bản ghi khi chúng xảy ra
+  - Lệnh docker logs có 1 flag -follow hoặc -f, sẽ hiển thị các bản ghi & sau đó tiếp tục theo dõi & cập nhật màn hình hiển thị với các thay đổi đối với bản ghi khi chúng xảy ra. Khi hoàn tất, hãy nhấn Ctrl-C (Hoặc command C) để ngắt logs command
+- Bây giờ, bạn đã xác thực rằng các container đang chạy và các agent có thể truy cập máy chủ web, bạn nên kiểm tra xem các agent có nhận thấy khi container web dừng không. Khi điều đó xảy ra, agent sẽ trigger 1 cuộc gọi đến *mailer* và sự kiện sẽ được ghi lại trong log cho cả agent & mailer. Lệnh docker stop yêu cầu chương trình có PID 1 trong container dừng lại. Sử dụng nó trong các lệnh sau để kiểm tra system:
+```
+docker stop web
+docker logs mailer
+```
+- Hãy tìm ở cuối mailer log có nội dung như sau
+```
+Sending email: To: admin@work Message: The service is down!
+```
+- Dòng đó có nghĩa là agent đã phát hiện thành công rằng NGINX server trong container có tên web đã dừng. Chúc mừng! Khách hàng rất vui & bạn đã xây dựng được hệ thống thực sự đầu tiên của mình với container & Docker
+- Học các tính năng cơ bản của Docker là 1 chuyện, nhưng hiểu lý do tại sao chúng lại hữu ích và cách sử dụng chúng để tuỳ chỉnh cô lập (isolation - Mỗi container chạy độc lập, không ảnh hưởng đến nhau - như hệ điều hành riêng) lại là 1 nhiệm vụ hoàn toàn khác
+
+## 2.2 Solved problems and the PID namespace
+- Mỗi program đang chạy hoặc quy trình trên máy Linux đều có 1 số duy nhất gọi là identifier (PID).  PID namespace là tập hợp các số duy nhất xác định các quy trình. Linux cung cấp các công cụ để tạo nhiều namespace tên PID. Mỗi namespace có 1 bộ đầy đủ các PID có thể có. Điều này có nghĩa là PID sẽ chứa PID 1,2,3,... của riêng nó.
+- Hầu hết các program sẽ không cần truy cập vào các tiếng trình đang chạy khác hoặc có thể liệt kê các tiến trình đang chạy khác trên hệ thống. Và do đó Docker sẽ tạo ra 1 namespace PID mới cho mỗi container theo mặc định. PID namespace của container cô lập các quy trình trong container đó ra khỏi các quy trình trong các container khác. 
+- Theo quan điểm của 1 quy trình trong 1 container có namespace riêng, PID 1 (Process ID số 1 - quá trình đầu tiên & quan trọng nhất trong bất kỳ hệ thống Linux nào) có thể là 1 quá trình thuộc hệ thống khởi động (init system) như `runit` hoặc `supervisor`, thay vì process của host. Trong 1 container khác, PID 1 có thể tham chiếu đến 1 shell command như bash. Chạy lệnh sau để xem nó hoạt động
+  - Trên máy thật, PID 1 thường là `systemd` hoặc `init` (quản lý tất cả các process khác)
+```
+docker run -d --name namespaceA \
+ busybox:1.29 /bin/sh -c "sleep 30000"
+docker run -d --name namespaceB \
+ busybox:1.29 /bin/sh -c "nc -l 0.0.0.0 -p 80"
+
+docker exec namespaceA ps // 1
+docker exec namespaceB ps // 2
+```
+- Command 1 sẽ tạo ra danh sách các quy trình tương tự nhau
+```
+PID USER TIME COMMAND
+ 1 root 0:00 sleep 30000
+ 8 root 0:00 ps
+```
+- Command 2 sẽ tạo ra 1 danh sách quy trình hơi khác
+```
+PID USER TIME COMMAND
+1 root 0:00 nc -l 0.0.0.0 -p 80
+9 root 0:00 ps
+```
+- Trong ví dụ này, bạn sử dụng lệnh docker exec để chạy các tiến trình bổ sung trong 1 container đang chạy. Trong trường hợp này, lệnh bạn sử dụng được gọi là ps, lệnh này sẽ hiển thị tất cả các tiến trình đang chạy và PID của chúng. Từ kết quả đầu ra, bạn có thể thấy rõ ràng rằng mỗi container đều có 1 process với PID 1
+- Nếu không có namespace PID, các process chạy bên trong 1 container sẽ chia sẻ cùng 1 namespace ID như các process trên các container trên máy khác hoặc trên server. Một process trong 1 container sẽ có thể xác định những process nào đang chạy trên server. Tệ hơn nữa, các quy trình trong 1 container có thể kiểm soát các quy trình trong 1 container khác. Một quy trình không thể tham chiếu đến bất kỳ quy trình nào bên ngoài namespace của nó sẽ bị hạn chế khả năng thực hiện các cuộc tấn công có mục tiêu
+- Giống như hầu hết các tính năng cô lập của Docker, bạn có thể tuỳ chọn tạo các container mà không có namespace PID của riêng chúng. Điều này rất quan trọng nếu bạn đang sử dụng một chương trình để thực hiện tác vụ quản trị hệ thống yêu cầu liệt kê quy trình từ bên trong 1 container. Bạn có thể tự mình thử điều này bằng cách đặt flag -pid trên docker create hoặc docker run và đặt value thành host. Hãy tự mình thử với 1 container chạy BusyBox Linux và lệnh ps Linux
+```
+docker run --pid host busybox:1.29 ps
+```
+- Bởi vì tất cả các container đều có namespace PID riêng, chúng không thể thấy thông tin hữu ích khi kiểm tra PID của mình và phụ thuộc nhiều hơn vào cấu hình tĩnh (Khi dùng riêng nghĩa là không có --pid host thì chúng phải phụ thuộc vào cách cấu hình của chính mình - Như PID 1 là *bash* hoặc *nginx*. Với --pid host container phụ thuộc vào host nhiều hơn - vì thấy PID của host làm mất đi tính cô lập). Giả sử 1 container chạy 2 process: 1 server và 1 process monitor. Màn hình đó có thể phụ thuộc chặt chẽ vào PID dự kiến của server và sử dụng nó để monitor (giám sát) & kiểm soát server. Đây là 1 ví dụ về sự độc lập môi trường
