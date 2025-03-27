@@ -164,3 +164,91 @@ PID USER TIME COMMAND
 docker run --pid host busybox:1.29 ps
 ```
 - Bởi vì tất cả các container đều có namespace PID riêng, chúng không thể thấy thông tin hữu ích khi kiểm tra PID của mình và phụ thuộc nhiều hơn vào cấu hình tĩnh (Khi dùng riêng nghĩa là không có --pid host thì chúng phải phụ thuộc vào cách cấu hình của chính mình - Như PID 1 là *bash* hoặc *nginx*. Với --pid host container phụ thuộc vào host nhiều hơn - vì thấy PID của host làm mất đi tính cô lập). Giả sử 1 container chạy 2 process: 1 server và 1 process monitor. Màn hình đó có thể phụ thuộc chặt chẽ vào PID dự kiến của server và sử dụng nó để monitor (giám sát) & kiểm soát server. Đây là 1 ví dụ về sự độc lập môi trường
+- Hãy xem xét ví dụ web-monitoring trước đó. Giả sử bạn không sử dụng Docker và chỉ chạy NGINX trực tiếp trên máy tính của bạn. Bây giờ, giả sử bạn quên rằng bạn đã bắt đầu NGINX cho 1 dự án khác. Khi bạn khởi động lại NGINX, quy trình thứ 2 sẽ không thể truy cập vào được các resource cần thiết vì process đầu tiên đã có chúng. Đây là ví dụ xung đột phần mềm cơ bản. Bạn có thể thấy nó hoạt động bằng cách thử chạy 2 bản sao NGINX trong cùng 1 container
+```
+docker run -d --name webConflict nginx:latest
+docker logs webConflict
+docker exec webConflict nginx -g 'daemon off;'
+```
+- Last command sẽ hiển thị kết quả như thế này
+```
+2015/03/29 22:04:35 [emerg] 10#0: bind() to 0.0.0.0:80 failed (98:
+Address already in use)
+nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+...
+```
+- Process thứ 2 không được khởi động đúng cách và báo cáo rằng địa chỉ cần thiết đã được sử dụng. Được gọi là `port conflict`, đây là sự cố phổ biến trong các hệ thống thực tế trong đó có nhiều quy trình đang chạy trên cùng 1 máy tính hoặc nhiều người cùng đóng góp vào cùng 1 môi trường. Đây là 1 ví dụ tuyệt vời về vấn đề conflict mà Docker đơn giản hoá và giải quyết. Chạy từng cái trong 1 container khác nhau, như thế này:
+```
+docker run -d --name webA nginx:latest // Bắt đầu phiên bản NGINX đầu tiên
+
+docker logs webA  // Xác minh nó hoạt động, phải trống
+
+docker run -d --name webB nginx:latest // Bắt đầu phiên bản thứ 2
+
+docker logs webB  // Xác minh nó hoạt động, phải trống
+```
+- Tính độc lập về môi trường, cung cấp sự tự do để cấu hình phần mềm phụ thuộc vào các resource hệ thống khan hiếm mà không cần quan tâm đến các phần mềm cùng vị trí khác có các yêu cầu xung đột. Sau đây là 1 số vấn đề conflict phổ biến
+  - 2 chương trình muốn liên kết với cùng 1 network port
+  - 2 chương trình sử dụng cùng 1 tên file tạm thời và file locks đang ngăn chặn điều đó
+  - 2 chương trình muốn sử dụng các phiên bản khác nhau của 1 thư viện được cài đặt global
+  - 2 processes muốn sử dụng cùng 1 PID file
+  - Chương trình thứ 2 bạn cài đặt đã sửa đổi biến môi trường mà một chương trình khác sử dụng. Bây giờ chương trình đầu tiên bị hỏng
+  - Nhiều process đang chạy cạnh tranh về memory hoặc CPU time
+- Tất cả các conflict này phát sinh khi 1 hoặc nhiều chương trình có sự phụ thuộc chung nhưng không thể đồng ý chia sẻ hoặc có nhu cầu khác nhau. Giống như ví dụ port conflict trước đó, Docker giải quyết xung đột phần mềm bằng các công cụ như Linux namespaces, resource limits, filesystem roots và các thành phần network ảo hoá (virtualized network components). Tất cả các công cụ này được sử dụng để cô lập phần mềm bên trong 1 container Docker
+
+## 2.3 Eliminating metaconflicts: Building a website farm
+- Trong phần trước, bạn đã thấy Docker giúp bạn tránh xung đột phần mềm với quy trình cô lập như thế nào. Nhưng nếu bạn không cẩn thận, bạn có thể kết thúc bằng việc xây dựng các hệ thống tạo ra metaconflicts hoặc xung đột giữa các container trong Docker layer
+- Hãy xem xét 1 ví dụ khác: Một khác hàng đã yêu cầu bạn xây dựng 1 hệ thống mà bạn có thể lưu trữ một số lượng trang web khác nhau cho khách hàng của họ. Họ cũng muốn sử dụng cùng 1 công nghệ giám sát mà bạn đã xây dựng trước đó trong chương này. Mở rộng hệ thống bạn đã xây dựng trước đó sẽ là cách đơn giản nhất để hoàn thành công việc này mà không cần tuỳ chỉnh cấu hình cho NGINX. Trong ví dụ này, bạn sẽ xây dựng 1 hệ thống với 1 số container chạy máy chủ web và 1 số trình theo dõi giám sát cho mỗi web server. Hệ thống sẽ giống như kiến trúc được mô tả trong hình 2.2
+![2.2-web server](./images/2.2-web-server-monitor.png)
+- Bản năng đầu tiên của bạn có thể là chỉ cần bắt đầu nhiều vùng chứa web hơn. Nhưng điều đó không đơn giản như vẻ bề ngoài của nó. Việc xác định các container trở nên phức tạp khi số lượng container tăng lên
+
+### 2.3.1 Flexible container identification
+- Cách tốt nhất để tìm hiểu lý do tại sao việc chỉ tạo thêm các bản sao của NGINX container mà bạn đã sử dụng trong ví dụ trước là 1 ý tưởng tồi
+```
+docker run -d --name webid nginx // Tạo 1 container có tên là `webid`
+docker run -d --name webid nginx // Tạo 1 container khác có tên là webid
+```
+- Lệnh thứ 2 sẽ không thành công do conflict
+```
+FATA[0000] Error response from daemon: Conflict. The name "webid" is
+already in use by container 2b5958ba6a00. You have to delete (or rename)
+that container to be able to reuse that name.
+```
+- Sử dụng tên container cố định như web rất hữu ích cho việc thử nghiệm và document, nhưng trong 1 system có nhiều container, việc sử dụng tên cố định như vậy có thể gây xung đột. Theo mặc định, Docker gán 1 tên duy nhất (thân thiện với con người) cho mỗi vùng chứa mà nó tạo ra. Flag `--name` ghi đè lên process đó bằng 1 giá trị đã biết. Nếu có tình huống phát sinh mà tên của 1 conainer cần thay đổi, bạn luôn có thể đổi tên container bằng lệnh `docker rename`
+```
+docker rename webid webid-old  // Đổi tên container hiện tại thành webid-old
+docker run -d --name webid nginx  // Tạo 1 container khác có tên là webid
+```
+- Đổi tên container có thể giúp giảm bớt xung đột đặt tên 1 lần nhưng không giúp ích nhiều trong việc tránh vấn đề này ngay từ đầu. Ngoài tên, docker còn gán 1 indentifier duy nhất đã đề cập trong ví dụ đầu tiên. Đây là những con số 1024 bit được mã hoá theo hệ thập lục phân và trông giống như thế này:
+```
+7cb5d2b9a7eab87f07182b5bf58936c9947890995b1b94f412912fa822a9ecb5
+```
+- Khi các container được khởi động ở chế độ detached, identifier của chúng sẽ được in ra terminal. Bạn có thể sử dụng identifer này thay cho tên container với bất kỳ lệnh nào cần xác định 1 container cụ thể. Ví dụ, bạn có thể sử dụng ID trước đó với lệnh exec hoặc stop
+```
+docker exec \
+7cb5d2b9a7eab87f07182b5bf58936c9947890995b1b94f412912fa822a9ecb5 \
+echo hello
+docker stop \
+7cb5d2b9a7eab87f07182b5bf58936c9947890995b1b94f412912fa822a9ecb5
+```
+- Xác suất cao về tính năng duy nhất của các ID được tạo ra có nghĩa là không có khả năng xảy ra conflict với ID này. Ở mức độ thấp hơn, cũng không có khả năng xảy ra va chạm giữa 12 ký tự đầu tiên của ID này trên cùng 1 máy tính. Vì trong hầu hết các interface Docker, bạn sẽ thấy ID container bị cắt bớt thành 12 ký tự đầu tiên. Điều này làm cho ID được tạo ra thân thiện hơn với người dùng. Bạn có thể sử dụng chúng ở bất cứ nơi nào cần có container identifier. 2 lệnh trước có thể được viết như thế này:
+```
+docker exec 7cb5d2b9a7ea ps
+docker stop 7cb5d2b9a7ea
+```
+- Không có ID nào trong số này đặc biệt phù hợp để con người sử dụng. Nhưng chúng hoạt động tốt với các scripts và các kỹ thuật tự động hoá. Docker có 1 số phương tiện để lấy ID của 1 container để có thể tự động hoá. Trong trường hợp này, ID số đầy đủ hoặc bị cắt bớt sẽ được sử dụng
+- Cách đầu tiên để lấy ID của 1 container là chỉ cần bắt đầu hoặc tạo 1 container mới và gán kết quả của lệnh cho 1 biến shell
+- Như bạn đã thấy trước đó, khi 1 container mới được khởi động ở chế độ detached, ID của container sẽ được ghi vào terminal (stdout). Bạn không thể sử dụng điều này với các interactive container nếu đây là cách duy nhất để có được ID container tại thời điểm này. May mắn thay, bạn có thể sử dụng lệnh khác để tạo container mà không cần khởi động nó. Lệnh `docker create` tương tự như `docker run`, điểm khác biệt chính là container được tạo ở trạng thái đã dừng
+```
+docker create nginx
+```
+- Kết quả sẽ là 1 dòng như thế này
+```
+b26a631e536d3caae348e9fd36e7661254a11511eb2274fb55f9f7c788721b0d
+```
+- Nếu bạn đang sử dụng Linux command shell như sh hoặc bash, bạn có thể gán kết quả đó cho 1 biến shell và sử dụng lại sau
+```
+CID=$(docker create nginx:latest)  // Điều này sẽ có hiệu lực trên các shell tuân thủ POSIX
+echo $CID
+```
+- Shell variable tạo ra cơ hội mới cho conflict, nhưng phạm vi conflict đó bị giới hạn trong terminal session hoặc môi trường xử lý hiện tại mà tập lệnh được khởi chạy. Những xung đột đó có thể dễ dàng tránh được vì 1 mục đích sử dụng hoặc chương trình đang quản lý môi trường đó. Vấn đề với cách tiếp cận này là nó sẽ không giúp ích nếu nhiều người dùng hoặc các quy trình tự động cần chia sẻ thông tin đó. Trong trường hợp đó, bạn có thể sử dụng container ID (CID) file
