@@ -252,3 +252,94 @@ CID=$(docker create nginx:latest)  // Điều này sẽ có hiệu lực trên c
 echo $CID
 ```
 - Shell variable tạo ra cơ hội mới cho conflict, nhưng phạm vi conflict đó bị giới hạn trong terminal session hoặc môi trường xử lý hiện tại mà tập lệnh được khởi chạy. Những xung đột đó có thể dễ dàng tránh được vì 1 mục đích sử dụng hoặc chương trình đang quản lý môi trường đó. Vấn đề với cách tiếp cận này là nó sẽ không giúp ích nếu nhiều người dùng hoặc các quy trình tự động cần chia sẻ thông tin đó. Trong trường hợp đó, bạn có thể sử dụng container ID (CID) file
+- Cả lệnh `docker run` và `docker create` đều cung cấp 1 flag khác để ghi ID của container mới vào 1 file đã biết
+```
+docker create --cidfile /tmp/web.cid nginx // Tạo 1 container dừng mới
+cat /tmp/web.cid  // Kiểm tra file
+```
+- Giống như việc sử dụng các biến shell, tính năng này làm tăng khả năng xảy ra conflict. Tên của file CID (được cung cấp sau - cidfile) phải được biết hoặc có cấu trúc đã biết. Giống như cách đặt tên container thủ công, cách tiếp cận này sử dụng các tên đã biết trong global namespace (trên toàn Docker). Tin tốt là Docker sẽ không tạo container mới bằng cách sử dụng tên file CID được cung cấp nếu file đó đã tồn tại. Lệnh sẽ thất bại giống như khi bạn tạo 2 container có cùng tên
+- Một lý do để sử dụng file CID thay vì tên là file CID có thể được chia sẻ với các container một cách dễ dàng và cí thể đặt tên linh hoạt. Phương pháp này sử dụng tính năng Docker volumes, được đề cập trong chương 4
+  - Một chiến lược để giải quyết conflict đặt tên file CID là phân vùng namespace bằng cách sử dụng các quy ước đường dẫn đã biết hoặc có thể dự đoán được. Ví dụ trường hợp này, bạn có thể sử dụng đường dẫn chứa tất cả các web container trong 1 thư mục đã biết và phân vùng thêm thư mục đó theo ID khác hàng. Điều này sẽ tạo ra đường dẫn như `/containers/web/customer1/web.cid` hoặc `/containers/web/customer8/web.cid`
+- Trong những trường hợp khác, bạn có thể sử dụng các lệnh khác như `docker ps` để lấy ID của 1 container. Ví dụ, nếu bạn muốn lấy ID đã cắt bớt của container được tạo gần đây nhất, bạn có thể sử dụng lệnh sau:
+```
+CID=$(docker ps --latest --quiet) // Hoạt động trên các shell tuân thủ POSIX
+echo $CID
+
+CID=$(docker ps -l -q) // Ngắn hơn
+echo $CID
+```
+  - Nếu bạn muốn lấy ID container đầy đủ, bạn có thể sử dụng option `--no-trunc` trên lệnh `docker ps`
+- Các trường hợp automation được đề cập trong các tính năng bạn đã thấy cho đến nay. Nhưng mặc dù việc cắt bớt có ích, các container ID này hiếm khi dễ đọc hoặc dễ nhớ. Vì lý do này, Docker cũng tạo ra những tên dễ đọc cho mỗi container
+- Docker tự đặt tên cho container, nó dùng công thức: `[tính từ cá nhân]_[họ của nhà tư tưởng nổi tiếng]` - mục đích tạo tên độc đáo, dễ nhớ và tránh trùng lặp. Ví dụ về tên được tạo là `sympathy_swartz, hungry_goodall và splitting_turing`. Những điều này dường như rất phù hợp cho mục đích dễ đọc và dễ nhớ. Khi bạn làm việc trực tiếp với docker tool, bạn luôn có thể sử dụng `docker ps` để tra cứu tên thân thiện với con người
+- Việc xác định container có thể phức tạp, nhưng bạn có thể quản lý vấn đề này bằng cách sử dụng các tính năng tạo ID và tên của Docker
+
+### 2.3.2 Container state and dependencies
+- Với kiến thức mới này, hệ thống mới có thể trông như thế này:
+```
+MAILER_CID=$(docker run -d dockerinaction/ch2_mailer) // Đảm bảo mailer từ ví dụ đầu tiên đang chạy
+WEB_CID=$(docker create nginx)
+
+AGENT_CID=$(docker create --link $WEB_CID:insideweb \
+ --link $MAILER_CID:insidemailer \
+ dockerinaction/ch2_agent)
+```
+- Đoạn code này có thể được sử dụng để tạo 1 tập lệnh mới khởi chạy 1 NGINX và phiên bản agent mới cho mỗi khách hàng của bạn. Bạn có thể sử dụng `docker ps` để xem chúng đã được tạo ra chưa
+```
+docker ps
+```
+- Lý do cả NGINX và agent đều không được đưa vào đầu ra có liên quan đến trạng thái container. Các container Docker sẽ ở 1 trong các trạng thái được hiển thị trong hình 2.3. Các lệnh quản lý Docker container để di chuyển giữa các trạng thái sẽ chú thích từng lần chuyển đổi
+![02 Diagram Docker container](./images/02-diagram-docker-container.png)
+- Không có container mới nào mà bạn bắt đầu xuất hiện trong danh sách container vì docker ps chỉ hiển thị các container đang chạy theo mặc định. Các container đó được tạo cụ thể bằng docker create và không bao giờ được khởi động (trạng thái đã tạo). Để xem tất cả các container (bao gồm cả các container ở trạng thái đã tạo), hãy sử dụng option -a
+```
+docker ps -a
+```
+- Status của vùng chứa mới phải là "Created". Lệnh `docker ps` hiển thị status container bằng cách sử dụng các tên "friendly" được hiển thị màu xám trong hình 2.3. Lệnh `docker inspect` sử dụng các tên được hiển thị ở nửa dưới của mỗi status (Ví dụ: created). Các status *restarting, removing và dead* (không minh hoạ) là nội bộ của Docker và được sử dụng để theo dõi các chuyển đổi giữa các trạng thái hiển thị trong `docker ps`
+- Bây giờ bạn đã xác minh rằng cả 2 container đã được tạo, bạn cần khởi động chúng. Để thực hiện điều đó, bạn có thể sử dụng lệnh `docker start`
+```
+docker start $AGENT_CID
+docker start $WEB_CID
+```
+- Chạy những lệnh đó sẽ dẫn đến lỗi. Các container cần được khởi động theo thứ tự ngược lại với chuỗi phụ thuộc vào chúng. Vì bạn đã cố gắng khởi động contaner agent trước container web nên Docker đã báo cáo 1 thông báo như thế này:
+```
+Error response from daemon: Cannot start container
+03e65e3c6ee34e714665a8dc4e33fb19257d11402b151380ed4c0a5e38779d0a: Cannot
+link to a non running container: /clever_wright AS /modest_hopper/insideweb
+FATA[0000] Error: failed to start one or more containers
+```
+- Trong ví dụ này, container agent phụ thuộc vào container web. Trước tiên, bạn cần khởi động container web:
+```
+docker start $WEB_CID
+docker start $AGENT_CID
+```
+- Điều này có lý khi bạn xem xét cơ chế hoạt động. Cơ chế liên kết sẽ đưa địa chỉ IP vào các dependent container và các container không chạy sẽ không có địa chỉ IP. Nếu bạn đã cố gắng khởi động 1 container có sự phụ thuộc vào 1 container không chạy, Docker sẽ không có địa chỉ IP để inject. Trong chương 5, bạn sẽ học cách kết nối các container với các bridge network do người dùng xác định để tránh vấn đề phụ thuộc cụ thể này. Điểm mấu chốt ở đây là Docker sẽ cố gắng giải quyết các dependencies của container trước khi tạo hoặc khởi động container để tránh lỗi thời gian chạy ứng dụng 
+
+```md
+### The legacy of container network linking
+- Bạn có thể nhận thấy rằng tài liệu Docker mô tả liên kết network là 1 tính năng cũ. Network là cách kết nối các container sớm và phổ biến. Các liên kết tạo ra các kết nối network đơn hướng từ 1 container đến các container khác trên cùng 1 host. Các phần quan trọng của hệ sinh thái container yêu cầu kết nối song phương hoàn toàn ngang hàng giữa các container. Docker cung cấp điều này với các network do người dùng xác định được mô tả trong chương 5. Các network này cũng có thể mở rộng trên một cụm server như được mô tả trong chương 13. Network links và network do người dùng xác định không tương đương nhau, nhưng Docker khuyên bạn nên di chuyển sang network do người dùng xác định. 
+- Không rõ tính năng container network linking có bao giờ bị xoá hay không. Nhiều công cụ hữu ích và mô hình giao tiếp 1 chiều phụ thuộc vào linking, như được minh hoạ bằng các container được sử dụng để kiểm tra và theo dõi các web component và mailer trong phần này
+```
+- Cho dù bạn đang sử dụng `docker run` hay `docker create`, các container kết quả cần phải được khởi động theo thứ tự ngược lại với phụ thuộc của chúng (**thứ tự mà các container cần nhau để hoạt động. Ví dụ container A - webserver phụ thuộc vào container B - database thì B phải chạy trước A**). Điều này có nghĩa là không thể xây dựng các dependencies tuần hoàn bằng cách sử dụng các mối quan hệ Docker container (**Ví dụ như A cần B để chạy và B cũng cần A để chạy**).
+- Tại thời điểm này, bạn có thể kết hợp mọi thứ lại thành 1 tập lệnh ngắn gọn trông như thế này
+```
+MAILER_CID=$(docker run -d dockerinaction/ch2_mailer)
+
+WEB_CID=$(docker run -d nginx)
+
+AGENT_CID=$(docker run -d \
+--link $WEB_CID:insideweb \
+--link $MAILER_CID:insidemailer \
+dockerinaction/ch2_agent)
+```
+- Bây giờ bạn có thể tự tin rằng tập lệnh này có thể chạy mà không có ngoại lệ mỗi khi máy khách của bạn cần cung cấp 1 trang web mới. Khách hàng của bạn đã quay lại và cảm ơn bạn vì công việc monitoring và web mà bạn đã hoàn thành cho đến nay, nhưng mọi thứ đã thay đổi
+- Họ quyết định tập chung vào việc xây dựng trang web của mình bằng WordPress (một chương trình quản lý nội dung & viết blog nguồn mở phổ biến). May mắn thay, WordPress được xuất bản thông qua Docker Hub trong 1 repository có tên là `wordpress`. Tất cả những gì bạn cần cung cấp là 1 tập lệnh để cung cấp 1 trang web Wordpress mới có cùng các tính năng monitoring và alerting mà bạn đã cung cấp
+- Một điều thú vị về các hệ thống quản lý nội dung và các hệ thống có trạng thái khác là các dữ liệu mà chúng làm việc cùng làm cho mỗi chương trình đang chạy trở nên chuyên biệt. Blog WordPress của Adam khác với blog WordPress của Betty, ngay cả khi họ đang chạy cùng 1 phần mềm. Chỉ có nội dung là khác nhau. Ngay cả khi nội dung giống nhau, chúng vẫn khác nhau vì chúng chạy trên các trang web khác nhau
+- Nếu bạn xây dựng các hệ thống hoặc phần mềm biết quá nhiều về môi trường của chúng - ví dụ, địa chỉ hoặc vị trí cố định của các service phụ thuộc - thì rất khó để thay đổi môi trường đó hoặc tái sử dụng phần mềm. Bạn cần cung cấp 1 hệ thống giảm thiểu sự phụ thuộc vào môi trường trước khi hợp đồng hoàn tất (Khách hàng mong muốn hệ thống dễ mở rộng, dễ dùng ở nhiều nơi, không bi "gắn chế" vào 1 cấu hình)
+
+## 2.4 Building environment-agnostic systems
+- Phần lớn các công việc liên quan đến việc cài đặt phần mềm hoặc bảo trì 1 nhóm máy tính nằm ở việc xử lý các đặc thù của môi trường máy tính (**Mỗi máy có thể khác nhau, gây khó khăn khi cài đặt & bảo trì**). Các đặc thù này xuất hiện dưới dạng các phụ thuộc có phạm vi toàn cần (Ví dụ: vị trí host filesystem cố định) (**Nếu phần mềm yêu cầu file config phải ở /etc/myapp/config, nhưng máy khác không có thư mục đó, cài đặt sẽ thất bại**), kiến trúc triển khai được mã hoá cứng (kiểm tra môi trường trong mã hoặc cấu hình) hoặc vị trí dữ liệu (dữ liệu được lưu trữ trên 1 máy tính cụ thể bên ngoài kiến trúc triển khai) (**Ví dụ script kiểm tra if [ $OS = "Ubuntu"] - nếu chạy trên CentOS, nó sẽ lỗi**). Biết được điều này, nếu mục tiêu của bạn là xây dựng các hệ thống ít cần bảo trì, bạn nên cố gắng giảm thiểu những thứ trên (**Hệ thống linh hoạt, không phụ thuộc vào đặc thù của từng máy, sẽ dễ bảo trì hơn**)
+- Docker có 3 tính năng cụ thể giúp xây dựng hệ thống không phụ thuộc vào môi trường
+  - Read-only filesystems
+  - Environment variable injection
+  - Volumes
+- 
+
