@@ -341,5 +341,110 @@ dockerinaction/ch2_agent)
   - Read-only filesystems
   - Environment variable injection
   - Volumes
-- 
+- Làm việc với volumes là 1 chủ đề lớn và là chủ đề của chương 4. Để tìm hiểu 2 tính năng đầu tiên, hãy xem xét thay đổi yêu cầu đối với tình huống ví dụ được sử dụng trong phần còn lại của chương này: Wordpress sử dụng 1 database program có tên là MySql để lưu trữ hầu hết các dữ liệu, do đó, bạn nên cung cấp cho container chạy WordPress 1 filesystem chỉ đọc để đảm bảo dữ liệu chỉ được ghi vào CSDL (**Vì dữ liệu lưu trong Mysql, để tránh không ghi dữ liệu linh tinh vào container, nên để là read-only filesystem**)
 
+### 2.4.1 Read-only filesystems
+- Sử dụng read-only filesystem thực hiện được 2 điều tích cực. Đầu tiên, bạn có thể tin tưởng rằng, container sẽ không bị chuyên biệt hoá do những thay đổi đối với các file mà nó chứa (**Đối với read-only, không ai có thể sửa đổi file, giúp container luôn trong trạng thái nguyên bản như ban đầu**). Thứ 2 bạn sẽ tự tin hơn rằng kẻ tấn công không thể xâm phạm các file trong container
+- Để bắt đầu làm việc trên hệ thống của khách hàng, hãy tạo & khởi động 1 container từ image WP bằng cách sử dụng flag `--read-only`:
+```
+docker run -d --name wp --read-only \
+wordpress:5.0.0-php7.2-apache
+```
+- Khi hoàn tất, hãy kiểm tra xem container có đang chạy không. Bạn có thể thực hiện việc này bằng bất kỳ phương pháp nào đã được giới thiệu trước đó hoặc có thể kiểm tra trực tiếp metadata của container
+- Lệnh sau sẽ in ra true nếu container có tên wp đang chạy và false nếu không
+```
+docker inspect --format "{{.State.Running}}" wp
+```
+- Lệnh `docker inspect` sẽ hiển thị tất cả metadata (1 JSON document) mà docker duy trì cho 1 container (**Metadata bao gồm các thông tin: ID, status, port, volume, network,...**). Tuỳ chọn định dạng chuyển đổi metadata đó và trong trường hợp này, nó lọc mọi thứ ngoại trừ trường cho biết trạng thái đang chạy của container(**Thay vì hiển thị JSON dài dòng, nó chỉ lấy giá trị của trường trạng thái State.running**). Lệnh này chỉ đơn giản đưa ra kết quả sai
+- Trong trường hợp này, container không chạy. Để xác định lý do, hãy kiểm tra logs của container:
+```
+docker logs wp
+```
+- Lệnh đó sẽ cho ra kết quả tương tự như sau:
+```
+WordPress not found in /var/www/html - copying now...
+Complete! WordPress has been successfully copied to /var/www/html
+... skip output ...
+Wed Dec 12 15:17:36 2018 (1): Fatal Error Unable to create lock file: ↵
+Bad file descriptor (9)
+```
+- Khi chạy WP với read-only filesystem, quy trình Apache web server reports rằng nó không thể tạo file khoá. Thật không may, nó không báo cáo vị trí của các file mà nó đang cố gắng tạo ra. Nếu chúng ta có các vị trí, chúng ta có thể tạo ra các ngoại lệ cho chúng. Hãy chạy 1 container WP với hệ thống filesystem có thể ghi để Apache có thể tự do ghi ở bất kỳ đâu mà nó muốn (**Sau khi biết vị trí, có thể tạo ngoại lệ và bật lại chế độ read-only**)
+```
+docker run -d --name wp_writable wordpress:5.0.0-php7.2-apache
+```
+- Bây giờ, chúng ta hãy kiểm tra xem Apache đã thay đổi hệ thống file của container ở đâu bằng lệnh `docker diff`
+```
+docker container diff wp_writable
+C /run
+C /run/apache2
+A /run/apache2/apache2.pid
+```
+- Chúng tôi sẽ giải thích lệnh diff và cách docker biết những thay đổi trên filesystem chi tiết hơn trong chương 3. Hiện tại, bạn chỉ cần biết rằng đầu ra cho Apache đã tạo thư mục `/run/apache2` và thêm file `apache2.pid` bên trong folder đó.
+- Vì đây là 1 phần dự kiến của hoạt động ứng dụng bình thường, chúng tôi sẽ tạo ra 1 exception cho read-only filesystem. Chúng tôi cho phép container ghi vào `/run/apache2` bằng cách sử dụng ổ đĩa có thể ghi được gắn kết từ server. Chúng tôi sẽ cung cấp 1 filesystem tạm thời trong bộ nhớ cho container tại `/tmp` vì Apache cũng yêu cầu 1 thư mục tạm thời có thể ghi
+```
+docker run -d --name wp2 \
+ --read-only \  // Làm cho root filesystem của container chỉ đọc
+ -v /run/apache2/ \  // Gắn 1 thư mục có thể ghi từ máy chủ
+ --tmpfs /tmp \  // Cung cấp cho container 1 hệ thống filesystem trong bộ nhớ
+ wordpress:5.0.0-php7.2-apache
+```
+- Lệnh đó sẽ ghi lại các thông báo thành công trông như thế này
+```
+docker logs wp2
+WordPress not found in /var/www/html - copying now...
+Complete! WordPress has been successfully copied to /var/www/html
+... skip output ...
+[Wed Dec 12 16:25:40.776359 2018] [mpm_prefork:notice] [pid 1] ↵
+AH00163: Apache/2.4.25 (Debian) PHP/7.2.13 configured -- ↵
+resuming normal operations
+[Wed Dec 12 16:25:40.776517 2018] [core:notice] [pid 1] ↵
+AH00094: Command line: 'apache2 -D FOREGROUND'
+```
+- WP cũng phụ thuộc vào mysql database. Database là 1 chương trình lưu trữ dữ liệu theo cách nó có thể truy xuất và tìm kiếm được sau này. Tin tốt là bạn có thể cài đặt MySQL bằng cách sử dụng Docker, giống như WP
+```
+docker run -d --name wpdb \
+ -e MYSQL_ROOT_PASSWORD=ch2demo \
+ mysql:5.7
+```
+- Sau khi bắt đầu, hãy tạo 1 container WP khác được liên kết với container database mới này:
+```
+docker run -d --name wp3 \  // Sử dụng tên duy nhất
+ --link wpdb:mysql \  // Tạo liên kết đến database
+ -p 8000:80 \   // Chuyển hướng lưu lượng từ cổng server 8000 đến cổng container 80
+ --read-only \
+ -v /run/apache2/ \
+ --tmpfs /tmp \
+ wordpress:5.0.0-php7.2-apache
+```
+- Kiểm tra 1 lần nữa xem WP chạy có đúng không
+```
+docker inspect --format "{{.State.Running}}" wp3
+```
+- Đầu ra bây giờ phải là true. Nếu bạn muốn sử dụng cài đặt WP mới của mình, bạn có thể trỏ trình duyệt tới http://127.0.0.1:8000
+- Phiên bản cập nhật của tập lệnh mà bạn đang thực hiện sẽ trông như thế này
+```
+#!/bin/sh
+
+DB_CID=$(docker create -e MYSQL_ROOT_PASSWORD=ch2demo mysql:5.7)
+
+docker start $DB_CID
+
+MAILER_CID=$(docker create dockerinaction/ch2_mailer)
+
+docker start $MAILER_CID
+
+WP_CID=$(docker create --link $DB_CID:mysql -p 80 \
+--read-only -v /run/apache2/ --tmpfs /tmp \
+wordpress:5.0.0-php7.2-apache)
+
+docker start $WP_CID
+
+AGENT_CID=$(docker create --link $WP_CID:insideweb \
+--link $MAILER_CID:insidemailer \
+dockerinaction/ch2_agent)
+
+docker start $AGENT_CID
+```
+- Xin chúc mừng, đến thời điểm này, bạn đã có 1 container WP đang chạy. Bằng cách sử dụng `read-only filesystem` và liên kết WP với 1 container khác đang chạy database, bạn có thể chắc chắn rằng container đang chạy WP image sẽ không bao giờ thay đổi. Điều này có nghĩa là nếu có bất kỳ sự cố nào xảy ra đối với máy tính chạy blog WP của khách hàng, bạn sẽ có thể khởi động 1 bản sao khác của container đó ở nơi khác mà không gặp vấn đề gì (**Dữ liệu luôn được lưu trong DB, đảm bảo container WP có thể tái sử dụng dễ dàng, nếu gặp sự cố, chạy lại WP container mà không lo mất dữ liệu**)
+- Nhưng thiết kế này có 2 vấn đề. Đầu tiên, CSDL đang chạy trong 1 container trên cùng 1 máy tính với WP container. Thứ 2, WP sử dụng 1 số giá trị mặc định cho các thiết lập quan trọng như database name, user, password quản trị, database salt,...
+- Để giải quyết vấn đề này, bạn có thể tạo nhiều phiên bản phần mềm WP, mỗi phiên bản có cấu hình đặc biệt cho client. Làm như vậy sẽ biến tập lệnh cung cấp đơn giản của bạn thành 1 con quái vật tạo ra image và ghi file(Khiến script triển khai trở nên phức tạp vì phải tạo ra nhiều image khác nhau, chỉnh sửa file cấu hình cho từng khách). Một cách tốt hơn để đưa cấu hình đó vào là thông qua việc sử dụng các biến môi trường (Sử dụng chung 1 image & truyền thông tin cấu hình qua biến môi trường khi chạy container)
