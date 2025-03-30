@@ -447,4 +447,87 @@ docker start $AGENT_CID
 ```
 - Xin chúc mừng, đến thời điểm này, bạn đã có 1 container WP đang chạy. Bằng cách sử dụng `read-only filesystem` và liên kết WP với 1 container khác đang chạy database, bạn có thể chắc chắn rằng container đang chạy WP image sẽ không bao giờ thay đổi. Điều này có nghĩa là nếu có bất kỳ sự cố nào xảy ra đối với máy tính chạy blog WP của khách hàng, bạn sẽ có thể khởi động 1 bản sao khác của container đó ở nơi khác mà không gặp vấn đề gì (**Dữ liệu luôn được lưu trong DB, đảm bảo container WP có thể tái sử dụng dễ dàng, nếu gặp sự cố, chạy lại WP container mà không lo mất dữ liệu**)
 - Nhưng thiết kế này có 2 vấn đề. Đầu tiên, CSDL đang chạy trong 1 container trên cùng 1 máy tính với WP container. Thứ 2, WP sử dụng 1 số giá trị mặc định cho các thiết lập quan trọng như database name, user, password quản trị, database salt,...
-- Để giải quyết vấn đề này, bạn có thể tạo nhiều phiên bản phần mềm WP, mỗi phiên bản có cấu hình đặc biệt cho client. Làm như vậy sẽ biến tập lệnh cung cấp đơn giản của bạn thành 1 con quái vật tạo ra image và ghi file(Khiến script triển khai trở nên phức tạp vì phải tạo ra nhiều image khác nhau, chỉnh sửa file cấu hình cho từng khách). Một cách tốt hơn để đưa cấu hình đó vào là thông qua việc sử dụng các biến môi trường (Sử dụng chung 1 image & truyền thông tin cấu hình qua biến môi trường khi chạy container)
+- Để giải quyết vấn đề này, bạn có thể tạo nhiều phiên bản phần mềm WP, mỗi phiên bản có cấu hình đặc biệt cho client. Làm như vậy sẽ biến tập lệnh cung cấp đơn giản của bạn thành 1 con quái vật tạo ra image và ghi file(Khiến script triển khai trở nên phức tạp vì phải tạo ra nhiều image khác nhau, chỉnh sửa file cấu hình cho từng khách). Một cách tốt hơn để đưa cấu hình đó vào là thông qua việc sử dụng các biến môi trường (**Sử dụng chung 1 image & truyền thông tin cấu hình qua biến môi trường khi chạy container**)
+
+### 2.4.2 Environment variable injection
+- Biến môi trường là cặp key-value được cung cấp cho các chương trình thông qua ngữ cảnh thực thi của chúng. Chúng cho phép bạn thay đổi cấu hình của chương trình mà không cần sửa đổi bất kỳ file nào hoặc thay đổi lệnh được sử dụng để khởi động chương trình.
+- Docker sử dụng các environment để truyền đạt thông tin về các container phụ thuộc, tên server của container và các thông tin thuận tiện khác cho các chương trình chạy trong container(**Khi 1 container phụ thuộc vào container khác, Docker có thể sử dụng environment để truyền thông tin - vd container WP cần kết nối đến MySQL, Docker có thể đặt environment WP_DB_HOST trỏ đến MySQL container**). Docker cũng cung cấp 1 cơ chế cho phép người dùng đưa các biến môi trường vào 1 container mới. Các chương trình biết mong đợi thông tin quan trọng thông qua các biến môi trường có thể được cấu hình tại thời điểm tạo container(**Giúp ứng dụng chạy tốt trong môi trường Docker vì các thông tin quan trọng có thể được truyền vào lúc khởi tạo container**). May mắn cho bạn và khách hàng của bạn, WP là 1 chương trình như vậy
+- Trước khi đi sâu vào chi tiết WP, hãy thử tự mình inject vào xem các environment. Lệnh UNIX env hiển thị tất cả các environment trong bối cảnh thực thi hiện tại (terminal của bạn). Để xem quá trình environment variable injection diễn ra như thế nào, hãy sử dụng lệnh sau:
+```
+docker run --env MY_ENVIRONMENT_VAR="this is a test" \  // Inject 1 environment
+ busybox:1.29 \
+ env   // Thực hiện env bên trong container
+```
+- `--env` flag hay viết tắt là `-e` có thể được sử dụng để đưa bất kỳ environment variable nào vào. Nếu biến đã được thiết lập bởi image hoặc Docker, giá trị sẽ bị ghi đè. Theo cách này, các chương trình chạy bên trong container có thể dựa vào các biến luôn được thiết lập. WP quan sát các environment sau:
+```
+WORDPRESS_DB_HOST
+ WORDPRESS_DB_USER
+ WORDPRESS_DB_PASSWORD
+ WORDPRESS_DB_NAME
+ WORDPRESS_AUTH_KEY
+ WORDPRESS_SECURE_AUTH_KEY
+ WORDPRESS_LOGGED_IN_KEY
+ WORDPRESS_NONCE_KEY
+ WORDPRESS_AUTH_SALT
+ WORDPRESS_SECURE_AUTH_SALT
+ WORDPRESS_LOGGED_IN_SALT
+ WORDPRESS_NONCE_SALT
+```
+  - Ví dụ này bỏ qua các biến KEY và SALT, nhưng bất kỳ product system thực tế nào cũng phải thiết lập giá trị này
+- Để bắt đầu, bạn nên giải quyết vấn đề database đang chạy trong 1 container trên cùng 1 máy tính với WP container. Thay vì sử dụng liên kết để đáp ứng sự phụ thuộc vào database của WP, hãy chèn giá trị cho biến WORDPRESS_DB_HOST
+```
+docker create --env WORDPRESS_DB_HOST=<my database hostname> \
+wordpress: 5.0.0-php7.2-apache
+```
+- Ví dụ này sẽ tạo (không khởi động) một WP container sẽ cố gắng kết nối với DB tại bất kỳ địa chỉ nào bạn chỉ định tại `<my database hostname>`. Vì remote DB có thể không sử dụng tên người dùng hoặc mật khẩu mặc định, bạn cũng sẽ phải chèn các giá trị cho các thiết lập đó. Giả sử quản trị viên DB thích mèo và không sử dụng mật khẩu mạnh
+```
+docker create \
+--env WORDPRESS_DB_HOST=mysql \
+--env WORDPRESS_DB_USER=site_admin \
+--env WORDPRESS_DB_PASSWORD=MeowMix42 \
+wordpress:5.0.0-php7.2-apache
+```
+- Sử dụng phương pháp environment variable injection theo cách này sẽ giúp bạn tách biệt các mối liên hệ vật lý giữa container WP và container MySQL. Ngay cả khi bạn muốn lưu trữ DB và các trang web WP của khách hàng trên cùng 1 máy, bạn vẫn cần phải khắc phục sự cố thứ 2 đã đề cập trước đó. Tất cả các trang web đều sử dụng cùng 1 tên DB mặc định, điều này có nghĩa là các máy khách khác nhau sẽ chia sẻ 1 DB duy nhất. Bạn sẽ cần sử dụng đến chức năng environment variable injection để đặt tên DB cho từng trang web độc lập bằng cách chỉ định tên biến WORDPRESS_DB_NAME
+```
+docker create --link wpdb:mysql \
+ -e WORDPRESS_DB_NAME=client_a_wp \  // For client a\A
+ wordpress:5.0.0-php7.2-apache
+
+docker create --link wpdb:mysql \
+ -e WORDPRESS_DB_NAME=client_b_wp \  // For client B
+ wordpress:5.0.0-php7.2-apache
+```
+- Bây giờ bạn đã hiểu cách đưa cấu hình vào ứng dụng WP và kết nối nó với các quy trình cộng tác, hãy điều chỉnh tập lệnh cung cấp. Trước tiên, hãy khởi động các container DB và mailer sẽ được chia sẻ bởi khách hàng của chúng ta và lưu trữ ID container trong các enviroment variable
+```
+export DB_CID=$(docker run -d -e MYSQL_ROOT_PASSWORD=ch2demo mysql:5.7)
+export MAILER_CID=$(docker run -d dockerinaction/ch2_mailer)
+```
+- Bây giờ, hãy cập nhật tập lệnh cung cấp trang web của máy khách để đọc ID container chứa DB, container ID và CLIENT_ID mới từ các environment
+```
+#!/bin/sh
+
+if [ ! -n "$CLIENT_ID" ]; then  // Giả sử biến $CLIENT_ID được đặt làm đầu vào cho script
+ echo "Client ID not set"
+ exit 1
+
+fi
+
+WP_CID=$(docker create \
+ --link $DB_CID:mysql \  // Tạo liên kết bằng DB_CID
+ --name wp_$CLIENT_ID \
+ -p 80 \
+ --read-only -v /run/apache2/ --tmpfs /tmp \
+ -e WORDPRESS_DB_NAME=$CLIENT_ID \
+ --read-only wordpress:5.0.0-php7.2-apache)
+
+docker start $WP_CID
+
+AGENT_CID=$(docker create \
+ --name agent_$CLIENT_ID \
+ --link $WP_CID:insideweb \
+ --link $MAILER_CID:insidemailer \
+ dockerinaction/ch2_agent)
+
+docker start $AGENT_CID
+```
+- Nếu bạn lưu tập lệnh này vào tệp có tên `start-wp-for-client.sh`
