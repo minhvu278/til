@@ -80,3 +80,120 @@ php artisan env:encrypt
 ```
 php artisan env:encrypt --key=3UVsEgGVK36XN82KKeyLFMhvosbZN1aF
 ```
+- Nếu ứng dụng có nhiều file environment (.env, .env.staging), bạn có thể chỉ định môi trường được mã hoá bằng cách cung cấp tên môi trường qua option `--env`
+```
+php artisan env:encrypt --env=staging
+```
+## Decryption
+- Để giải mã (decryption) 1 environment file, bạn có thể sử dụng lệnh env:decrypt. Lệnh này yêu cầu decryption từ `LARAVEL_ENV_ENCRYPTION_KEY` environment variable:
+```
+php artisan env:decrypt
+```
+- Hoặc key có thể được cung cấp trực tiếp cho command qua option `--key`
+```
+php artisan env:decrypt --key=3UVsEgGVK36XN82KKeyLFMhvosbZN1aF
+```
+- Khi lệnh `env:decrypt` được gọi, Laravel sẽ decrypt nội dung của file `.env.encrypted` và đặt nội dung đã giải mã vào file .env
+- Option `--cipher` có thể được cung cấp cho command `env:decrypt` để sử dụng mã hoá tuỳ chỉnh
+```
+php artisan env:decrypt --key=qUWuNRdfuImXcKxZ --cipher=AES-128-CBC
+```
+- Nếu ứng dụng của bạn có nhiều biến môi trường thì sử dụng
+```
+php artisan env:decrypt --env=staging
+```
+- Để ghi đè environment file hiện có, bạn có thể cung cấp option `--force` cho lệnh `env:decrypt`
+```
+php artisan env:decrypt --force
+```
+
+# Accessing Configuration Values
+- Bạn có thể dễ dàng truy cập các giá trị config của mình bằng cách sử dụng `Config` facade hoặc global `config()` từ bất kỳ đâu trong ứng dụng của bạn. Có thể truy cập giá trị config bằng "dot", bao gồm tên file & option bạn muốn chọn. Giá trị mặc định cũng có thể được chỉ định
+```php
+use Illuminate\Support\Facades\Config;
+
+// Ví dụ trong file config/app.php có dòng 'timezone' => 'UTC'
+$value = Config::get('app.timezone');
+
+$value = config('app.timezone');
+
+// Retrieve a default value if the configuration value does not exist...
+$value = config('app.timezone', 'Asia/Seoul');
+```
+- Để thiết lập các configuration value khi chạy, có thể sử dụng Config facade hoặc truyền 1 mảng cho config()
+```php
+Config::set('app.timezone', 'America/Chicago');
+
+config(['app.timezone' => 'America/Chicago']);
+```
+- `Config` facade không chỉ cho phép lấy giá trị của config mà còn cung cấp các phương thức đặc biệt để lấy giá trị với kiểu dữ liệu cụ thể. Nếu config value được lấy không khớp với loại dữ liệu mong muốn, 1 exception sẽ được đưa ra
+```php
+Config::string('config-key');
+Config::integer('config-key');
+Config::float('config-key');
+Config::boolean('config-key');
+Config::array('config-key');
+```
+# Configuration Caching
+- Để ứng dụng chạy nhanh hơn, bạn có thể sử dụng command `php artisan config:cache`. Lệnh này sẽ gộp tât cả các option từ nhiều file trong thư mục `config/` thành 1 file duy nhất. File này sẽ được load nhanh hơn bởi framework, thay vì đọc từng file cấu hình riêng lẻ mỗi khi app khởi động
+- Bạn thường nên chạy lệnh `php artisan config:cache` trên PRD. Không nên chạy ở local vì các config thường xuyên thay đổi
+- Sau khi config được lưu vào cached (`thường là bootstrap/cache/config.php`), Laravel sẽ không đọc file `.env` nữa khi xử lý các request hoặc chạy Artisan command(như php artisan server). Lúc này hàm env() chỉ có thể lấy được các environment variable từ hệ thống chứ không phải file `.env`
+- Vì env() không hoạt động với file `.env` sau khi được cache, chỉ nên dùng env() trong các file config (thư mục config/). Thay vào đó, để lấy giá trị config ở bất cứ đâu trong app, hãy sử dụng `config()` (Nếu đã cache, config() sẽ lấy giá trị từ cache, nếu chưa thì lấy trong config/)
+- Lệnh `config:clear` có thể được sử dụng để xoá config đã lưu trong cache config
+```
+php artisan config:clear
+```
+
+# Configuration Publishing
+- Hầu hết các config của Laravel đều được publish trong folder `config` của app; tuy nhiên, 1 số config như `cors.php` và `view.php` không được publish theo mặc định vì hầu hết các app sẽ không bao giờ cần sửa đổi chúng
+- Tuy nhiên, bạn có thể sử dụng Artisan command `config:publish` để publish bất kỳ config nào không được publish theo mặc định
+```php
+php artisan config:publish
+
+php artisan config:publish --all
+```
+
+# Debug Mode
+- Option `debug` trong `config/app/php` quyết định mức độ chi tiết thông tin lỗi được hiển thị cho người dùng khi có lỗi xảy ra. Theo mặc định, option này dựa vào `APP_DEBUG` trong file .env. Trong lúc code nên để là true, lên PRD nên để false để tránh dữ liệu nhạy cảm
+
+# Maintenance Mode
+- Khi ứng dụng của bạn ở chế độ maintenance mode tất cả các request gửi đến ứng dụng sẽ hiển thị 1 UI custom thay vì hoạt động như bình thường. Điều này giúp bạn dễ dàng tạm tắt ứng dụng khi đang update hoặc maintain. Laravel sẽ tự động kiểm tra maintenance mode trong middleware mặc định, và nếu ứng dụng đang ở chế độ này, nó sẽ trả về lỗi HTTP 503. Bạn có thể bật maintenance mode bằng `php artisan down`
+- Khi bật maintenance mode bằng `php artisan down`, có thể sử dụng thêm option `--refresh` để gửi Header `Refresh` trong response HTTP, yêu cầu trình duyệt tự động làm mới trang sau 1 số giây nhất định. Ngoài ra cũng có thể sử dụng option `retry` để đặt Header `Retry-After`, báo cho browser hoặc client thử lại sau bao lâu, dù Header này thường được bỏ qua
+
+## Bypassing Maintenance Mode
+- Có thể sử dụng thêm option `--secret` để tạo 1 secret token, cho phép ai đó truy cập ứng dụng mà không bị ảnh hưởng đến maintenance mode
+```
+php artisan down --secret="1630542a-246b-4b66-afa1-dd72a4c43515"
+```
+- Sau khi truy cập URL với token này, Laravel sẽ cấp 1 cookie đặc biệt cho browser, giúp bạn truy cập app bình thường
+```
+https://example.com/1630542a-246b-4b66-afa1-dd72a4c43515
+```
+- Bạn cũng có thể để Laravel tự tạo token bằng `--with-secret`
+```
+php artisan down --with-secret
+```
+- Khi bạn truy cập vào URL chứa token, Laravel sẽ chuyển hướng về trang chủ (/) của ứng dụng. Sau đó nhờ cookie đã được cung cấp, bạn có thể duyệt ứng dụng như bình thường
+  - Khi 1 trình duyệt có cookie bypass, bạn có thể sử dụng ứng dụng mà không bị ảnh hưởng bởi maintenance mode, như thể chưa từng bị tắt
+  - Secret token chỉ nên chứa (a-z A-Z), (0-9) và có thể có -. Tránh dùng ký tự đặc biệt như `&, ?` vì chúng có ý nghĩa đặc biệt trong URL, có thể gây lỗi
+
+## Maintenance Mode on Multiple Servers
+- Theo mặc định, Laravel dùng hệ thống dựa trên file để bật chế độ bảo trì, yêu cầu bạn sử dụng lệnh `php artisan down` trên từng server riêng lẻ (`Khi chạy down, laravel sẽ tạo file storage/framework/down` trên server. Nếu có 3 server riêg lẻ, sẽ phải chạy từng cháu). Tuy nhiên, Laravel cũng hỗ trợ cách dựa trên cache, chỉ cần chạy lệnh 1 lần trên 1 server, miễn là bạn cấu hình cache chung (shared cache) cho tất cả các server trong .env. Cần chỉnh sửa trong file `.env` bằng cách thêm 2 biến
+```
+APP_MAINTENANCE_DRIVER=cache
+APP_MAINTENANCE_STORE=database
+```
+  - Ví dụ có 2 server A và B. Đảm bảo cả 2 đều dùng chung 1 Redis server
+
+## Pre-Rendering the Maintenance Mode View
+- Khi chạy down trong quá trình deploy, người dùng vẫn có thể gặp 1 số lỗi trong 1 số trường hợp (Quá trình cập nhật code hay composer i). Lỗi xảy ra khi người dùng truy cập ứng dụng đúng lúc đang cập nhật các dependency Composer. Lý do Laravel cần khởi động (boot) một phần lớn framework để:
+  - Kiểm tra xem app có ở chế độ bảo trì ko (dựa vào file `storage/framework/down`)
+  - Render trang bảo trì bằng công cụ templating (như Blade)
+- Nếu composer dependency chưa sẵn sàng (Vd file class bị thiếu), quá trình khởi động sẽ thất bại và gây lỗi (thay vì hiển thị trang bảo trì)
+
+- Để giải quyết vấn đề này, Laravel cho phép bạn render trước 1 trang maintain được trả về ngay đầu chu kỳ request, trước khi framework khởi động đầy đủ (Trang này không cần Blade hoặc dependency chỉ là HTML tĩnh hoặc template đơn giản). Trang pre-rendered được hiển thị trước bất kỳ dependency nào (như Composer, database) được tải nên tránhd được lỗi thiếu dependency. Bạn có thể tuỳ chọn template để pre-render bằng option `--render` khi chạy down
+```
+php artisan down --render="errors::503"
+```
+  - `errors::503` trỏ đến file `resources/views/errors/503.blade.php`
+
