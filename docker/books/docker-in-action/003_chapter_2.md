@@ -530,4 +530,47 @@ AGENT_CID=$(docker create \
 
 docker start $AGENT_CID
 ```
-- Nếu bạn lưu tập lệnh này vào tệp có tên `start-wp-for-client.sh`
+- Nếu bạn lưu script này vào file có tên `start-wp-for-client.sh`, để chạy script cho khách hàng `dockerinaction`, dùng lệnh:
+```
+CLIENT_ID=dockerinaction ./start-wp-multiple-clients.sh
+```
+- Script mới này sẽ chạy một phiên bản WP và monitoring agent cho mỗi khách hàng và kết nối các container đó với nhau cũng như 1 mailer program duy nhất và  MySQL DB. Các WP container có thể bị huỷ, khởi động lại & nâng cấp mà không lo mất dữ liệu. Hình 2.4 sẽ cho chúng ta thấy kiến trúc này
+![each WP and agent container](./images/2.4.2-each-wp-and-agent.png)
+- Khách hàng phải hài lòng với những gì được giao. Nhưng có 1 điều có thể sẽ khiến bạn phải bận tâm. Trong thử nghiệm trước đó, bạn thấy rằng monitoring agent đã thông báo chính xác cho mailer khi trang web không khả dụng, nhưng việc khởi động lại trang web và agent lại yêu cầu phải thực hiện thủ công. Sẽ tốt hơn nếu hệ thống cố gắng tự động chạy lại khi phát hiện lỗi. Docker cung cấp các chính sách restart để giúp giải quyết các vấn đề đó, nhưng bạn có thể muốn thứ gì đó mạnh mẽ hơn
+
+## 2.5 Building durable containers
+- Phần mềm có thể bị lỗi trong những điều kiện hiếm hoi mang tính tạm thời. Mặc dù điều quan trọng là phải nhận thức được khi những điều kiện này phát sinh, nhưng thường thì việc khôi phục dịch vụ càng nhanh càng tốt cũng quan trọng không kém. Hệ thống giám sát mà bạn xây dựng chương này là 1 khởi đầu tốt giúp chủ sở hữu hệ thống nhận biết các vấn đề với hệ thống, nhưng nó không giúp khôi phục dịch vụ
+- Khi tất cả các process trong 1 container đã thoát, container đó sẽ chuyển sang trạng thái đã thoát. Hãy nhớ rằng, 1 container Docker có thể ở 1 trong 6 trạng thái sau
+  - Created
+  - Running
+  - Restarting
+  - Paused
+  - Removing
+  - Exited (Cũng được sử dụng nếu container chưa bao giờ được khởi động)
+- Một chiến lược cơ bản để phục hồi sau các lỗi tạm thời là tự restart lại 1 quy trình khi nó thoát hoặc lỗi. Docker cung cấp 1 số option để monitoring và restart container
+
+### 2.5.1 Automatically restarting containers
+- Docker cung cấp chức năng này với chính sách restart. Khi sử dụng flag `--restart` tại thời điểm tạo container, bạn có thể yêu cầu Docker thực hiện bất kỳ thao tác nào sau đây:
+  - Không bao giờ khởi động lại (Default)
+  - Cố gắng khởi động lại khi phát hiện lỗi
+  - Cố gắng khởi động lại trong 1 khoảng thời gian nhất định trước khi phát hiện ra lỗi
+  - Luôn khởi động lại container bất kể điều kiện
+- Docker không phải lúc nào cũng cố gắng khởi động ngay lập tức 1 container. Nếu vậy, nó sẽ gây ra nhiều vấn đề hơn là giải quyết được. Hãy tưởng tượng 1 container chỉ có chức năng in thời gian & thoát. Nếu container đó được cấu hình để luôn restart lại ngay lập tức thì hệ thống đó sẽ không làm gì ngoài việc khởi động lại container đó. Thay vào đó, Docker sẽ sử dụng chiến lược lùi theo cấp số nhân để tính thời gian cho các lần khởi động
+- Chiến lược lùi (backoff strategy) xác định khoảng thời gian cần trôi qua giữa các lần restart lại liên tiếp. 1 backoff strategy theo cấp số nhân sẽ làm tăng gấp đôi thời gian chờ đợi trước đó cho mỗi lần thử tiếp theo. Ví dụ, nếu lần đầu tiên container cần được restart, Docker sẽ đợi 1s, thì ở lần thứ 2 nó sẽ đợi 2s, 4s ở lần thứ 3 và 8s ở lần thứ 4,.... Các backoff strategy theo cấp số nhân với thời gian chờ ban đầu thấp là 1 kỹ thuật khôi phục dịch vụ phổ biến. Bạn có thể thấy, Docker tự áp dụng chiến lược này bằng cách xây dựng 1 container luôn restart và chỉ in ra thời gian
+```
+docker run -d --name backoff-detector --restart always busybox:1.29 date
+```
+- Sau đó, sau vài giây, hãy sử dụng tính năng theo dõi logs để xem nó tắt đi và restart lại
+```
+docker logs -f backoff-detector
+```
+- Log sẽ hiển thị tất cả các lần restart lại và đợi đến lần restart tiếp theo, in thời gian hiện tại, sau đó thoát. Việc thêm flag duy nhất này vào monitoring agent vào 1 WP container mà bạn đang làm việc sẽ giải quyết vấn đề được khôi phục
+- Lý do duy nhất khiến bạn có thể không muốn áp dụng trực tiếp điều này là trong thời gian chờ, container không chạy. Các container đang chờ restart đang ở trạng thái restart. Để chứng minh, hãy thử chạy với 1 quy trình khác trong container backoff-detector
+```
+docker exec backoff-detector echo Just a Test
+```
+- Chạy lệnh đó sẽ nhận được thông báo lỗi
+```
+Container <ID> is restarting, wait until the container is running
+```
+- Điều đó có nghĩa là bạn không thể làm bất kỳ điều gì yêu cầu container phải ở trạng thái đang chạy, chẳng hạn như thực hiện các lệnh bổ sung trong container. Điều đó có thể là vấn đề nếu bạn cần chạy chương trình chuẩn đoán trong 1 container bị hỏng. Một chiến lược an toàn hơn là sử dụng các container khởi động lightweight init system.
