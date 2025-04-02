@@ -574,3 +574,6 @@ docker exec backoff-detector echo Just a Test
 Container <ID> is restarting, wait until the container is running
 ```
 - Điều đó có nghĩa là bạn không thể làm bất kỳ điều gì yêu cầu container phải ở trạng thái đang chạy, chẳng hạn như thực hiện các lệnh bổ sung trong container. Điều đó có thể là vấn đề nếu bạn cần chạy chương trình chuẩn đoán trong 1 container bị hỏng. Một chiến lược an toàn hơn là sử dụng các container khởi động lightweight init system.
+
+### 2.5.2 Using PID 1 and init systems
+- `init system` là 1 chương trình được sử dụng để khởi chạy và duy trì trạng thái của các chương trình khác. Bất kỳ quy trình nào có PID 1 đều được xử lý như 1 quy trình init bởi Linux kernel (`Trong Linux, PID 1 là "ông tổ" của mọi process - Mọi process đều bắt nguồn từ nó`) (ngay cả khi về mặt kỹ thuật nó không phải là init system - `PID 1 có thể không phải phần mềm chuyên dụng như **systemd** hay **runit**, mà chỉ là 1 chương trình bình thường như bash, nginx - Ví dụ chạy **docker run -it ubuntu bash** thì bash trở thành PID 1, dù nó không phải init system. Nếu PID 1 dừng như gõ exit trong bash, container cũng dừng vì kernel coi nó là init`). Ngoài các chức năng quan trọng khác, init system start các process khác, khởi động lại chúng trong trường hợp chúng bị lỗi
