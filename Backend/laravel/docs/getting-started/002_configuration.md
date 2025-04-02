@@ -197,3 +197,31 @@ php artisan down --render="errors::503"
 ```
   - `errors::503` trỏ đến file `resources/views/errors/503.blade.php`
 
+## Redirecting Maintenance Mode Requests
+- Khi ở maintenance mode, mọi URL mà người dùng truy cập sẽ hiển thị trang bảo trì mặc định. Nếu muốn bạn có thể yêu cầu Laravel chuyển hướng đến 1 URL cụ thể thay vì hiển thị trang bảo trì. Dùng option `--redirect` khi chạy down
+```
+php artisan down --redirect=/
+```
+
+## Disabling Maintenance Mode
+- Để tắt chế độ bảo trì, đưa ứng dụng trở lại
+```
+php artisan up
+```
+  - Hành động này sẽ xoá file `storage/framework/down` hoặc status cache và ứng dụng sẽ hoạt động bình thường
+
+
+## Customizing Maintenance Mode Template
+- Có thể tuỳ chỉnh trang bảo trì mặc định bằng cách tạo file `resources/views/errors/503.blade.php`
+  ```
+  <!-- resources/views/errors/503.blade.php -->
+  <h1>Đang bảo trì</h1>
+  <p>Chúng tôi sẽ quay lại sớm!</p>
+  ```
+
+## Maintenance Mode and Queues
+- Khi ở chế độ bảo trì, các job trong hàng đợi (queued job) sẽ không được xử lý. Khi chạy up mới hoạt động bình thường
+
+## Alternatives to Maintenance Mode
+- Vì chế độ bảo trì gây ra downtime (thời gian app ngừng hoạt động), bạn có thể cân nhắc sử dụng nền tảng như Laravel Cloud để triển khai mà không bị gián đoạn
+
