@@ -577,3 +577,29 @@ Container <ID> is restarting, wait until the container is running
 
 ### 2.5.2 Using PID 1 and init systems
 - `init system` là 1 chương trình được sử dụng để khởi chạy và duy trì trạng thái của các chương trình khác. Bất kỳ quy trình nào có PID 1 đều được xử lý như 1 quy trình init bởi Linux kernel (`Trong Linux, PID 1 là "ông tổ" của mọi process - Mọi process đều bắt nguồn từ nó`) (ngay cả khi về mặt kỹ thuật nó không phải là init system - `PID 1 có thể không phải phần mềm chuyên dụng như **systemd** hay **runit**, mà chỉ là 1 chương trình bình thường như bash, nginx - Ví dụ chạy **docker run -it ubuntu bash** thì bash trở thành PID 1, dù nó không phải init system. Nếu PID 1 dừng như gõ exit trong bash, container cũng dừng vì kernel coi nó là init`). Ngoài các chức năng quan trọng khác, init system start các process khác, khởi động lại chúng trong trường hợp chúng bị lỗi
+- Một số hệ thống init như vậy có thể được sử dụng bên trong 1 container(`Container không bắt buộc sử dụng init system, nhưng nếu cần chạy nhiều process hoặc quản lý chúng, init system rất hữu ích`). Phổ biến nhất bao gồm runit, Yelp/dump-init, tini, supervisord và tianon/gosu. Bây giờ, hãy xem 1 container sử dụng `supervisord`.
+- Docker cung cấp 1 image chứa toàn bộ LAPP(Linux, Apache, MySQL, PHP) bên trong 1 container duy nhất. Các container được tạo theo cách này sử dụng supervisord để đảm bảo rằng tất cả các quy trình liên quan đều được tiếp tục chạy. Bắt đầu với 1 example container:
+```
+docker run -d -p 80:80 --name lamp-test tutum/lamp
+```
+- Bạn có thể xem những process nào đang chạy bên trong container này bằng cách sử dụng lệnh docker top
+```
+docker top lamp-test
+```
+- Subcommand trên cùng sẽ hiển thị PID server cho từng process trong container. Bạn sẽ thấy supervisord, mysql và apache được bao gồm trong danh sách các programs đang chạy. Bây giờ, container đang chạy, bạn có thể kiểm tra chức năng khởi động lại Supervisord bằng cách dừng thủ công 1 trong các process trong container. Vấn đề là để huỷ 1 process bên trong 1 container từ bên trong container đó, bạn cần biết PID trong namespace PID của container. Để có được danh sách đó, hãy chạy lệnh `exec` sau:
+```
+docker exec lamp-test ps
+```
+- Danh sách process được tạo sẽ liệt kê Apache2 trong cột CMD
+```
+PID TTY TIME CMD
+ 1 ? 00:00:00 supervisord
+433 ? 00:00:00 mysqld_safe
+835 ? 00:00:00 apache2
+842 ? 00:00:00 ps
+```
+- Các giá trị trong cột PID sẽ khác nhau khi bạn chạy command. Tìm PID trên hàng cho apache2 và sau đó chèn PID đó cho <PID> trong lệnh sau
+```
+docker exec lamp-test kill <PID>
+```
+- Chạy command này sẽ chạy program Linux kill bên trong container lamp-test và yêu cầu process apache2 tắt
