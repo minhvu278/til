@@ -602,4 +602,27 @@ PID TTY TIME CMD
 ```
 docker exec lamp-test kill <PID>
 ```
-- Chạy command này sẽ chạy program Linux kill bên trong container lamp-test và yêu cầu process apache2 tắt
+- Chạy command này sẽ chạy program Linux kill bên trong container lamp-test và yêu cầu process apache2 tắt. Khi apache2 dừng, supervisord process sẽ ghi lại event và khởi động lại process. Container log sẽ hiển thị rõ ràng các event sau:
+```
+...
+... exited: apache2 (exit status 0; expected)
+... spawned: 'apache2' with pid 820
+... success: apache2 entered RUNNING state, process has stayed up for >
+than 1 seconds (startsecs)
+```
+- Thay vì dùng init system phức tạp, startup script (`một script - thường là shell script chạy khi container khởi động, thực hiện các bước chuẩn bị trước khi chạy phần mềm chính`) đơn giản hơn nhưng vẫn đảm bảo phần mềm khởi động đúng. Script đảm bảo mọi thứ sẵn sàng để tránh lỗi. Các startup script này đôi khi được dùng làm lệnh mặc định của container (tự chạy khi container khởi động). Ví dụ, container WP bạn đã tạo bắt đầu bằng cách chạy 1 script để kiểm tra và đặt biến môi trường mặc định trước khi khởi động WP. Bạn có thể xem script này bằng cách ghi đè lệnh mặc định để hiển thị nội dung của startup script
+```
+docker run wordpress:5.0.0-php7.2-apache \
+cat /usr/local/bin/docker-entrypoint.sh
+```
+- Các container Docker chạy 1 thứ gọi là `entrypoint` trước khi thực hiện lệnh. Entrypoints là nơi hoàn hảo để đặt validate các điều kiện tiên quyết của 1 container. Mặc dù vấn đề này được thảo luận sâu hơn trong phần 2 của cuốn sách này, bạn cần biết cách ghi đè hoặc thiết lập cụ thể điểm vào của từng container trong commandline.
+- Hãy thử chạy lại last command, nhưng lần này sử dụng flag `--entrypoint` để chỉ định chương trình chạy và sử dụng phần command để truyền đối số
+```
+docker run --entrypoint="cat" \
+ wordpress:5.0.0-php7.2-apache \
+ /usr/local/bin/docker-entrypoint.sh
+```
+- Nếu bạn chạy qua script được hiển thị, bạn sẽ thấy cách nó validate biến môi trường dựa trên các dependency của phần mềm và đặt các giá trị default. Sau khi script validate bằng WP có thể thực thi, nó sẽ bắt đầu lệnh được yêu cầu hoặc default command
+- Các startup script là 1 phần quan trọng trong việc xây dựng các container bền vững và luôn có thể được kết hợp với các chính sách Docker restart để tận dụng thế mạnh của từng chính sách. Vì cả container MySQL và WP đều sử dụng startup script nên chỉ cần đặt chính sách restart lại cho từng container trong phiên bản cập nhật của example script
+- Chạy các startup script dưới dạng PID 1 sẽ gặp vấn đề khi script không đáp ứng được kỳ vọng mà Linux dành cho các init system. Tuỳ thuộc vào trường hợp sử dụng của bạn, bạn có thể thấy rằng 1 cách tiếp cận hoặc 1 phương pháp kết hợp hoạt động tốt nhất.
+- Với sự thay đổi cuối cùng đó, bạn đã xây dựng được 1 hệ thống cung cấp trang web WP hoàn chỉnh và học được những điều cơ bản về quản lý container với Docker. Cần phải thử nhiều hơn. Máy tính của bạn có thể chứa nhiều contianer mà bạn không còn cần đến nữa. Để lấy lại resource mà các container đó đang sử dụng, bạn cần dừng chúng và xoá chúng khỏi hệ thống của mình
