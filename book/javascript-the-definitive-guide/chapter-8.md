@@ -315,3 +315,79 @@
     - Khi bạn lặp qua các phần tử của một object lặp lại, có một số lời gọi method xảy ra. Chương 12 giải thích cách thức hoạt động của các trình vòng lặp ở cấp độ gọi hàm và trình bày cách viết các method này để bạn có thể định nghĩa các loại lặp lại của riêng mình
     - Một literal template được gắn thẻ là 1 cách gọi hàm trá hình. 14.5 trình bày cách viết hàm có thể được sử dụng cùng với các chuỗi literal template
     - Các object Proxy (mô tả trong 14.7) có hành vi được kiểm soát hoàn toàn bởi các hàm. Hầu như bất kỳ thao tác nào trên một trong các object này sẽ khiến 1 hàm được gọi
+
+# **8.3 Đối số và Tham số Hàm (Function Arguments and Parameters)**
+
+- Định nghĩa hàm Js không chỉ định nghĩa kiểu dự kiến cho các tham số hàm và việc gọi hàm không thực hiện kiểm tra bất kỳ kiểu nào trên các giá trị đối số bạn truyền. Trên thực tế, việc gọi hàm Js thậm chí không kiểm tra số lượng đối số được truyền. Các tiểu mục sau đây mô tả điều gì xảy ra khi một hàm được gọi với ít đối số hơn các tham số đã khai báo hoặc với nhiều đối số hơn các ham số đã khai báo. Chúng cũng trình bày cách bạn có thể kiểm tra rõ ràng kiểu của các đối số hàm nếu bạn cần đảm bảo rằng một hàm không được gọi với các đối số không phù hợp
+
+### 8.3.1 **Tham số Tùy chọn và Giá trị Mặc định (Optional Parameters and Defaults)**
+
+- Khi một hàm được gọi với ít đối số hơn các tham số đã khai báo, các tham số bổ sung được đặt thành giá trị mặc định của chúng, thường là `undefined`. Thông thường sẽ hữu ích khi viết các hàm sao cho một số đối số là tuỳ chọn. Sau đây là một ví dụ
+    
+    ```jsx
+    // Nối tên của các thuộc tính liệt kê được của đối tượng o vào mảng a và trả về a.
+    // Nếu a bị bỏ qua, hãy tạo và trả về một mảng mới.
+    function getPropertyNames(o, a) {
+      if (a === undefined) a = []; // Nếu không xác định, hãy sử dụng một mảng mới
+      for(let property in o) a.push(property);
+      return a;
+    }
+    
+    // getPropertyNames() có thể được gọi với một hoặc hai đối số:
+    let o = {x: 1}, p = {y: 2, z: 3}; // Hai đối tượng để kiểm tra
+    let a = getPropertyNames(o); // a == ["x"]; lấy các thuộc tính của o trong một mảng mới
+    getPropertyNames(p, a); // a == ["x","y","z"]; thêm các thuộc tính của p vào nó
+    ```
+    
+- Thay vì sử dụng câu lệnh `if` trong dòng đầu tiên của hàm này, bạn có thể sử dụng toán tử `||` theo cách diễn đạt này
+    
+    ```jsx
+    a = a || [];
+    ```
+    
+- Nhớ lại từ 4.10.2 rằng toán tử `||` trả về đối số đầu tiên của nó nếu đối số đó là đúng và ngược lại trả về đối số thứ 2 của nó. Trong trường hợp này, nếu bất kỳ object nào được truyền dưới dạng đối số thứ 2, hàm sẽ sử dụng object đó. Nhưng nếu object thứ 2 bị bỏ qua (hoặc null hoặc giá trị sai khác được truyền), một mảng trống mới sẽ được sử dụng thay thế
+- Lưu ý rằng khi thiết kế các hàm có đối số tuỳ chọn, bạn nên đảm bảo đặt các đối số tuỳ chọn ở cuối danh sách đối số để chúng có thể bị bỏ qua. Lập trình viên gọi hàm của bạn không thể bỏ qua đối số đầu tiền và truyền đối số thứ 2: họ sẽ phải truyền rõ ràng `undefined` làm đối số đầu tiên
+- Trong ES6 trở lên, bạn có thể định nghĩa giá trị mặc định cho mỗi tham số hàm của mình trực tiếp trong danh sách tham số của hàm. Chỉ cần theo sau tên tham số bằng dấu bằng và giá trị mặc định để sử dụng khi không co đối sô nào được cung cấp cho tham số đó
+    
+    ```jsx
+    // Nối tên của các thuộc tính liệt kê được của đối tượng o vào mảng a và trả về a.
+    // Nếu a bị bỏ qua, hãy tạo và trả về một mảng mới.
+    function getPropertyNames(o, a = []) {
+      for(let property in o) a.push(property);
+      return a;
+    }
+    ```
+    
+- Các biểu thức mặc định của tham số được đánh giá khi hàm của bạn được gọi, không phải là khi nó được định nghĩa, vì vậy mỗi khi hàm `getPropertyNames()` này được gọi với một đối số, một mảng trống mới được tạo và được truyền. Có lẽ dễ dàng nhất để lý luận về các hàm nếu giá trị mặc định của tham số là hằng số (hoặc biểu thức literal như `[]` và `{}`). Nhưng điều này không bắt buộc: bạn co thể sử dụng các biến hoặc lời gọi hàm, ví dụ: để tính toán giá trị mặc định của một tham số. Một trường hợp thú vị là đối với các hàm có nhiều tham số, bạn có thể sử dụng giá trị của một tham số trước đó để định nghĩa giá trị mặc định của các tham số theo sau nó
+    
+    ```jsx
+    // Hàm này trả về một đối tượng biểu thị kích thước của hình chữ nhật.
+    // Nếu chỉ cung cấp chiều rộng, hãy làm cho nó cao gấp đôi chiều rộng.
+    const rectangle = (width, height=width*2) => ({width, height});
+    rectangle(1) // => { width: 1, height: 2 }
+    ```
+    
+- Code này chứng minh rằng các giá trị mặc định của tham số hoạt động với các arrow function. Điều này cũng đúng với các hàm viết tắt method và tất cả các dạng định nghĩa hàm khác
+
+### **8.3.2 Tham số Phần còn lại và Danh sách Đối số có Độ dài Thay đổi (Rest Parameters and Variable-Length Argument Lists)**
+
+- Các giá trị mặc định của tham số cho phép chúng ta viết các hàm có thể được gọi với ít đối số hơn các tham số. Tham số phần còn lại cho phép trường hợp ngược lại: chúng cho phép chúng ta viết các hàm có thể được gọi với nhiều đối số hơn các tham số một cách tuỳ ý. Dưới đây là một hàm ví dụ mong đợi một hoặc nhiều đối số và trả về số lớn nhất
+    
+    ```jsx
+    function max(first=-Infinity, ...rest) {
+      let maxValue = first; // Bắt đầu bằng cách giả sử đối số đầu tiên là lớn nhất
+      // Sau đó lặp qua phần còn lại của các đối số, tìm kiếm số lớn hơn
+      for(let n of rest) {
+        if (n > maxValue) {
+          maxValue = n;
+        }
+      }
+      // Trả về số lớn nhất
+      return maxValue;
+    }
+    max(1, 10, 100, 2, 3, 1000, 4, 5, 6) // => 1000
+    ```
+    
+- Một tham số phần còn lại được đặt trước bởi ba dấu chấm và nó phải là tham số cuối cùng trong khai báo hàm. Khi bạn gọi một hàm với tham số phần còn lại, các đối số bạn truyền trước tiên được gán cho các tham số không phải phần còn lại, và sau đó bất kỳ đối số nào còn lại. (tức là “phần còn lại” của các đối số) được lưu trữ trong một mảng trở thành giá trị của tham số còn lại. Điểm cuối cùng này rất quan trọng: trong phần thân của một hàm, giá trị của tham số phần còn lại sẽ luôn là một mảng. Mảng có thể trống, nhưng tham số phần còn lại sẽ không bao giờ là `undefined`. (Điều này có dẫn đến việc không bao giờ hữu ích - và không hợp lệ - khi định nghĩa giá trị mặc định của tham số cho tham số phần còn lại)
+- Các hàm như ví dụ trước có thể chấp nhận bất kỳ số lượng đối số nào được gọi là hàm biến thiên, hàm arity biến đổi hoặc hàm vararg. Cuốn sách này sử dụng thuật ngữ thông tục nhất, varargs, có từ thời kỳ đầu của ngôn ngữ lập trình C
+- Đừng nhầm lẫn `...` định nghĩa tham số phần còn lại trong định nghĩa hàm với toán tử spread `...` được mô tả trong 8.3.4, có thể được sử dụng trong các lời gọi hàm
